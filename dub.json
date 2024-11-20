@@ -1,0 +1,36 @@
+{
+	"authors": [
+		"Adrian Preuß"
+	],
+	"copyright": "Copyright © 2024, Adrian Preuß",
+	"dependencies": {
+
+	},
+	"license": "proprietary",
+	"name": "coldbite",
+	"buildOptions": ["debugMode", "debugInfo", "optimize"],
+	"sourcePaths": ["source"],
+	"versions": ["WINDOWS"],
+	"mainSourceFile": "source/main.d",
+	"targetType": "executable",
+	"targetName": "Game",
+	"targetPath": "build/",
+	"configurations": [
+		{
+			"name": "32bit",
+			"platforms": ["windows"],
+			"versions": ["WIN_32"],
+			"dflags": ["-m32"],
+			"libs": ["user32", "gdi32"],
+			"targetPath": "build/x86"
+		},
+		{
+			"name": "64bit",
+			"platforms": ["windows"],
+			"versions": ["WIN_64"],
+			"dflags": ["-64"],
+			"libs": ["user32", "gdi32"],
+			"targetPath": "build/x64"
+		}
+	]
+}
