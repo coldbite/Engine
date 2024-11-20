@@ -7,8 +7,9 @@
 	"dependencies": {
 
 	},
-	"license": "proprietary",
+	"license": "MIT",
 	"name": "coldbite",
+	"version": "1.0.0",
 	"buildOptions": ["debugMode", "debugInfo", "optimize"],
 	"sourcePaths": ["source"],
 	"versions": ["WINDOWS"],
