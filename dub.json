@@ -2,7 +2,8 @@
 	"authors": [
 		"Adrian Preuß"
 	],
-	"copyright": "Copyright © 2024, Adrian Preuß",
+	"copyright": "coldbite Engine | Copyright © 2024. All Rights Reserved.",
+	"description": "Game-Engine in **D** language with `Vulkan`, `OpenGL` and `DirectX` (9, 10, 11, 12) support.",
 	"dependencies": {
 
 	},
