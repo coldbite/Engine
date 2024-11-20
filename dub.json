@@ -9,7 +9,6 @@
 	},
 	"license": "MIT",
 	"name": "coldbite",
-	"version": "v1.0.0",
 	"buildOptions": ["debugMode", "debugInfo", "optimize"],
 	"sourcePaths": ["source"],
 	"versions": ["WINDOWS"],
