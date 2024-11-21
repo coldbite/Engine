@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run32" type="DlangRunAppConfigType" factoryName="DlangRunAppConfigType" show_console_on_std_err="false" show_console_on_std_out="false">
+  <configuration default="false" name="Run" type="DlangRunAppConfigType" factoryName="DlangRunAppConfigType" show_console_on_std_err="false" show_console_on_std_out="false">
     <module name="Game" />
     <option name="additionalParams" value="" />
     <option name="allowRunningInParallel" value="false" />
@@ -12,7 +12,7 @@
     </option>
     <option name="workDir" value="$PROJECT_DIR$" />
     <method v="2">
-      <option name="RunConfigurationTask" enabled="false" run_configuration_name="Compile with DMD" run_configuration_type="DlangRunDmdConfigType" />
+      <option name="RunConfigurationTask" enabled="false" run_configuration_name="Compile" run_configuration_type="DlangRunDmdConfigType" />
     </method>
   </configuration>
 </component>
