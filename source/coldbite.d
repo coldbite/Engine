@@ -12,6 +12,6 @@
  * @updated N/A
  */
 
-module Game;
+module coldbite;
 
-public import Game.Client;
+public import Engine;

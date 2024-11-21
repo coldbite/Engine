@@ -3,7 +3,7 @@
 		"Adrian Preuß"
 	],
 	"copyright": "coldbite Engine | Copyright © 2024. All Rights Reserved.",
-	"description": "Game-Engine in **D** language with `Vulkan`, `OpenGL` and `DirectX` (9, 10, 11, 12) support.",
+	"description": "Game-Engine in D language with Vulkan, OpenGL and DirectX (9, 10, 11, 12) support.",
 	"dependencies": {
 
 	},
@@ -12,26 +12,22 @@
 	"buildOptions": ["debugMode", "debugInfo", "optimize"],
 	"sourcePaths": ["source"],
 	"versions": ["WINDOWS"],
-	"mainSourceFile": "source/main.d",
-	"targetType": "executable",
-	"targetName": "Game",
-	"targetPath": "build/",
+	"targetType": "sourceLibrary",
+	"targetName": "coldbite",
 	"configurations": [
 		{
 			"name": "32bit",
 			"platforms": ["windows"],
 			"versions": ["WIN_32"],
 			"dflags": ["-m32"],
-			"libs": ["user32", "gdi32"],
-			"targetPath": "build/x86"
+			"libs": ["user32", "gdi32"]
 		},
 		{
 			"name": "64bit",
 			"platforms": ["windows"],
 			"versions": ["WIN_64"],
 			"dflags": ["-64"],
-			"libs": ["user32", "gdi32"],
-			"targetPath": "build/x64"
+			"libs": ["user32", "gdi32"]
 		}
 	]
 }
