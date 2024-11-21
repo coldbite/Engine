@@ -1,0 +1,34 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Example" type="DlangRunDubConfigType" factoryName="DlangRunDubConfigType" show_console_on_std_err="false" show_console_on_std_out="false">
+    <module name="Game" />
+    <option name="additionalParams" value="" />
+    <option name="allowRunningInParallel" value="false" />
+    <option name="buildMode" value="1" />
+    <option name="cbCombined" value="false" />
+    <option name="cbCoverage" value="false" />
+    <option name="cbForce" value="false" />
+    <option name="cbForceRemove" value="false" />
+    <option name="cbNoDeps" value="false" />
+    <option name="cbParallel" value="false" />
+    <option name="cbRdmd" value="false" />
+    <option name="cbTempBuild" value="false" />
+    <option name="envVars">
+      <map />
+    </option>
+    <option name="generalDubOptions" value="1" />
+    <option name="projectPathOnTarget" />
+    <option name="quiet" value="false" />
+    <option name="selectedOptions">
+      <list />
+    </option>
+    <option name="tfArch" value="x86" />
+    <option name="tfBuild" value="" />
+    <option name="tfCompiler" value="" />
+    <option name="tfConfig" value="" />
+    <option name="tfDebug" value="" />
+    <option name="tfMainFile" value="" />
+    <option name="verbose" value="false" />
+    <option name="workingDir" value="$PROJECT_DIR$/../Example" />
+    <method v="2" />
+  </configuration>
+</component>
