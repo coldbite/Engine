@@ -17,6 +17,9 @@ Open the cloned directory with `Jetbrains IntelliJ IDEA` ([Version `2024.2`!](ht
 ### with `D`
 > dub add coldbite
 
+# Documentation
+[![DOCUMENTATION]](https://github.com/coldbite/Engine/wiki)
+
 # Usage
 ### Add the engine to your project & create an basic Example:
 ```d
@@ -61,3 +64,5 @@ void main() {
 	game.initialize();
 }
 ```
+
+[DOCUMENTATION]: https://img.shields.io/badge/Documentation-%24?style=for-the-badge&logo=github&color=%230d1117
