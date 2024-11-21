@@ -2,32 +2,61 @@
 	"authors": [
 		"Adrian Preuß"
 	],
+	"buildOptions": [
+		"debugMode",
+		"debugInfo",
+		"optimize"
+	],
+	"configurations": [
+		{
+			"libs": [
+				"user32",
+				"gdi32",
+				"opengl32"
+			],
+			"name": "32bit",
+			"platforms": [
+				"windows"
+			],
+			"targetType": "sourceLibrary",
+			"versions": [
+				"WIN_32"
+			]
+		},
+		{
+			"libs": [
+				"user32",
+				"gdi32",
+				"opengl32"
+			],
+			"name": "64bit",
+			"platforms": [
+				"windows"
+			],
+			"targetType": "sourceLibrary",
+			"versions": [
+				"WIN_64"
+			]
+		}
+	],
 	"copyright": "coldbite Engine | Copyright © 2024. All Rights Reserved.",
-	"description": "Game-Engine in D language with Vulkan, OpenGL and DirectX (9, 10, 11, 12) support.",
 	"dependencies": {
 
 	},
+	"description": "Game-Engine in D language with Vulkan, OpenGL and DirectX (9, 10, 11, 12) support.",
+	"libs": [
+		"user32",
+		"gdi32",
+		"opengl32"
+	],
 	"license": "MIT",
 	"name": "coldbite",
-	"buildOptions": ["debugMode", "debugInfo", "optimize"],
-	"sourcePaths": ["source"],
-	"versions": ["WINDOWS"],
-	"targetType": "sourceLibrary",
+	"sourcePaths": [
+		"source"
+	],
 	"targetName": "coldbite",
-	"configurations": [
-		{
-			"name": "32bit",
-			"platforms": ["windows"],
-			"versions": ["WIN_32"],
-			"dflags": ["-m32"],
-			"libs": ["user32", "gdi32"]
-		},
-		{
-			"name": "64bit",
-			"platforms": ["windows"],
-			"versions": ["WIN_64"],
-			"dflags": ["-64"],
-			"libs": ["user32", "gdi32"]
-		}
+	"targetType": "sourceLibrary",
+	"versions": [
+		"WINDOWS"
 	]
 }

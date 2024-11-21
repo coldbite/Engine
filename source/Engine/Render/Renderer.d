@@ -15,7 +15,9 @@
 module Engine.Render.Renderer;
 
 import Engine;
+import core.thread;
 import std.stdio;
+import core.sys.windows.windows;
 
 enum RendererType {
     Vulkan,
@@ -32,6 +34,6 @@ class Renderer {
         writeln("Shutdown Renderer");
     }
 
-    abstract void initialize();
+    abstract void initialize(HWND hWnd);
     abstract void rendering();
 }

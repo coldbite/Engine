@@ -18,7 +18,7 @@ import Engine;
 import std.stdio;
 
 class API : Renderer {
-    override void initialize() {
+    override void initialize(HWND hWnd) {
         writeln("[Vulkan] initialize");
     }
 

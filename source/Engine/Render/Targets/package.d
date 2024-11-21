@@ -14,6 +14,7 @@
 
 module Engine.Render.Targets;
 
+public import core.sys.windows.windows;
 public import Engine.Render.Targets.OpenGL : OpenGL = API;
 public import Engine.Render.Targets.DirectX : DirectX = API;
 public import Engine.Render.Targets.Vulkan : Vulkan = API;

@@ -34,7 +34,6 @@ abstract class BaseGame {
     public void setRenderer(RendererType type) {
         switch (type) {
             case RendererType.Vulkan:
-                import Engine.Render.Targets.Vulkan;
                 renderer = new Vulkan();
                 break;
             case RendererType.OpenGL:
@@ -46,8 +45,6 @@ abstract class BaseGame {
             default:
             break;
         }
-
-        renderer.initialize();
     }
 
     public void setTitle(string title) {
@@ -73,7 +70,17 @@ abstract class BaseGame {
     }
 
     private void internalRun() {
+        bool inited = false;
         while(window.isActive()) {
+            if(!inited) {
+                HWND hWnd = window.getContext();
+
+                if(hWnd !is null) {
+                    inited = true;
+                    renderer.initialize(hWnd);
+                }
+            }
+
             running();              // @ToDo < Client calc process
             rendering();            // @ToDo < Client render process
             renderer.rendering();// @ToDo < Renderer

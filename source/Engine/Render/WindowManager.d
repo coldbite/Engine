@@ -131,6 +131,10 @@ class WindowManager : Thread {
         }
     }
 
+    public HWND getContext() {
+        return hwnd;
+    }
+
     private void run() {
         HINSTANCE hInstance = GetModuleHandleA(null);
         wc.lpfnWndProc      = &WindowProc;
@@ -140,15 +144,15 @@ class WindowManager : Thread {
         wc.hIcon            = LoadIcon(cast(HINSTANCE) null, IDI_APPLICATION);
         wc.hbrBackground    = null;
 
-        if(!RegisterClassA(&wc)) {
+        if (!RegisterClassA(&wc)) {
             // @ToDo Error?
             writeln("Failed to register window class. Error code: ", GetLastError());
             return;
         }
 
-        hwnd = CreateWindowExA(0,  "Window".ptr, title.ptr, style, x, y, width, height, null, null, hInstance, null);
+        hwnd = CreateWindowExA(0, "Window".ptr, title.ptr, style, x, y, width, height, null, null, hInstance, null);
 
-        if(hwnd is null) {
+        if (hwnd is null) {
             MessageBoxA(null, "Failed to create window", "Error", MB_ICONERROR);
             return;
         }
@@ -176,7 +180,7 @@ class WindowManager : Thread {
                 running = false;
                 break;
             } else {
-                writeln("Message received: ", msg.message, " wParam: ", msg.wParam, " lParam: ", msg.lParam);
+                //writeln("Message received: ", msg.message, " wParam: ", msg.wParam, " lParam: ", msg.lParam);
             }
         }
 
