@@ -23,14 +23,28 @@ file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
     "Game/Game.conf"
    # "Game/*/.gitkeep"
 )
-
 # Create Engine library
 add_library(Engine STATIC ${ENGINE_SOURCES})
 target_include_directories(Engine PUBLIC Engine/Core)
 
+# Depencies
+set(FREETYPE_DIR "${CMAKE_SOURCE_DIR}/Depencies/FreeType")
+target_include_directories(Engine PRIVATE ${FREETYPE_DIR}/include)
+
+find_library(FREETYPE_LIBRARY
+    NAMES freetype
+    HINTS ${FREETYPE_DIR}/lib
+)
+
+if(FREETYPE_LIBRARY)
+    target_link_libraries(Engine PRIVATE ${FREETYPE_LIBRARY})
+else()
+    message(FATAL_ERROR "[Error] Can't find FreeType in /Depencies/")
+endif()
+
 # Game executable
 add_executable(Masterball ${GAME_SOURCES})
-target_link_libraries(Masterball Engine)
+target_link_libraries(Masterball PRIVATE Engine)
 
 # Always copy Game.conf to build directory
 add_custom_target(copy_config ALL
@@ -46,15 +60,15 @@ add_dependencies(Masterball copy_config)
 
 # Enable threading support
 find_package(Threads REQUIRED)
-target_link_libraries(Engine Threads::Threads)
+target_link_libraries(Engine PRIVATE Threads::Threads)
 
 # OpenGL support for NativeWindow
 find_package(OpenGL REQUIRED)
-target_link_libraries(Engine ${OPENGL_LIBRARIES})
+target_link_libraries(Engine PRIVATE ${OPENGL_LIBRARIES})
 
 # Windows-specific libraries for window management
 if(WIN32)
-    target_link_libraries(Engine gdi32 user32 kernel32)
+    target_link_libraries(Engine PRIVATE gdi32 user32 kernel32)
 endif()
 
 # Compiler specific settings

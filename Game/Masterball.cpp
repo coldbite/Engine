@@ -91,6 +91,10 @@ void Masterball::OnInit() {
     loading = std::make_shared<Loading>();
     playing = std::make_shared<Playing>();
 
+    // Configure loading view
+    loading->SetMapName("Waterworld");
+    loading->SetGameMode("Singleplayer");
+
     // Register views with ViewManager
     GetViewManager().RegisterView("Loading", loading);
     GetViewManager().RegisterView("Playing", playing);
@@ -100,14 +104,14 @@ void Masterball::OnInit() {
 
     // Set up loading progress callback
     map.OnLoading([this](const std::string& message, int actual, int total, float percentage) {
-        if (loading) {
+        if(loading) {
             loading->UpdateProgress(message, actual, total, percentage);
         }
     });
 
     // Set up loaded callback
     map.OnLoaded([this]() {
-        if (playing) {
+        if(playing) {
             playing->ShowNotification("Map loaded successfully!");
         }
         // Transition to Playing UI

@@ -43,7 +43,7 @@ void Playing::ShowNotification(const std::string& message) {
 
 
 void Playing::Render() {
-    std::cout << "[Playing] Rendering" << std::endl;
+
 }
 
 void Playing::DisplayHUD() {

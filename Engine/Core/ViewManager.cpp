@@ -1,4 +1,5 @@
 #include "ViewManager.h"
+#include "../Graphics/OpenGL/OpenGL.h"
 #include <iostream>
 #include <algorithm>
 
@@ -123,14 +124,18 @@ namespace Engine {
         // Make the window's rendering context current
         renderWindow->MakeContextCurrent();
 
-        // Clear the screen (basic rendering setup)
-        // This would normally be done by the rendering API (OpenGL/DirectX/Vulkan)
-        // For now, just ensure the context is ready
+        // Use OpenGL wrapper for proper screen clearing
+        Graphics::OpenGL::OpenGL::Clear(1.0f, 0.0f, 0.0f, 1.0f);
 
         // Render all active views
         for(auto& [name, view] : views) {
             if(view && view->IsActive() && view->IsVisible()) {
-                view->PrepareForRendering();
+                std::cout << "[ViewManager] Rendering view: " << name << std::endl;
+                view->Render();
+            } else {
+                std::cout << "[ViewManager] Skipping view: " << name 
+                         << " (Active: " << (view ? view->IsActive() : false) 
+                         << ", Visible: " << (view ? view->IsVisible() : false) << ")" << std::endl;
             }
         }
 

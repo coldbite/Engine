@@ -1,4 +1,5 @@
 #include "NativeWindow.h"
+#include "../Graphics/OpenGL/OpenGL.h"
 #include <iostream>
 #include <unordered_map>
 
@@ -160,15 +161,11 @@ namespace Engine {
             return false;
         }
 
+        std::cout << "[NativeWindow] Setting up rendering context for: " << api << std::endl;
+
 #ifdef _WIN32
         if(api == "OpenGL") {
-            // @ToDo Init auslagern!
-            //    /Engine/Graphics/OpenGL/OpenGL.cpp
-            // Und hier einfach
-            //      OpenGL::Init(nativeWindow);
-            // nutzen!
-
-            // Basic OpenGL context setup
+            // Basic OpenGL context setup (low-level)
             PIXELFORMATDESCRIPTOR pfd = {};
             pfd.nSize           = sizeof(PIXELFORMATDESCRIPTOR);
             pfd.nVersion        = 1;
@@ -193,11 +190,18 @@ namespace Engine {
             }
 
             std::cout << "[NativeWindow] OpenGL context created successfully" << std::endl;
-            return true;
+            
+            // Now initialize our OpenGL wrapper
+            auto self = std::make_shared<NativeWindow>(*this);
+            return Graphics::OpenGL::OpenGL::Init(self);
         }
 #elif defined(__CYGWIN__)
         // Mock rendering context for Cygwin
         std::cout << "[NativeWindow] Mock rendering context setup for: " << api << std::endl;
+        if(api == "OpenGL") {
+            auto self = std::make_shared<NativeWindow>(*this);
+            return Graphics::OpenGL::OpenGL::Init(self);
+        }
         return true;
 #endif
 

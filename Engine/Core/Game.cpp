@@ -164,6 +164,20 @@ namespace Engine {
             }
         );
 
+        SubscribeToEvent<RenderEvent>(
+            [this, &renderManager = this->renderManager, &viewManager = this->viewManager](const IEvent& event) {
+                renderManager->OnRenderEvent(event);
+                viewManager->RenderViews();
+            }
+        );
+
+        SubscribeToEvent<UpdateEvent>(
+            [this, &viewManager = this->viewManager](const IEvent& event) {
+                const UpdateEvent& updateEvent = static_cast<const UpdateEvent&>(event);
+                viewManager->UpdateViews(updateEvent.GetDeltaTime());
+            }
+        );
+
         SubscribeToEvent<ShutdownEvent>(
             [this, &renderManager = this->renderManager, &viewManager = this->viewManager](const IEvent& event) {
                 renderManager->OnShutdownEvent(event);

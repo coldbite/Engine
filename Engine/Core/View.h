@@ -18,6 +18,9 @@ namespace Engine {
         virtual void OnHide() {}
         virtual void OnUpdate(float /*deltaTime*/) {}
 
+        // Rendering
+        virtual void Render() {}
+
         // Override from Renderable
         void PrepareForRendering() override;
 
@@ -27,8 +30,6 @@ namespace Engine {
         // Helper for subclasses
         virtual void UpdateInternal(float /*deltaTime*/) {}
         virtual void RenderInternal() {}
-
-        virtual void Render() {}
     };
 
     using ViewPtr = std::shared_ptr<View>;
