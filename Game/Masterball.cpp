@@ -10,7 +10,7 @@ void Masterball::OnInit() {
     /* Load Configuration */
     Config::Load("Game.conf");
 
-    if(GetOption<MB, bool>(MB::DEBUG, false)) {
+    if(GetOption<MB, bool>(MB::DEBUGGING, false)) {
         std::cout << "[Masterball] Debug ON" << std::endl;
     } else {
         std::cout << "[Masterball] Debug OFF" << std::endl;

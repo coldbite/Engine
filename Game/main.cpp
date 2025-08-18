@@ -1,11 +1,11 @@
 #include "Masterball.h"
-#include "../Engine/Core/CL/Parser.h"
+#include "../Engine/Core/CommandLine/Parser.h"
 #include <iostream>
 
 int main(int argc, char* argv[]) {
     Masterball game;
-    Engine::CL::Parser parser;
-    
+    Engine::CommandLine::Parser parser;
+
     /* Register Arguments */
     parser.AddArgument("connect",   "c");
     parser.AddArgument("server",    "s");
@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
         }
 
         if(parser.HasArgument("debug")) {
-            game.SetOption<MB, bool>(MB::DEBUG, true);
+            game.SetOption<MB, bool>(MB::DEBUGGING, true);
         }
 
         if(parser.HasArgument("server")) {
@@ -41,6 +41,6 @@ int main(int argc, char* argv[]) {
 
     /* Run */
     game.Run();
-    
+
     return 0;
 }
