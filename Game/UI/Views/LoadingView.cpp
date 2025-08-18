@@ -34,15 +34,43 @@ void LoadingView::UpdateProgress(const std::string& message, int actual, int tot
     totalSteps = total;
     progressPercentage = percentage;
     
+    // Only display progress when it's actually updated from the loading thread
+    // Not during regular rendering
     if (IsActive()) {
         DisplayProgress();
     }
 }
 
 void LoadingView::RenderInternal() {
-    // This is where actual rendering would happen (OpenGL/Vulkan/DirectX)
-    // For now, just ensure our display is current
-    DisplayProgress();
+    // Common rendering logic that applies to all APIs
+    // Don't call DisplayProgress here as it's called from UpdateProgress
+}
+
+void LoadingView::RenderOpenGL() {
+    // OpenGL-specific rendering for loading screen
+    // TODO: OpenGL calls for loading screen UI
+    // - Clear screen
+    // - Draw progress bar geometry
+    // - Render text
+    // (Silent rendering - no debug output)
+}
+
+void LoadingView::RenderDirectX() {
+    // DirectX-specific rendering for loading screen
+    std::cout << "[LoadingView] Rendering with DirectX" << std::endl;
+    // TODO: DirectX calls for loading screen UI
+    // - Clear render target
+    // - Draw progress bar with DirectX primitives
+    // - Render text with DirectWrite
+}
+
+void LoadingView::RenderVulkan() {
+    // Vulkan-specific rendering for loading screen
+    std::cout << "[LoadingView] Rendering with Vulkan" << std::endl;
+    // TODO: Vulkan calls for loading screen UI
+    // - Begin render pass
+    // - Draw progress bar with Vulkan commands
+    // - Render text
 }
 
 void LoadingView::DisplayProgress() {

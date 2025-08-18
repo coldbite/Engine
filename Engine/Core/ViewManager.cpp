@@ -107,4 +107,33 @@ namespace Engine {
                       << newView << "'" << std::endl;
         }
     }
+
+    void ViewManager::RenderViews() {
+        if (!renderWindow || !renderWindow->IsValid()) {
+            return;
+        }
+
+        // Make the window's rendering context current
+        renderWindow->MakeContextCurrent();
+
+        // Clear the screen (basic rendering setup)
+        // This would normally be done by the rendering API (OpenGL/DirectX/Vulkan)
+        // For now, just ensure the context is ready
+
+        // Render all active views
+        for (auto& [name, view] : views) {
+            if (view && view->IsActive() && view->IsVisible()) {
+                view->PrepareForRendering();
+            }
+        }
+
+        // Present the frame
+        renderWindow->SwapBuffers();
+    }
+
+    void ViewManager::SetRenderTarget(std::shared_ptr<NativeWindow> window) {
+        renderWindow = window;
+        std::cout << "[ViewManager] Render target set to window: " 
+                  << (window ? window->GetTitle() : "nullptr") << std::endl;
+    }
 }

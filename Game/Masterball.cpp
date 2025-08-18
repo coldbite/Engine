@@ -8,6 +8,9 @@ void Masterball::OnInit() {
     /* Bind Options */
     AddOptions<MB>();
 
+    /* Some Engine Settings */
+    SetOption<EngineOption, std::string>(EngineOption::GAME_TITLE, "Masterball (Beta)");
+
     /* Load Configuration */
     if(GetOption<MB, std::string>(MB::TYPE, "CLIENT") == "SERVER") {
         std::cout << "[Masterball] Starting dedicated Server" << std::endl;
@@ -51,16 +54,28 @@ void Masterball::OnInit() {
 
         /* Set Screen-Mode */
         if(Config::Has("Render.FullscreenMode")) {
-            SetOption<EngineOption, int>(EngineOption::RESOLUTION_MODE, Config::GetInt("Render.FullscreenMode", 0));
+            int fullscreenMode = Config::GetInt("Render.FullscreenMode", 0);
+            std::cout << "[Masterball] Config FullscreenMode: " << fullscreenMode << std::endl;
+            SetOption<EngineOption, int>(EngineOption::RESOLUTION_MODE, fullscreenMode);
+        } else {
+            std::cout << "[Masterball] Config FullscreenMode not found!" << std::endl;
         }
 
         /* Set Display Specs */
         if(Config::Has("Render.Resolution.Width")) {
-            SetOption<EngineOption, int>(EngineOption::RESOLUTION_WIDTH, Config::GetInt("Render.Resolution.Width", 768));
+            int width = Config::GetInt("Render.Resolution.Width", 768);
+            std::cout << "[Masterball] Config Resolution Width: " << width << std::endl;
+            SetOption<EngineOption, int>(EngineOption::RESOLUTION_WIDTH, width);
+        } else {
+            std::cout << "[Masterball] Config Resolution.Width not found!" << std::endl;
         }
 
         if(Config::Has("Render.Resolution.Height")) {
-            SetOption<EngineOption, int>(EngineOption::RESOLUTION_HEIGHT, Config::GetInt("Render.Resolution.Height", 1024));
+            int height = Config::GetInt("Render.Resolution.Height", 1024);
+            std::cout << "[Masterball] Config Resolution Height: " << height << std::endl;
+            SetOption<EngineOption, int>(EngineOption::RESOLUTION_HEIGHT, height);
+        } else {
+            std::cout << "[Masterball] Config Resolution.Height not found!" << std::endl;
         }
 
         if(Config::Has("Render.Resolution.Hertz")) {

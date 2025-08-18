@@ -27,6 +27,9 @@ namespace Engine {
     void UIView::PrepareForRendering() {
         if (isActive && IsVisible()) {
             RenderInternal();
+            // Only render with the active API, not all APIs
+            // For now, default to OpenGL until proper API detection is implemented
+            RenderOpenGL();
         }
     }
 }

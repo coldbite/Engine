@@ -18,6 +18,9 @@ public:
     
 protected:
     void RenderInternal() override;
+    void RenderOpenGL() override;
+    void RenderDirectX() override;
+    void RenderVulkan() override;
     
 private:
     std::string hudInfo;

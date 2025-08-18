@@ -14,8 +14,8 @@ namespace Engine {
             return true;
         }
 
-        threadPool = std::make_unique<ThreadPool>();
-        lastFrameTime = std::chrono::high_resolution_clock::now();
+        threadPool      = std::make_unique<ThreadPool>();
+        lastFrameTime   = std::chrono::high_resolution_clock::now();
 
         InitEvent initEvent;
         eventDispatcher.Dispatch(initEvent);
@@ -25,18 +25,18 @@ namespace Engine {
     }
 
     void Engine::Run() {
-        if (!isInitialized.load()) {
+        if(!isInitialized.load()) {
             throw CoreException("Engine not initialized! Call Initialize() first.");
             return;
         }
 
-        while (!shouldStop.load()) {
+        while(!shouldStop.load()) {
             Update();
 
             auto currentTime = std::chrono::high_resolution_clock::now();
             float deltaTime = std::chrono::duration<float>(currentTime - lastFrameTime).count();
 
-            if (deltaTime >= targetFrameTime) {
+            if(deltaTime >= targetFrameTime) {
                 FixedUpdate();
                 lastFrameTime = currentTime;
             }
@@ -62,7 +62,7 @@ namespace Engine {
     }
 
     void Engine::Shutdown() {
-        if (!isInitialized.load()) {
+        if(!isInitialized.load()) {
             return;
         }
 
@@ -71,7 +71,7 @@ namespace Engine {
         ShutdownEvent shutdownEvent;
         eventDispatcher.Dispatch(shutdownEvent);
 
-        if (threadPool) {
+        if(threadPool) {
             threadPool->Stop();
             threadPool.reset();
         }

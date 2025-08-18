@@ -42,15 +42,43 @@ void PlayingView::ShowNotification(const std::string& message) {
 }
 
 void PlayingView::RenderInternal() {
-    // This is where actual rendering would happen (OpenGL/Vulkan/DirectX)
-    // HUD elements, menus, overlays, etc.
-    DisplayHUD();
+    // Common rendering logic that applies to all APIs
+    // Don't call DisplayHUD here every frame - it's too verbose
+    // DisplayHUD is called when HUD actually updates
+}
+
+void PlayingView::RenderOpenGL() {
+    // OpenGL-specific rendering for game UI
+    // TODO: OpenGL calls for game UI
+    // - Render HUD elements (health, ammo, minimap)
+    // - Draw crosshair
+    // - Render notifications/text overlays
+    // (Silent rendering - no debug output)
+}
+
+void PlayingView::RenderDirectX() {
+    // DirectX-specific rendering for game UI
+    std::cout << "[PlayingView] Rendering HUD with DirectX" << std::endl;
+    // TODO: DirectX calls for game UI
+    // - Render UI sprites and textures
+    // - Draw HUD elements with DirectX primitives
+    // - Render text with DirectWrite
+}
+
+void PlayingView::RenderVulkan() {
+    // Vulkan-specific rendering for game UI
+    std::cout << "[PlayingView] Rendering HUD with Vulkan" << std::endl;
+    // TODO: Vulkan calls for game UI
+    // - Begin UI render pass
+    // - Draw HUD with Vulkan commands
+    // - Render text and UI elements
 }
 
 void PlayingView::DisplayHUD() {
+    // Only display HUD when it's actually called, not every frame
     std::cout << "[PlayingView] HUD: " << hudInfo << std::endl;
     
-    // Display current notification if active
+    // Display current notification if active (only when first shown)
     if (notificationTimer > 0 && !lastNotification.empty()) {
         std::cout << "[PlayingView] >>> " << lastNotification << " <<<" << std::endl;
     }

@@ -47,6 +47,15 @@ add_dependencies(Masterball copy_config)
 find_package(Threads REQUIRED)
 target_link_libraries(Engine Threads::Threads)
 
+# OpenGL support for NativeWindow
+find_package(OpenGL REQUIRED)
+target_link_libraries(Engine ${OPENGL_LIBRARIES})
+
+# Windows-specific libraries for window management
+if(WIN32)
+    target_link_libraries(Engine gdi32 user32 kernel32)
+endif()
+
 # Compiler specific settings
 target_compile_options(Engine PRIVATE -Wall -Wextra -pedantic)
 target_compile_options(Masterball PRIVATE -Wall -Wextra -pedantic)

@@ -16,16 +16,17 @@ namespace Engine {
 
     /* Settings & Options */
     enum class EngineOption {
-        DEBUGGING               = 1,
-        RENDERER                = 2,
-        VSYNC                   = 3,
-        RESOLUTION_MODE         = 4,
-        FRAMERATE_LIMIT_ENABLED = 5,
-        FRAMERATE_LIMIT_VALUE   = 6,
-        RESOLUTION_HEIGHT       = 7,
-        RESOLUTION_WIDTH        = 8,
-        RESOLUTION_HERTZ        = 9,
-        RESOLUTION_SCALE        = 10
+        DEBUGGING               = 1000,
+        RENDERER                = 1002,
+        VSYNC                   = 1003,
+        RESOLUTION_MODE         = 2001,
+        RESOLUTION_HEIGHT       = 2002,
+        RESOLUTION_WIDTH        = 2003,
+        RESOLUTION_HERTZ        = 2004,
+        RESOLUTION_SCALE        = 2005,
+        FRAMERATE_LIMIT_ENABLED = 3001,
+        FRAMERATE_LIMIT_VALUE   = 3002,
+        GAME_TITLE              = 4001
     };
 
     class Engine {

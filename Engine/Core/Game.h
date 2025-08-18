@@ -3,8 +3,10 @@
 #include "Engine.h"
 #include "RenderManager.h"
 #include "ViewManager.h"
+#include "NativeWindow.h"
 #include "Settings/Options.h"
 #include <memory>
+#include <atomic>
 
 namespace Engine {
     class Game : public Engine {
@@ -49,12 +51,20 @@ namespace Engine {
         // View Management
         ViewManager& GetViewManager() { return *viewManager; }
         
+        // Window Management
+        std::shared_ptr<NativeWindow> GetMainWindow() { return mainWindow; }
+        
+        // Threading
+        void RequestStop() { shouldStop = true; }
+        
         
     private:
         void SetupEventHandlers();
         
         std::unique_ptr<RenderManager> renderManager;
         std::unique_ptr<ViewManager> viewManager;
+        std::shared_ptr<NativeWindow> mainWindow;
         bool isInitialized;
+        std::atomic<bool> shouldStop{false};
     };
 }

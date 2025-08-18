@@ -2,6 +2,7 @@
 
 #include "UIView.h"
 #include "Event.h"
+#include "NativeWindow.h"
 #include <unordered_map>
 #include <memory>
 
@@ -28,12 +29,17 @@ namespace Engine {
         // Update all active views
         void UpdateViews(float deltaTime);
         
+        // Rendering
+        void RenderViews();
+        void SetRenderTarget(std::shared_ptr<NativeWindow> window);
+        
         // Event handling
         void OnViewChangeEvent(const ViewChangeEvent& event);
 
     private:
         std::unordered_map<std::string, UIViewPtr> views;
         std::string currentView;
+        std::shared_ptr<NativeWindow> renderWindow;
         
         void TransitionTo(const std::string& newView);
     };

@@ -27,6 +27,11 @@ namespace Engine {
         // Helper for subclasses
         virtual void UpdateInternal(float deltaTime) {}
         virtual void RenderInternal() {}
+        
+        // Rendering methods for different APIs
+        virtual void RenderOpenGL() {}
+        virtual void RenderDirectX() {}
+        virtual void RenderVulkan() {}
     };
 
     using UIViewPtr = std::shared_ptr<UIView>;

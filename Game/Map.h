@@ -9,8 +9,8 @@ public:
     using OnLoadingCallback = std::function<void(const std::string& message, int actual, int total, float percentage)>;
 
     Map();
-    Map(std::string name);
-    
+    ~Map();
+
     void OnLoaded(OnLoadedCallback callback);
     void OnLoading(OnLoadingCallback callback);
     void Load(const std::string& name);

@@ -9,6 +9,9 @@
 #else
     #include <unistd.h>
     #include <limits.h>
+    #ifndef PATH_MAX
+        #define PATH_MAX 4096
+    #endif
 #endif
 
 namespace Engine {
@@ -29,12 +32,15 @@ namespace Engine {
 
         bool Config::LoadFromFile(const std::string& configPath) {
             std::string fullPath = ResolvePath(configPath);
+            std::cout << "[Config] Attempting to load: " << fullPath << std::endl;
             std::ifstream file(fullPath);
 
             if (!file.is_open()) {
-                //std::cout << "Config: Failed to open file: " << fullPath << std::endl;
+                std::cout << "[Config] Failed to open file: " << fullPath << std::endl;
                 return false;
             }
+
+            std::cout << "[Config] Successfully opened config file" << std::endl;
 
             Clear();
             std::string line;
@@ -44,9 +50,11 @@ namespace Engine {
             while (std::getline(file, line)) {
                 ++lineNumber;
                 if (!ParseLine(line, currentGroup)) {
-                    //std::cout << "Config: Parse error at line " << lineNumber << ": " << line << std::endl;
+                    std::cout << "[Config] Parse error at line " << lineNumber << ": " << line << std::endl;
                 }
             }
+
+            std::cout << "[Config] Finished loading. Found " << values.size() << " config values." << std::endl;
 
             file.close();
             return true;
@@ -110,6 +118,9 @@ namespace Engine {
             std::string exePath(buffer);
             size_t pos = exePath.find_last_of("\\/");
             return (pos != std::string::npos) ? exePath.substr(0, pos) : "";
+#elif defined(__CYGWIN__)
+            // Cygwin environment - use current working directory
+            return ".";
 #else
             char buffer[PATH_MAX];
             ssize_t len = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
@@ -160,6 +171,8 @@ namespace Engine {
 
             ConfigValue value = ParseValue(valueStr);
             values[key] = value;
+            
+            std::cout << "[Config] Parsed: " << key << " = " << valueStr << std::endl;
 
             return true;
         }
