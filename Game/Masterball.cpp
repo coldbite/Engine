@@ -1,7 +1,6 @@
 #include "Masterball.h"
-#include "../Engine/Core/Settings/Config.h"
 
-using Config = Engine::Settings::Config;
+using Engine::Config;
 
 void Masterball::OnInit() {
     /* Bind Options */

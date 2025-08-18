@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace Engine {
-    class Game {
+    class Game : public Engine {
     public:
         Game();
         virtual ~Game();
@@ -45,8 +45,6 @@ namespace Engine {
             Settings::OptionsManager::GetInstance().PrintOptions<EnumType>();
         }
         
-    protected:
-        Engine& GetEngine() { return Engine::GetInstance(); }
         
     private:
         void SetupEventHandlers();

@@ -11,12 +11,12 @@ set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_C_COMPILER gcc)
 
 # Engine Core Library
-file(GLOB_RECURSE ENGINE_SOURCES
+file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
     "Engine/*.cpp"
     "Engine/*.h"
 )
 
-file(GLOB_RECURSE GAME_SOURCES
+file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
     "Game/*.cpp"
     "Game/*.h"
 )

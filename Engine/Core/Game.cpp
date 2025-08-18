@@ -4,7 +4,7 @@
 #include <chrono>
 
 namespace Engine {
-    Game::Game() : isInitialized(false) {
+    Game::Game() : Engine(), isInitialized(false) {
         renderManager = std::make_unique<RenderManager>();
     }
 
@@ -17,11 +17,9 @@ namespace Engine {
             return true;
         }
 
-        Engine& engine = GetEngine();
-        
         SetupEventHandlers();
         
-        if (!engine.Initialize()) {
+        if (!Engine::Initialize()) {
             std::cout << "Failed to initialize engine!" << std::endl;
             return false;
         }
@@ -35,15 +33,13 @@ namespace Engine {
             return;
         }
 
-        Engine& engine = GetEngine();
-        
-        std::thread engineThread([&engine]() {
-            engine.Run();
+        std::thread engineThread([this]() {
+            Engine::Run();
         });
         
-        std::thread inputThread([&engine]() {
+        std::thread inputThread([this]() {
             std::cin.get();
-            engine.RequestStop();
+            RequestStop();
         });
         
         
@@ -58,23 +54,20 @@ namespace Engine {
 
         OnShutdown();
         
-        Engine& engine = GetEngine();
-        engine.Shutdown();
+        Engine::Shutdown();
         
         isInitialized = false;
     }
 
     void Game::SetupEventHandlers() {
-        Engine& engine = GetEngine();
-        
-        engine.SubscribeToEvent<InitEvent>(
+        SubscribeToEvent<InitEvent>(
             [this, &renderManager = this->renderManager](const IEvent& event) {
                 renderManager->OnInitEvent(event);
                 OnInit();
             }
         );
         
-        engine.SubscribeToEvent<UpdateEvent>(
+        SubscribeToEvent<UpdateEvent>(
             [this, &renderManager = this->renderManager](const IEvent& event) {
                 const UpdateEvent& updateEvent = static_cast<const UpdateEvent&>(event);
                 renderManager->OnUpdateEvent(event);
@@ -82,14 +75,14 @@ namespace Engine {
             }
         );
         
-        engine.SubscribeToEvent<RenderEvent>(
+        SubscribeToEvent<RenderEvent>(
             [this, &renderManager = this->renderManager](const IEvent& event) {
                 renderManager->OnRenderEvent(event);
                 OnRender();
             }
         );
         
-        engine.SubscribeToEvent<ShutdownEvent>(
+        SubscribeToEvent<ShutdownEvent>(
             [this, &renderManager = this->renderManager](const IEvent& event) {
                 renderManager->OnShutdownEvent(event);
                 OnShutdown();

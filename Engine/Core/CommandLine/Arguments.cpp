@@ -1,13 +1,13 @@
-#include "Parser.h"
+#include "Arguments.h"
 #include <iostream>
 
 namespace Engine {
     namespace CommandLine {
-        Parser::Parser() {}
-        
-        Parser::~Parser() {}
-        
-        void Parser::AddArgument(const std::string& name, const std::string& shortName) {
+        Arguments::Arguments() {}
+
+        Arguments::~Arguments() {}
+
+        void Arguments::Add(const std::string& name, const std::string& shortName) {
             size_t index        = arguments.size();
             arguments.emplace_back(name, shortName);
             nameToIndex[name]   = index;
@@ -16,16 +16,16 @@ namespace Engine {
                 shortNameToIndex[shortName] = index;
             }
         }
-        
-        bool Parser::Parse(int argc, char* argv[]) {
+
+        bool Arguments::Parse(int argc, char* argv[]) {
             for(int i = 1; i < argc; ++i) {
                 std::string arg = argv[i];
-                
+
                 if(!IsFlag(arg)) {
                     std::cout << "Warning: Unknown argument: " << arg << std::endl;
                     continue;
                 }
-                
+
                 auto [flagName, assignedValue]  = SplitAssignment(arg);
                 std::string cleanFlag           = StripPrefix(flagName);
                 size_t argIndex                 = FindArgumentIndex(cleanFlag);
@@ -34,9 +34,9 @@ namespace Engine {
                     std::cout << "Warning: Unknown flag: " << arg << std::endl;
                     continue;
                 }
-                
+
                 arguments[argIndex].isPresent = true;
-                
+
                 if(!assignedValue.empty()) {
                     arguments[argIndex].value       = assignedValue;
                     arguments[argIndex].hasValue    = true;
@@ -46,16 +46,16 @@ namespace Engine {
                     ++i;
                 }
             }
-            
+
             return true;
         }
-        
-        bool Parser::HasArgument(const std::string& name) const {
+
+        bool Arguments::Has(const std::string& name) const {
             size_t index = FindArgumentIndex(name);
             return index != SIZE_MAX && arguments[index].isPresent;
         }
-        
-        std::string Parser::GetValue(const std::string& name) const {
+
+        std::string Arguments::Get(const std::string& name) const {
             size_t index = FindArgumentIndex(name);
 
             if(index != SIZE_MAX && arguments[index].hasValue) {
@@ -64,8 +64,8 @@ namespace Engine {
 
             return "";
         }
-        
-        std::optional<std::string> Parser::GetOptionalValue(const std::string& name) const {
+
+        std::optional<std::string> Arguments::Optional(const std::string& name) const {
             size_t index = FindArgumentIndex(name);
 
             if(index != SIZE_MAX && arguments[index].hasValue) {
@@ -74,8 +74,8 @@ namespace Engine {
 
             return std::nullopt;
         }
-        
-        void Parser::PrintHelp() const {
+
+        void Arguments::PrintHelp() const {
             std::cout << "Available arguments:" << std::endl;
 
             for(const auto& arg : arguments) {
@@ -88,8 +88,8 @@ namespace Engine {
                 std::cout << "--" << arg.name << std::endl;
             }
         }
-        
-        void Parser::PrintArguments() const {
+
+        void Arguments::PrintArguments() const {
             std::cout << "Parsed arguments:" << std::endl;
 
             for(const auto& arg : arguments) {
@@ -104,12 +104,12 @@ namespace Engine {
                 }
             }
         }
-        
-        bool Parser::IsFlag(const std::string& arg) const {
+
+        bool Arguments::IsFlag(const std::string& arg) const {
             return arg.length() > 1 && (arg[0] == '-' || arg[0] == '/');
         }
-        
-        std::string Parser::StripPrefix(const std::string& arg) const {
+
+        std::string Arguments::StripPrefix(const std::string& arg) const {
             if(arg.length() < 2) {
                 return arg;
             }
@@ -121,40 +121,40 @@ namespace Engine {
 
                 return arg.substr(1);
             }
-            
+
             return arg;
         }
-        
-        std::pair<std::string, std::string> Parser::SplitAssignment(const std::string& arg) const {
+
+        std::pair<std::string, std::string> Arguments::SplitAssignment(const std::string& arg) const {
             size_t position = arg.find('=');
 
             if(position != std::string::npos) {
                 std::string flag    = arg.substr(0, position);
                 std::string value   = arg.substr(position + 1);
-                
+
                 if(value.length() >= 2 && value[0] == '"' && value.back() == '"') {
                     value = value.substr(1, value.length() - 2);
                 }
-                
+
                 return { flag, value };
             }
-            
+
             return { arg, "" };
         }
-        
-        size_t Parser::FindArgumentIndex(const std::string& name) const {
+
+        size_t Arguments::FindArgumentIndex(const std::string& name) const {
             auto nameIt = nameToIndex.find(name);
 
             if(nameIt != nameToIndex.end()) {
                 return nameIt->second;
             }
-            
+
             auto shortIt = shortNameToIndex.find(name);
 
             if(shortIt != shortNameToIndex.end()) {
                 return shortIt->second;
             }
-            
+
             return SIZE_MAX;
         }
     }
