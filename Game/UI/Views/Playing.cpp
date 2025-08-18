@@ -6,20 +6,19 @@ Playing::Playing()
     , hudInfo("Game Ready")
     , lastNotification("")
     , notificationTimer(0.0f) {
+    /* Do Nothing */
 }
 
 void Playing::OnShow() {
-    std::cout << "[Playing] === GAME INTERFACE ACTIVE ===" << std::endl;
-    std::cout << "[Playing] Welcome to Masterball!" << std::endl;
     DisplayHUD();
 }
 
 void Playing::OnHide() {
-    std::cout << "[Playing] === GAME INTERFACE HIDDEN ===" << std::endl;
+    /* Do Nothing */
 }
 
 void Playing::OnUpdate(float deltaTime) {
-    if (IsActive()) {
+    if(IsActive()) {
         UpdateNotifications(deltaTime);
         UpdateInternal(deltaTime);
     }
@@ -27,7 +26,8 @@ void Playing::OnUpdate(float deltaTime) {
 
 void Playing::UpdateHUD(const std::string& info) {
     hudInfo = info;
-    if (IsActive()) {
+
+    if(IsActive()) {
         DisplayHUD();
     }
 }
@@ -36,7 +36,7 @@ void Playing::ShowNotification(const std::string& message) {
     lastNotification = message;
     notificationTimer = 3.0f; // Show for 3 seconds
 
-    if (IsActive()) {
+    if(IsActive()) {
         std::cout << "[Playing] NOTIFICATION: " << message << std::endl;
     }
 }
@@ -51,15 +51,16 @@ void Playing::DisplayHUD() {
     std::cout << "[Playing] HUD: " << hudInfo << std::endl;
 
     // Display current notification if active (only when first shown)
-    if (notificationTimer > 0 && !lastNotification.empty()) {
+    if(notificationTimer > 0 && !lastNotification.empty()) {
         std::cout << "[Playing] >>> " << lastNotification << " <<<" << std::endl;
     }
 }
 
 void Playing::UpdateNotifications(float deltaTime) {
-    if (notificationTimer > 0) {
+    if(notificationTimer > 0) {
         notificationTimer -= deltaTime;
-        if (notificationTimer <= 0) {
+
+        if(notificationTimer <= 0) {
             lastNotification.clear();
         }
     }

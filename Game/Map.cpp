@@ -36,9 +36,8 @@ void Map::Load(const std::string& name) {
         };
 
         for(int i = 0; i < totalSteps; ++i) {
-            if (onLoadingCallback) {
-                float percentage = (float)(i + 1) / totalSteps * 100.0f;
-                onLoadingCallback(steps[i], i + 1, totalSteps, percentage);
+            if(onLoadingCallback) {
+                onLoadingCallback(steps[i], i + 1, totalSteps, ((float)(i + 1) / totalSteps * 100.0f));
             }
 
             // Simulate loading time
@@ -48,7 +47,7 @@ void Map::Load(const std::string& name) {
         std::cout << "[Map] Finished loading: " << name << std::endl;
 
         // Call loaded callback
-        if (onLoadedCallback) {
+        if(onLoadedCallback) {
             onLoadedCallback();
         }
     });

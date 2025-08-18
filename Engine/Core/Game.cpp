@@ -7,9 +7,9 @@
 
 namespace Engine {
     Game::Game() : Engine(), isInitialized(false) {
-        renderManager = std::make_unique<RenderManager>();
-        viewManager = std::make_unique<ViewManager>();
-        mainWindow = std::make_shared<NativeWindow>();
+        renderManager   = std::make_unique<RenderManager>();
+        viewManager     = std::make_unique<ViewManager>();
+        mainWindow      = std::make_shared<NativeWindow>();
     }
 
     Game::~Game() {
@@ -89,7 +89,7 @@ namespace Engine {
             renderer = GetOption(EngineOption::RENDERER, renderer);
         }
 
-        if (!mainWindow->SetupRenderingContext(renderer)) {
+        if(!mainWindow->SetupRenderingContext(renderer)) {
             std::cout << "[Game] Warning: Failed to setup rendering context for " << renderer << std::endl;
         }
 
@@ -161,26 +161,6 @@ namespace Engine {
             [this, &renderManager = this->renderManager](const IEvent& event) {
                 renderManager->OnInitEvent(event);
                 OnInit();
-            }
-        );
-
-        SubscribeToEvent<UpdateEvent>(
-            [this, &renderManager = this->renderManager, &viewManager = this->viewManager](const IEvent& event) {
-                const UpdateEvent& updateEvent = static_cast<const UpdateEvent&>(event);
-                renderManager->OnUpdateEvent(event);
-                viewManager->UpdateViews(updateEvent.GetDeltaTime());
-                OnUpdate(updateEvent.GetDeltaTime());
-            }
-        );
-
-        SubscribeToEvent<RenderEvent>(
-            [this, &renderManager = this->renderManager, &viewManager = this->viewManager](const IEvent& event) {
-                renderManager->OnRenderEvent(event);
-
-                // Render all views
-                viewManager->RenderViews();
-
-                OnRender();
             }
         );
 

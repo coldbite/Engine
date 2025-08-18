@@ -46,15 +46,15 @@ namespace Engine {
     }
 
     void Engine::Update() {
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float deltaTime = std::chrono::duration<float>(currentTime - lastFrameTime).count();
+        auto currentTime    = std::chrono::high_resolution_clock::now();
+        float deltaTime     = std::chrono::duration<float>(currentTime - lastFrameTime).count();
 
         UpdateEvent updateEvent(deltaTime);
         eventDispatcher.Dispatch(updateEvent);
     }
 
     void Engine::FixedUpdate() {
-        RenderEvent renderEvent(RenderEvent::RenderAPI::OpenGL);
+        RenderEvent renderEvent;
 
         threadPool->Enqueue([this, renderEvent]() {
             eventDispatcher.Dispatch(renderEvent);

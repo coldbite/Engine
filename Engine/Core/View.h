@@ -16,7 +16,7 @@ namespace Engine {
         // View lifecycle methods
         virtual void OnShow() {}
         virtual void OnHide() {}
-        virtual void OnUpdate(float deltaTime) {}
+        virtual void OnUpdate(float /*deltaTime*/) {}
 
         // Override from Renderable
         void PrepareForRendering() override;
@@ -25,7 +25,7 @@ namespace Engine {
         bool isActive;
 
         // Helper for subclasses
-        virtual void UpdateInternal(float deltaTime) {}
+        virtual void UpdateInternal(float /*deltaTime*/) {}
         virtual void RenderInternal() {}
 
         virtual void Render() {}

@@ -88,7 +88,12 @@ void Masterball::OnInit() {
     }
 
     // Initialize View System
-    InitializeViews();
+    loading = std::make_shared<Loading>();
+    playing = std::make_shared<Playing>();
+
+    // Register views with ViewManager
+    GetViewManager().RegisterView("Loading", loading);
+    GetViewManager().RegisterView("Playing", playing);
 
     // Show Loading UI
     DispatchEvent(ViewChangeEvent("Loading"));
@@ -115,28 +120,4 @@ void Masterball::OnInit() {
 
 void Masterball::OnShutdown() {
     // std::cout << "[Masterball] Game shutting down!" << std::endl;
-}
-
-void Masterball::OnUpdate(float /*deltaTime*/) {
-    // std::cout << "[Masterball] Update - Delta: " << deltaTime << "s" << std::endl;
-}
-
-void Masterball::OnRender() {
-    // std::cout << "[Masterball] Custom render logic" << std::endl;
-}
-
-void Masterball::InitializeViews() {
-    // Create views
-    loading = std::make_shared<Loading>();
-    playing = std::make_shared<Playing>();
-
-    // Register views with ViewManager
-    GetViewManager().RegisterView("Loading", loading);
-    GetViewManager().RegisterView("Playing", playing);
-
-    // Also register views with RenderManager for rendering
-    // (Views are Renderables, so they can be added to the render system)
-    // This is optional - depends on how you want to handle UI rendering
-
-    std::cout << "[Masterball] Views initialized and registered" << std::endl;
 }

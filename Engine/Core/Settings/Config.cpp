@@ -35,7 +35,7 @@ namespace Engine {
             std::cout << "[Config] Attempting to load: " << fullPath << std::endl;
             std::ifstream file(fullPath);
 
-            if (!file.is_open()) {
+            if(!file.is_open()) {
                 std::cout << "[Config] Failed to open file: " << fullPath << std::endl;
                 return false;
             }
@@ -44,12 +44,13 @@ namespace Engine {
 
             Clear();
             std::string line;
-            std::string currentGroup = "";
-            int lineNumber = 0;
+            std::string currentGroup    = "";
+            int lineNumber              = 0;
 
-            while (std::getline(file, line)) {
+            while(std::getline(file, line)) {
                 ++lineNumber;
-                if (!ParseLine(line, currentGroup)) {
+
+                if(!ParseLine(line, currentGroup)) {
                     std::cout << "[Config] Parse error at line " << lineNumber << ": " << line << std::endl;
                 }
             }
@@ -86,7 +87,8 @@ namespace Engine {
 
         void Config::PrintConfigImpl() const {
             std::cout << "Config values:" << std::endl;
-            for (const auto& pair : values) {
+
+            for(const auto& pair : values) {
                 std::cout << "  " << pair.first << " = ";
                 std::visit([](const auto& value) {
                     std::cout << value;
@@ -102,12 +104,12 @@ namespace Engine {
         std::string Config::ResolvePath(const std::string& configPath) {
             std::filesystem::path path(configPath);
 
-            if (path.is_absolute()) {
+            if(path.is_absolute()) {
                 return configPath;
             }
 
-            std::string exeDir = GetExecutableDirectory();
-            std::filesystem::path fullPath = std::filesystem::path(exeDir) / path;
+            std::string exeDir              = GetExecutableDirectory();
+            std::filesystem::path fullPath  = std::filesystem::path(exeDir) / path;
             return fullPath.string();
         }
 
@@ -124,7 +126,7 @@ namespace Engine {
 #else
             char buffer[PATH_MAX];
             ssize_t len = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
-            if (len != -1) {
+            if(len != -1) {
                 buffer[len] = '\0';
                 std::string exePath(buffer);
                 size_t pos = exePath.find_last_of("/");
@@ -137,15 +139,15 @@ namespace Engine {
         bool Config::ParseLine(const std::string& line, std::string& currentGroup) {
             std::string trimmed = Trim(line);
 
-            if (trimmed.empty() || trimmed[0] == '#') {
+            if(trimmed.empty() || trimmed[0] == '#') {
                 return true;
             }
 
-            if (ParseGroupStart(trimmed, currentGroup)) {
+            if(ParseGroupStart(trimmed, currentGroup)) {
                 return true;
             }
 
-            if (ParseGroupEnd(trimmed, currentGroup)) {
+            if(ParseGroupEnd(trimmed, currentGroup)) {
                 return true;
             }
 
@@ -154,24 +156,25 @@ namespace Engine {
 
         bool Config::ParseKeyValue(const std::string& line, const std::string& currentGroup) {
             size_t pos = line.find('=');
-            if (pos == std::string::npos) {
+
+            if(pos == std::string::npos) {
                 return false;
             }
 
-            std::string key = Trim(line.substr(0, pos));
-            std::string valueStr = Trim(line.substr(pos + 1));
+            std::string key         = Trim(line.substr(0, pos));
+            std::string valueStr    = Trim(line.substr(pos + 1));
 
             // Remove all leading and trailing whitespace including tabs from both key and value
-            key = RemoveAllWhitespace(key);
-            valueStr = RemoveLeadingTrailingWhitespace(valueStr);
+            key                     = RemoveAllWhitespace(key);
+            valueStr                = RemoveLeadingTrailingWhitespace(valueStr);
 
-            if (!currentGroup.empty()) {
-                key = currentGroup + "." + key;
+            if(!currentGroup.empty()) {
+                key                 = currentGroup + "." + key;
             }
 
-            ConfigValue value = ParseValue(valueStr);
-            values[key] = value;
-            
+            ConfigValue value       = ParseValue(valueStr);
+            values[key]             = value;
+
             std::cout << "[Config] Parsed: " << key << " = " << valueStr << std::endl;
 
             return true;
@@ -179,12 +182,14 @@ namespace Engine {
 
         bool Config::ParseGroupStart(const std::string& line, std::string& currentGroup) {
             size_t pos = line.find('{');
-            if (pos == std::string::npos) {
+
+            if(pos == std::string::npos) {
                 return false;
             }
 
             std::string groupName = RemoveLeadingTrailingWhitespace(line.substr(0, pos));
-            if (!currentGroup.empty()) {
+
+            if(!currentGroup.empty()) {
                 currentGroup = currentGroup + "." + groupName;
             } else {
                 currentGroup = groupName;
@@ -194,21 +199,25 @@ namespace Engine {
         }
 
         bool Config::ParseGroupEnd(const std::string& line, std::string& currentGroup) {
-            if (line == "}") {
+            if(line == "}") {
                 size_t pos = currentGroup.find_last_of('.');
-                if (pos != std::string::npos) {
+
+                if(pos != std::string::npos) {
                     currentGroup = currentGroup.substr(0, pos);
                 } else {
                     currentGroup.clear();
                 }
+
                 return true;
             }
+
             return false;
         }
 
         std::string Config::Trim(const std::string& str) {
             size_t start = str.find_first_not_of(" \t\r\n");
-            if (start == std::string::npos) {
+
+            if(start == std::string::npos) {
                 return "";
             }
 
@@ -217,11 +226,10 @@ namespace Engine {
         }
 
         std::string Config::RemoveQuotes(const std::string& str) {
-            if (str.length() >= 2 &&
-                ((str.front() == '"' && str.back() == '"') ||
-                 (str.front() == '\'' && str.back() == '\''))) {
+            if(str.length() >= 2 && ((str.front() == '"' && str.back() == '"') || (str.front() == '\'' && str.back() == '\''))) {
                 return str.substr(1, str.length() - 2);
             }
+
             return str;
         }
 
@@ -229,22 +237,23 @@ namespace Engine {
             std::string cleanValue = RemoveQuotes(valueStr);
 
             // Check numeric values FIRST before boolean parsing
-            if (IsFloat(cleanValue)) {
+            if(IsFloat(cleanValue)) {
                 return std::stof(cleanValue);
             }
 
-            if (IsNumeric(cleanValue)) {
+            if(IsNumeric(cleanValue)) {
                 return std::stoi(cleanValue);
             }
 
             // Only check boolean after numeric checks
-            if (ParseBool(cleanValue)) {
+            if(ParseBool(cleanValue)) {
                 return true;
             }
 
             std::string lowerValue = cleanValue;
             std::transform(lowerValue.begin(), lowerValue.end(), lowerValue.begin(), ::tolower);
-            if (lowerValue == "false" || lowerValue == "off") {
+
+            if(lowerValue == "false" || lowerValue == "off") {
                 return false;
             }
 
@@ -259,16 +268,22 @@ namespace Engine {
         }
 
         bool Config::IsNumeric(const std::string& str) {
-            if (str.empty()) return false;
-
-            size_t start = 0;
-            if (str[0] == '-' || str[0] == '+') {
-                start = 1;
-                if (str.length() == 1) return false;
+            if(str.empty()) {
+                return false;
             }
 
-            for (size_t i = start; i < str.length(); ++i) {
-                if (!std::isdigit(str[i])) {
+            size_t start = 0;
+
+            if(str[0] == '-' || str[0] == '+') {
+                start = 1;
+
+                if(str.length() == 1) {
+                    return false;
+                }
+            }
+
+            for(size_t i = start; i < str.length(); ++i) {
+                if(!std::isdigit(str[i])) {
                     return false;
                 }
             }
@@ -277,21 +292,29 @@ namespace Engine {
         }
 
         bool Config::IsFloat(const std::string& str) {
-            if (str.empty()) return false;
+            if(str.empty()) {
+                return false;
+            }
 
             bool hasDecimal = false;
-            size_t start = 0;
+            size_t start    = 0;
 
-            if (str[0] == '-' || str[0] == '+') {
+            if(str[0] == '-' || str[0] == '+') {
                 start = 1;
-                if (str.length() == 1) return false;
+
+                if(str.length() == 1) {
+                    return false;
+                }
             }
 
             for (size_t i = start; i < str.length(); ++i) {
-                if (str[i] == '.') {
-                    if (hasDecimal) return false;
+                if(str[i] == '.') {
+                    if(hasDecimal) {
+                        return false;
+                    }
+
                     hasDecimal = true;
-                } else if (!std::isdigit(str[i])) {
+                } else if(!std::isdigit(str[i])) {
                     return false;
                 }
             }
@@ -301,17 +324,20 @@ namespace Engine {
 
         std::string Config::RemoveAllWhitespace(const std::string& str) {
             std::string result;
-            for (char c : str) {
-                if (!std::isspace(c)) {
+
+            for(char c : str) {
+                if(!std::isspace(c)) {
                     result += c;
                 }
             }
+
             return result;
         }
 
         std::string Config::RemoveLeadingTrailingWhitespace(const std::string& str) {
             size_t start = str.find_first_not_of(" \t\r\n\v\f");
-            if (start == std::string::npos) {
+
+            if(start == std::string::npos) {
                 return "";
             }
 

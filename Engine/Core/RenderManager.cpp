@@ -4,6 +4,7 @@
 
 namespace Engine {
     RenderManager::RenderManager() : isInitialized(false), frameCount(0) {
+        /* Do Nothing */
     }
 
     RenderManager::~RenderManager() {
@@ -11,17 +12,17 @@ namespace Engine {
     }
 
     void RenderManager::Initialize() {
-        if (isInitialized) {
+        if(isInitialized) {
             return;
         }
 
         std::cout << "[RenderManager] Initializing..." << std::endl;
-        isInitialized = true;
-        frameCount = 0;
+        isInitialized   = true;
+        frameCount      = 0;
     }
 
     void RenderManager::Shutdown() {
-        if (!isInitialized) {
+        if(!isInitialized) {
             return;
         }
 
@@ -31,16 +32,16 @@ namespace Engine {
     }
 
     void RenderManager::OnRenderEvent(const IEvent& event) {
-        if (!isInitialized) {
+        if(!isInitialized) {
             return;
         }
 
         const RenderEvent& renderEvent = static_cast<const RenderEvent&>(event);
-        RenderFrame(renderEvent.GetAPI());
+        RenderFrame();
     }
 
     void RenderManager::OnUpdateEvent(const IEvent& event) {
-        if (!isInitialized) {
+        if(!isInitialized) {
             return;
         }
 
@@ -55,7 +56,7 @@ namespace Engine {
         Shutdown();
     }
 
-    void RenderManager::RenderFrame(RenderEvent::RenderAPI api) {
+    void RenderManager::RenderFrame() {
         frameCount++;
 
         // Prepare all renderables for rendering (without actual API calls yet)
@@ -69,63 +70,54 @@ namespace Engine {
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
     }
 
-    std::string RenderManager::GetAPIName(RenderEvent::RenderAPI api) {
-        switch (api) {
-            case RenderEvent::RenderAPI::OpenGL:
-                return "OpenGL";
-            case RenderEvent::RenderAPI::DirectX:
-                return "DirectX";
-            case RenderEvent::RenderAPI::Vulkan:
-                return "Vulkan";
-            default:
-                return "Unknown";
-        }
-    }
-
     void RenderManager::AddRenderable(RenderablePtr renderable) {
-        if (!renderable) {
+        if(!renderable) {
             std::cout << "[RenderManager] Warning: Attempted to add null renderable" << std::endl;
             return;
         }
 
         // Check if object with same name already exists
         const std::string& name = renderable->GetName();
-        if (renderableMap.find(name) != renderableMap.end()) {
+
+        if(renderableMap.find(name) != renderableMap.end()) {
             std::cout << "[RenderManager] Warning: Renderable '" << name << "' already exists, replacing..." << std::endl;
             RemoveRenderable(name);
         }
 
         renderables.push_back(renderable);
         renderableMap[name] = renderable;
-        
+
         std::cout << "[RenderManager] Added renderable: " << name << " (Total: " << renderables.size() << ")" << std::endl;
     }
 
     void RenderManager::RemoveRenderable(const std::string& name) {
         auto mapIt = renderableMap.find(name);
-        if (mapIt == renderableMap.end()) {
+
+        if(mapIt == renderableMap.end()) {
             std::cout << "[RenderManager] Warning: Renderable '" << name << "' not found for removal" << std::endl;
             return;
         }
 
         RenderablePtr renderable = mapIt->second;
-        
+
         // Remove from vector
         auto vecIt = std::find(renderables.begin(), renderables.end(), renderable);
-        if (vecIt != renderables.end()) {
+
+        if(vecIt != renderables.end()) {
             renderables.erase(vecIt);
         }
-        
+
         // Remove from map
         renderableMap.erase(mapIt);
-        
+
         std::cout << "[RenderManager] Removed renderable: " << name << " (Total: " << renderables.size() << ")" << std::endl;
     }
 
     void RenderManager::RemoveRenderable(RenderablePtr renderable) {
-        if (!renderable) {
+        if(!renderable) {
             return;
         }
+
         RemoveRenderable(renderable->GetName());
     }
 
@@ -150,8 +142,8 @@ namespace Engine {
 
     void RenderManager::PrepareRenderables() {
         // Call PrepareForRendering on all visible renderables
-        for (const auto& renderable : renderables) {
-            if (renderable && renderable->IsVisible()) {
+        for(const auto& renderable : renderables) {
+            if(renderable && renderable->IsVisible()) {
                 renderable->PrepareForRendering();
             }
         }

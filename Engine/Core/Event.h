@@ -24,17 +24,7 @@ namespace Engine {
 
     class RenderEvent : public Event<RenderEvent> {
     public:
-        enum class RenderAPI {
-            OpenGL,
-            DirectX,
-            Vulkan
-        };
-
-        RenderEvent(RenderAPI api) : api(api) {}
-        RenderAPI GetAPI() const { return api; }
-
-    private:
-        RenderAPI api;
+        RenderEvent() {}
     };
 
     class UpdateEvent : public Event<UpdateEvent> {

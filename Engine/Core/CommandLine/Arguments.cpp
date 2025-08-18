@@ -3,9 +3,13 @@
 
 namespace Engine {
     namespace CommandLine {
-        Arguments::Arguments() {}
+        Arguments::Arguments() {
+            /* Do Nothing */
+        }
 
-        Arguments::~Arguments() {}
+        Arguments::~Arguments() {
+            /* Do Nothing */
+        }
 
         void Arguments::Add(const std::string& name, const std::string& shortName) {
             size_t index        = arguments.size();
@@ -18,8 +22,8 @@ namespace Engine {
         }
 
         bool Arguments::Parse(int argc, char* argv[]) {
-            for(int i = 1; i < argc; ++i) {
-                std::string arg = argv[i];
+            for(int index = 1; index < argc; ++index) {
+                std::string arg = argv[index];
 
                 if(!IsFlag(arg)) {
                     std::cout << "Warning: Unknown argument: " << arg << std::endl;
@@ -28,22 +32,22 @@ namespace Engine {
 
                 auto [flagName, assignedValue]  = SplitAssignment(arg);
                 std::string cleanFlag           = StripPrefix(flagName);
-                size_t argIndex                 = FindArgumentIndex(cleanFlag);
+                size_t position                 = FindArgumentIndex(cleanFlag);
 
-                if(argIndex == SIZE_MAX) {
+                if(position == SIZE_MAX) {
                     std::cout << "Warning: Unknown flag: " << arg << std::endl;
                     continue;
                 }
 
-                arguments[argIndex].isPresent = true;
+                arguments[position].isPresent = true;
 
                 if(!assignedValue.empty()) {
-                    arguments[argIndex].value       = assignedValue;
-                    arguments[argIndex].hasValue    = true;
-                } else if(i + 1 < argc && !IsFlag(argv[i + 1])) {
-                    arguments[argIndex].value       = argv[i + 1];
-                    arguments[argIndex].hasValue    = true;
-                    ++i;
+                    arguments[position].value       = assignedValue;
+                    arguments[position].hasValue    = true;
+                } else if(index + 1 < argc && !IsFlag(argv[index + 1])) {
+                    arguments[position].value       = argv[index + 1];
+                    arguments[position].hasValue    = true;
+                    ++index;
                 }
             }
 
@@ -93,7 +97,7 @@ namespace Engine {
             std::cout << "Parsed arguments:" << std::endl;
 
             for(const auto& arg : arguments) {
-                if (arg.isPresent) {
+                if(arg.isPresent) {
                     std::cout << "  " << arg.name;
 
                     if(arg.hasValue) {

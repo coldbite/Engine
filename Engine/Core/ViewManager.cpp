@@ -4,11 +4,11 @@
 
 namespace Engine {
     ViewManager::ViewManager() : currentView("") {
-        std::cout << "[ViewManager] Initialized" << std::endl;
+        /* Do Nothing */
     }
 
     void ViewManager::RegisterView(const std::string& name, ViewPtr view) {
-        if (!view) {
+        if(!view) {
             std::cout << "[ViewManager] Warning: Attempted to register null view" << std::endl;
             return;
         }
@@ -20,11 +20,13 @@ namespace Engine {
 
     void ViewManager::UnregisterView(const std::string& name) {
         auto it = views.find(name);
-        if (it != views.end()) {
-            if (currentView == name) {
+
+        if(it != views.end()) {
+            if(currentView == name) {
                 it->second->SetActive(false);
                 currentView = "";
             }
+
             std::cout << "[ViewManager] Unregistered view: " << name << std::endl;
             views.erase(it);
         }
@@ -32,7 +34,8 @@ namespace Engine {
 
     void ViewManager::ShowView(const std::string& name) {
         auto it = views.find(name);
-        if (it == views.end()) {
+
+        if(it == views.end()) {
             std::cout << "[ViewManager] Warning: View '" << name
                       << "' not registered" << std::endl;
             return;
@@ -43,17 +46,19 @@ namespace Engine {
 
     void ViewManager::HideView(const std::string& name) {
         auto it = views.find(name);
-        if (it != views.end()) {
+
+        if(it != views.end()) {
             it->second->SetActive(false);
-            if (currentView == name) {
+
+            if(currentView == name) {
                 currentView = "";
             }
         }
     }
 
     void ViewManager::HideAllViews() {
-        for (auto& [name, view] : views) {
-            if (view) {
+        for(auto& [name, view] : views) {
+            if(view) {
                 view->SetActive(false);
             }
         }
@@ -71,8 +76,8 @@ namespace Engine {
     }
 
     void ViewManager::UpdateViews(float deltaTime) {
-        for (auto& [name, view] : views) {
-            if (view && view->IsActive()) {
+        for(auto& [name, view] : views) {
+            if(view && view->IsActive()) {
                 view->OnUpdate(deltaTime);
             }
         }
@@ -83,21 +88,23 @@ namespace Engine {
     }
 
     void ViewManager::TransitionTo(const std::string& newView) {
-        if (currentView == newView) {
+        if(currentView == newView) {
             return;
         }
 
         // Hide current view
-        if (!currentView.empty()) {
+        if(!currentView.empty()) {
             auto currentViewPtr = GetView(currentView);
-            if (currentViewPtr) {
+
+            if(currentViewPtr) {
                 currentViewPtr->SetActive(false);
             }
         }
 
         // Show new view
         auto newViewPtr = GetView(newView);
-        if (newViewPtr) {
+
+        if(newViewPtr) {
             newViewPtr->SetActive(true);
             currentView = newView;
             std::cout << "[ViewManager] Transitioned to view '" << newView << "'" << std::endl;
@@ -109,7 +116,7 @@ namespace Engine {
     }
 
     void ViewManager::RenderViews() {
-        if (!renderWindow || !renderWindow->IsValid()) {
+        if(!renderWindow || !renderWindow->IsValid()) {
             return;
         }
 
@@ -121,8 +128,8 @@ namespace Engine {
         // For now, just ensure the context is ready
 
         // Render all active views
-        for (auto& [name, view] : views) {
-            if (view && view->IsActive() && view->IsVisible()) {
+        for(auto& [name, view] : views) {
+            if(view && view->IsActive() && view->IsVisible()) {
                 view->PrepareForRendering();
             }
         }
