@@ -14,11 +14,13 @@ set(CMAKE_C_COMPILER gcc)
 file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
     "Engine/*.cpp"
     "Engine/*.h"
+    "Engine/*/.gitkeep"
 )
 
 file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
     "Game/*.cpp"
-    "Game/*.h"
+    "Game/*.h" 
+    "Game/*/.gitkeep"
 )
 
 # Create Engine library
