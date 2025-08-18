@@ -95,15 +95,15 @@ void Masterball::OnInit() {
 
     // Set up loading progress callback
     map.OnLoading([this](const std::string& message, int actual, int total, float percentage) {
-        if (loadingView) {
-            loadingView->UpdateProgress(message, actual, total, percentage);
+        if (loading) {
+            loading->UpdateProgress(message, actual, total, percentage);
         }
     });
 
     // Set up loaded callback
     map.OnLoaded([this]() {
-        if (playingView) {
-            playingView->ShowNotification("Map loaded successfully!");
+        if (playing) {
+            playing->ShowNotification("Map loaded successfully!");
         }
         // Transition to Playing UI
         DispatchEvent(ViewChangeEvent("Playing"));
@@ -127,12 +127,12 @@ void Masterball::OnRender() {
 
 void Masterball::InitializeViews() {
     // Create views
-    loadingView = std::make_shared<LoadingView>();
-    playingView = std::make_shared<PlayingView>();
+    loading = std::make_shared<Loading>();
+    playing = std::make_shared<Playing>();
 
     // Register views with ViewManager
-    GetViewManager().RegisterView("Loading", loadingView);
-    GetViewManager().RegisterView("Playing", playingView);
+    GetViewManager().RegisterView("Loading", loading);
+    GetViewManager().RegisterView("Playing", playing);
 
     // Also register views with RenderManager for rendering
     // (Views are Renderables, so they can be added to the render system)

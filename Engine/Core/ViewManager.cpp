@@ -7,14 +7,14 @@ namespace Engine {
         std::cout << "[ViewManager] Initialized" << std::endl;
     }
 
-    void ViewManager::RegisterView(const std::string& name, UIViewPtr view) {
+    void ViewManager::RegisterView(const std::string& name, ViewPtr view) {
         if (!view) {
             std::cout << "[ViewManager] Warning: Attempted to register null view" << std::endl;
             return;
         }
 
         views[name] = view;
-        std::cout << "[ViewManager] Registered view: " << view->GetName() 
+        std::cout << "[ViewManager] Registered view: " << view->GetName()
                   << " with name '" << name << "'" << std::endl;
     }
 
@@ -33,7 +33,7 @@ namespace Engine {
     void ViewManager::ShowView(const std::string& name) {
         auto it = views.find(name);
         if (it == views.end()) {
-            std::cout << "[ViewManager] Warning: View '" << name 
+            std::cout << "[ViewManager] Warning: View '" << name
                       << "' not registered" << std::endl;
             return;
         }
@@ -61,12 +61,12 @@ namespace Engine {
         std::cout << "[ViewManager] All views hidden" << std::endl;
     }
 
-    UIViewPtr ViewManager::GetView(const std::string& name) {
+    ViewPtr ViewManager::GetView(const std::string& name) {
         auto it = views.find(name);
         return (it != views.end()) ? it->second : nullptr;
     }
 
-    UIViewPtr ViewManager::GetCurrentViewPtr() {
+    ViewPtr ViewManager::GetCurrentViewPtr() {
         return GetView(currentView);
     }
 
@@ -103,7 +103,7 @@ namespace Engine {
             std::cout << "[ViewManager] Transitioned to view '" << newView << "'" << std::endl;
         } else {
             currentView = "";
-            std::cout << "[ViewManager] Warning: Could not transition to view '" 
+            std::cout << "[ViewManager] Warning: Could not transition to view '"
                       << newView << "'" << std::endl;
         }
     }
@@ -133,7 +133,7 @@ namespace Engine {
 
     void ViewManager::SetRenderTarget(std::shared_ptr<NativeWindow> window) {
         renderWindow = window;
-        std::cout << "[ViewManager] Render target set to window: " 
+        std::cout << "[ViewManager] Render target set to window: "
                   << (window ? window->GetTitle() : "nullptr") << std::endl;
     }
 }
