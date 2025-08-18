@@ -50,7 +50,6 @@ namespace Engine {
         
     private:
         void SetupEventHandlers();
-        void RunDemo();
         
         std::unique_ptr<RenderManager> renderManager;
         bool isInitialized;

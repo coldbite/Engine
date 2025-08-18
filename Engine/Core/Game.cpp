@@ -46,13 +46,9 @@ namespace Engine {
             engine.RequestStop();
         });
         
-        std::thread demoThread([this]() {
-            RunDemo();
-        });
         
         engineThread.join();
         inputThread.join();
-        demoThread.join();
     }
 
     void Game::Shutdown() {
@@ -101,22 +97,4 @@ namespace Engine {
         );
     }
 
-    void Game::RunDemo() {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-
-        Engine& engine = GetEngine();
-        
-        RenderEvent openglEvent(RenderEvent::RenderAPI::OpenGL);
-        engine.DispatchEvent(openglEvent);
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        
-        RenderEvent directxEvent(RenderEvent::RenderAPI::DirectX);
-        engine.DispatchEvent(directxEvent);
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        
-        RenderEvent vulkanEvent(RenderEvent::RenderAPI::Vulkan);
-        engine.DispatchEvent(vulkanEvent);
-    }
 }
