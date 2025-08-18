@@ -2,7 +2,7 @@
 #include <iostream>
 
 namespace Engine {
-    namespace CL {
+    namespace CommandLine {
         Parser::Parser() {}
         
         Parser::~Parser() {}

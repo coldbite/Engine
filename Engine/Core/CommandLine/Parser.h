@@ -6,7 +6,7 @@
 #include <optional>
 
 namespace Engine {
-    namespace CL {
+    namespace CommandLine {
         struct Argument {
             std::string name;
             std::string shortName;
