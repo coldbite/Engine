@@ -20,6 +20,7 @@ file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
 file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
     "Game/*.cpp"
     "Game/*.h"
+    "Game/Game.conf"
    # "Game/*/.gitkeep"
 )
 
