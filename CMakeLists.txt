@@ -29,13 +29,17 @@ target_include_directories(Engine PUBLIC Engine/Core)
 add_executable(Masterball ${GAME_SOURCES})
 target_link_libraries(Masterball Engine)
 
-# Copy Game.conf to build directory
-add_custom_command(TARGET Masterball POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+# Always copy Game.conf to build directory 
+add_custom_target(copy_config ALL
+    COMMAND ${CMAKE_COMMAND} -E copy
     "${CMAKE_SOURCE_DIR}/Game/Game.conf"
     "${CMAKE_CURRENT_BINARY_DIR}/Game.conf"
+    DEPENDS "${CMAKE_SOURCE_DIR}/Game/Game.conf"
     COMMENT "Copying Game.conf to build directory"
 )
+
+# Make Masterball depend on config copy
+add_dependencies(Masterball copy_config)
 
 # Enable threading support
 find_package(Threads REQUIRED)

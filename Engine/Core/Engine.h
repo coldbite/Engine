@@ -5,6 +5,7 @@
 #include "Settings/Config.h"
 #include "CommandLine/Arguments.h"
 #include <memory>
+#include <stdexcept>
 #include <atomic>
 #include <chrono>
 
@@ -12,6 +13,20 @@ namespace Engine {
     /* Simple Alias */
     using Config    = Settings::Config;
     using Arguments = CommandLine::Arguments;
+
+    /* Settings & Options */
+    enum class EngineOption {
+        DEBUGGING               = 1,
+        RENDERER                = 2,
+        VSYNC                   = 3,
+        RESOLUTION_MODE         = 4,
+        FRAMERATE_LIMIT_ENABLED = 5,
+        FRAMERATE_LIMIT_VALUE   = 6,
+        RESOLUTION_HEIGHT       = 7,
+        RESOLUTION_WIDTH        = 8,
+        RESOLUTION_HERTZ        = 9,
+        RESOLUTION_SCALE        = 10
+    };
 
     class Engine {
     public:
@@ -21,11 +36,21 @@ namespace Engine {
         void Run();
         void Shutdown();
 
-        EventDispatcher& GetEventDispatcher() { return eventDispatcher; }
-        ThreadPool& GetThreadPool() { return *threadPool; }
+        EventDispatcher& GetEventDispatcher() {
+                return eventDispatcher;
+        }
 
-        void RequestStop() { shouldStop = true; }
-        bool ShouldStop() const { return shouldStop; }
+        ThreadPool& GetThreadPool() {
+                return *threadPool;
+        }
+
+        void RequestStop() {
+                shouldStop = true;
+        }
+
+        bool ShouldStop() const {
+                return shouldStop;
+        }
 
         template<typename T>
         void SubscribeToEvent(EventHandler handler) {

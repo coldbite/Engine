@@ -99,6 +99,8 @@ namespace Engine {
             
             std::string Trim(const std::string& str);
             std::string RemoveQuotes(const std::string& str);
+            std::string RemoveAllWhitespace(const std::string& str);
+            std::string RemoveLeadingTrailingWhitespace(const std::string& str);
             ConfigValue ParseValue(const std::string& valueStr);
             bool ParseBool(const std::string& str);
             

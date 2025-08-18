@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Exceptions/CoreException.h"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -18,12 +19,12 @@ namespace Engine {
         }
 
         SetupEventHandlers();
-        
+
         if (!Engine::Initialize()) {
-            std::cout << "Failed to initialize engine!" << std::endl;
+            throw CoreException("Failed to initialize engine!");
             return false;
         }
-        
+
         isInitialized = true;
         return true;
     }
@@ -36,13 +37,13 @@ namespace Engine {
         std::thread engineThread([this]() {
             Engine::Run();
         });
-        
+
         std::thread inputThread([this]() {
             std::cin.get();
             RequestStop();
         });
-        
-        
+
+
         engineThread.join();
         inputThread.join();
     }
@@ -53,9 +54,9 @@ namespace Engine {
         }
 
         OnShutdown();
-        
+
         Engine::Shutdown();
-        
+
         isInitialized = false;
     }
 
@@ -66,7 +67,7 @@ namespace Engine {
                 OnInit();
             }
         );
-        
+
         SubscribeToEvent<UpdateEvent>(
             [this, &renderManager = this->renderManager](const IEvent& event) {
                 const UpdateEvent& updateEvent = static_cast<const UpdateEvent&>(event);
@@ -74,14 +75,14 @@ namespace Engine {
                 OnUpdate(updateEvent.GetDeltaTime());
             }
         );
-        
+
         SubscribeToEvent<RenderEvent>(
             [this, &renderManager = this->renderManager](const IEvent& event) {
                 renderManager->OnRenderEvent(event);
                 OnRender();
             }
         );
-        
+
         SubscribeToEvent<ShutdownEvent>(
             [this, &renderManager = this->renderManager](const IEvent& event) {
                 renderManager->OnShutdownEvent(event);

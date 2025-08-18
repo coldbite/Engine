@@ -1,6 +1,7 @@
 #pragma once
 #include "../Engine/Core/Game.h"
 #include "Options.h"
+#include "Map.h"
 
 class Masterball : public Engine::Game {
 public:
@@ -8,4 +9,7 @@ public:
     void OnUpdate(float deltaTime) override;
     void OnRender() override;
     void OnShutdown() override;
+
+private:
+    Map map;
 };
