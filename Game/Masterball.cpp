@@ -2,13 +2,21 @@
 
 using Engine::Config;
 using Engine::EngineOption;
+using Engine::ViewChangeEvent;
 
 void Masterball::OnInit() {
     /* Bind Options */
     AddOptions<MB>();
 
     /* Load Configuration */
-    Config::Load("Game.conf");
+    if(GetOption<MB, std::string>(MB::TYPE, "CLIENT") == "SERVER") {
+        std::cout << "[Masterball] Starting dedicated Server" << std::endl;
+        // @ToDo not exists, create File with defaults
+        Config::Load("Server.conf");
+    } else {
+        // @ToDo not exists, create File with defaults
+        Config::Load("Game.conf");
+    }
 
     if(GetOption<MB, bool>(MB::DEBUGGING, false)) {
         std::cout << "[Masterball] Debug ON" << std::endl;
@@ -17,66 +25,73 @@ void Masterball::OnInit() {
     }
 
     /* Set the Rendering-API */
-    if(Config::Has("Render.Renderer")) {
-        std::string renderer = Config::GetString("Render.Renderer", "OpenGL");
-        std::cout << "[Masterball] Config Renderer: " << renderer << std::endl;
-        SetOption<EngineOption, std::string>(EngineOption::RENDERER, renderer);
-    } else {
-        throw std::runtime_error("Renderer initialization failed");
+    if(GetOption<MB, std::string>(MB::TYPE, "CLIENT") == "CLIENT") {
+        if(Config::Has("Render.Renderer")) {
+            std::string renderer = Config::GetString("Render.Renderer", "OpenGL");
+            std::cout << "[Masterball] Config Renderer: " << renderer << std::endl;
+            SetOption<EngineOption, std::string>(EngineOption::RENDERER, renderer);
+        } else {
+            throw std::runtime_error("Renderer initialization failed");
+        }
+
+        /* Enable Vertical-Synchronisation */
+        if(Config::Has("Render.VSync")) {
+            SetOption<EngineOption, bool>(EngineOption::VSYNC, Config::GetBool("Render.VSync", true));
+        }
+
+        /* Enable FPS-Limit */
+        if(Config::Has("Render.FrameRateLimiterEnable")) {
+            SetOption<EngineOption, bool>(EngineOption::FRAMERATE_LIMIT_ENABLED, Config::GetBool("Render.FrameRateLimiterEnable", false));
+        }
+
+        /* Set FPS-Limit */
+        if(Config::Has("Render.FrameRateLimit")) {
+            SetOption<EngineOption, int>(EngineOption::FRAMERATE_LIMIT_ENABLED, Config::GetInt("Render.FrameRateLimit", 240));
+        }
+
+        /* Set Screen-Mode */
+        if(Config::Has("Render.FullscreenMode")) {
+            SetOption<EngineOption, int>(EngineOption::RESOLUTION_MODE, Config::GetInt("Render.FullscreenMode", 0));
+        }
+
+        /* Set Display Specs */
+        if(Config::Has("Render.Resolution.Width")) {
+            SetOption<EngineOption, int>(EngineOption::RESOLUTION_WIDTH, Config::GetInt("Render.Resolution.Width", 768));
+        }
+
+        if(Config::Has("Render.Resolution.Height")) {
+            SetOption<EngineOption, int>(EngineOption::RESOLUTION_HEIGHT, Config::GetInt("Render.Resolution.Height", 1024));
+        }
+
+        if(Config::Has("Render.Resolution.Hertz")) {
+            SetOption<EngineOption, int>(EngineOption::RESOLUTION_HERTZ, Config::GetInt("Render.Resolution.Hertz", 60));
+        }
+
+        if(Config::Has("Render.Resolution.Scale")) {
+            SetOption<EngineOption, float>(EngineOption::RESOLUTION_SCALE, Config::GetFloat("Render.Resolution.Scale", 1.0));
+        }
     }
 
-    /* Enable Vertical-Synchronisation */
-    if(Config::Has("Render.VSync")) {
-        SetOption<EngineOption, bool>(EngineOption::VSYNC, Config::GetBool("Render.VSync", true));
-    }
+    // Initialize View System
+    InitializeViews();
 
-    /* Enable FPS-Limit */
-    if(Config::Has("Render.FrameRateLimiterEnable")) {
-        SetOption<EngineOption, bool>(EngineOption::FRAMERATE_LIMIT_ENABLED, Config::GetBool("Render.FrameRateLimiterEnable", false));
-    }
-
-    /* Set FPS-Limit */
-    if(Config::Has("Render.FrameRateLimit")) {
-        SetOption<EngineOption, int>(EngineOption::FRAMERATE_LIMIT_ENABLED, Config::GetInt("Render.FrameRateLimit", 240));
-    }
-
-    /* Set Screen-Mode */
-    if(Config::Has("Render.FullscreenMode")) {
-        SetOption<EngineOption, int>(EngineOption::RESOLUTION_MODE, Config::GetInt("Render.FullscreenMode", 0));
-    }
-
-    /* Set Display Specs */
-    if(Config::Has("Render.Resolution.Width")) {
-        SetOption<EngineOption, int>(EngineOption::RESOLUTION_WIDTH, Config::GetInt("Render.Resolution.Width", 768));
-    }
-
-    if(Config::Has("Render.Resolution.Height")) {
-        SetOption<EngineOption, int>(EngineOption::RESOLUTION_HEIGHT, Config::GetInt("Render.Resolution.Height", 1024));
-    }
-
-    if(Config::Has("Render.Resolution.Hertz")) {
-        SetOption<EngineOption, int>(EngineOption::RESOLUTION_HERTZ, Config::GetInt("Render.Resolution.Hertz", 60));
-    }
-
-    if(Config::Has("Render.Resolution.Scale")) {
-        SetOption<EngineOption, float>(EngineOption::RESOLUTION_SCALE, Config::GetFloat("Render.Resolution.Scale", 1.0));
-    }
-
-    // Show UI/Loading
+    // Show Loading UI
+    DispatchEvent(ViewChangeEvent("Loading"));
 
     // Set up loading progress callback
-    map.OnLoading([](const std::string& message, int actual, int total, float percentage) {
-        std::cout << "[Masterball] Loading Progress: " << message
-                  << " (" << actual << "/" << total << ") "
-                  << percentage << "%" << std::endl;
-        // Update UI/Loading
+    map.OnLoading([this](const std::string& message, int actual, int total, float percentage) {
+        if (loadingView) {
+            loadingView->UpdateProgress(message, actual, total, percentage);
+        }
     });
 
     // Set up loaded callback
-    map.OnLoaded([]() {
-        // Hide UI/Loading
-        // Show UI/Playing
-        std::cout << "[Masterball] Map fully loaded and ready!" << std::endl;
+    map.OnLoaded([this]() {
+        if (playingView) {
+            playingView->ShowNotification("Map loaded successfully!");
+        }
+        // Transition to Playing UI
+        DispatchEvent(ViewChangeEvent("Playing"));
     });
 
     // Load the map
@@ -93,4 +108,20 @@ void Masterball::OnUpdate(float /*deltaTime*/) {
 
 void Masterball::OnRender() {
     // std::cout << "[Masterball] Custom render logic" << std::endl;
+}
+
+void Masterball::InitializeViews() {
+    // Create views
+    loadingView = std::make_shared<LoadingView>();
+    playingView = std::make_shared<PlayingView>();
+
+    // Register views with ViewManager
+    GetViewManager().RegisterView("Loading", loadingView);
+    GetViewManager().RegisterView("Playing", playingView);
+
+    // Also register views with RenderManager for rendering
+    // (Views are Renderables, so they can be added to the render system)
+    // This is optional - depends on how you want to handle UI rendering
+
+    std::cout << "[Masterball] Views initialized and registered" << std::endl;
 }

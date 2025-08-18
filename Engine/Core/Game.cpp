@@ -7,6 +7,7 @@
 namespace Engine {
     Game::Game() : Engine(), isInitialized(false) {
         renderManager = std::make_unique<RenderManager>();
+        viewManager = std::make_unique<ViewManager>();
     }
 
     Game::~Game() {
@@ -69,9 +70,10 @@ namespace Engine {
         );
 
         SubscribeToEvent<UpdateEvent>(
-            [this, &renderManager = this->renderManager](const IEvent& event) {
+            [this, &renderManager = this->renderManager, &viewManager = this->viewManager](const IEvent& event) {
                 const UpdateEvent& updateEvent = static_cast<const UpdateEvent&>(event);
                 renderManager->OnUpdateEvent(event);
+                viewManager->UpdateViews(updateEvent.GetDeltaTime());
                 OnUpdate(updateEvent.GetDeltaTime());
             }
         );
@@ -84,9 +86,17 @@ namespace Engine {
         );
 
         SubscribeToEvent<ShutdownEvent>(
-            [this, &renderManager = this->renderManager](const IEvent& event) {
+            [this, &renderManager = this->renderManager, &viewManager = this->viewManager](const IEvent& event) {
                 renderManager->OnShutdownEvent(event);
+                viewManager->HideAllViews();
                 OnShutdown();
+            }
+        );
+        
+        SubscribeToEvent<ViewChangeEvent>(
+            [this, &viewManager = this->viewManager](const IEvent& event) {
+                const ViewChangeEvent& viewEvent = static_cast<const ViewChangeEvent&>(event);
+                viewManager->OnViewChangeEvent(viewEvent);
             }
         );
     }

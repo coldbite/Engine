@@ -2,6 +2,7 @@
 
 #include "Engine.h"
 #include "RenderManager.h"
+#include "ViewManager.h"
 #include "Settings/Options.h"
 #include <memory>
 
@@ -45,11 +46,15 @@ namespace Engine {
             Settings::OptionsManager::GetInstance().PrintOptions<EnumType>();
         }
         
+        // View Management
+        ViewManager& GetViewManager() { return *viewManager; }
+        
         
     private:
         void SetupEventHandlers();
         
         std::unique_ptr<RenderManager> renderManager;
+        std::unique_ptr<ViewManager> viewManager;
         bool isInitialized;
     };
 }

@@ -49,6 +49,16 @@ namespace Engine {
     class InitEvent : public Event<InitEvent> {};
     class ShutdownEvent : public Event<ShutdownEvent> {};
 
+    // View Management Events
+    class ViewChangeEvent : public Event<ViewChangeEvent> {
+    public:
+        ViewChangeEvent(const std::string& targetView) : targetView(targetView) {}
+        const std::string& GetTargetView() const { return targetView; }
+
+    private:
+        std::string targetView;
+    };
+
     using EventHandler = std::function<void(const IEvent&)>;
 
     class EventDispatcher {

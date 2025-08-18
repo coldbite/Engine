@@ -14,13 +14,13 @@ set(CMAKE_C_COMPILER gcc)
 file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
     "Engine/*.cpp"
     "Engine/*.h"
-    "Engine/*/.gitkeep"
+    #"Engine/*/.gitkeep"
 )
 
 file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
     "Game/*.cpp"
-    "Game/*.h" 
-    "Game/*/.gitkeep"
+    "Game/*.h"
+   # "Game/*/.gitkeep"
 )
 
 # Create Engine library
@@ -31,7 +31,7 @@ target_include_directories(Engine PUBLIC Engine/Core)
 add_executable(Masterball ${GAME_SOURCES})
 target_link_libraries(Masterball Engine)
 
-# Always copy Game.conf to build directory 
+# Always copy Game.conf to build directory
 add_custom_target(copy_config ALL
     COMMAND ${CMAKE_COMMAND} -E copy
     "${CMAKE_SOURCE_DIR}/Game/Game.conf"

@@ -34,7 +34,7 @@ void Map::Load(const std::string& name) {
         "Finalizing map..."
     };
 
-    for (int i = 0; i < totalSteps; ++i) {
+    for(int i = 0; i < totalSteps; ++i) {
         if (onLoadingCallback) {
             float percentage = (float)(i + 1) / totalSteps * 100.0f;
             onLoadingCallback(steps[i], i + 1, totalSteps, percentage);

@@ -25,7 +25,6 @@ int main(int argc, char* argv[]) {
         }
 
         if(arguments.Has("server")) {
-            std::cout << "DEDICATED SERVER" << std::endl;
             game.SetOption<MB, std::string>(MB::TYPE, "SERVER");
         } else if(arguments.Has("connect")) {
             std::string server = arguments.Get("connect");
