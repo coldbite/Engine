@@ -177,8 +177,49 @@ namespace Engine {
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
-            // ACHTUNG: glOrtho(0, width, height, 0, ...) -> (0,0) ist oben links
-            glOrtho(0, context.GetWidth(), context.GetHeight(), 0, -1, 1);
+            //glOrtho(0.0, context.GetWidth(), context.GetHeight(), 0.0, -1.0, 1.0);
+            const float REF_WIDTH = 1280.0f;
+            const float REF_HEIGHT = 720.0f;
+            float aspect = (float)context.GetWidth() / (float)context.GetHeight();
+
+            // Fenster ist breiter als Referenz: Breite anpassen (pillarbox)
+            float viewWidth = context.GetHeight() * aspect;
+            float xOffset = (context.GetWidth() - viewWidth) / 2.0f;
+            glOrtho(xOffset, xOffset + viewWidth, context.GetHeight(), 0.0, -1.0, 1.0);
+            // --- Optimiertes Letterboxing/Pillarboxing: Immer im festen Referenzsystem rendern ---
+
+            float windowWidth = static_cast<float>(context.GetWidth());
+            float windowHeight = static_cast<float>(context.GetHeight());
+            float windowAspect = windowWidth / windowHeight;
+            float refAspect = REF_WIDTH / REF_HEIGHT;
+
+            // Passe Viewport an, damit Seitenverhältnis stimmt (schwarze Balken möglich)
+            if (windowAspect > refAspect) {
+                // Pillarbox: links/rechts Balken
+                int viewWidth = static_cast<int>(windowHeight * refAspect);
+                int xOffset = static_cast<int>((windowWidth - viewWidth) / 2.0f);
+                glViewport(xOffset, 0, viewWidth, static_cast<int>(windowHeight));
+            } else {
+                // Letterbox: oben/unten Balken
+                int viewHeight = static_cast<int>(windowWidth / refAspect);
+                int yOffset = static_cast<int>((windowHeight - viewHeight) / 2.0f);
+                glViewport(0, yOffset, static_cast<int>(windowWidth), viewHeight);
+            }
+
+            // Setze Ortho-Projektion immer auf Referenzsystem
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadIdentity();
+            glOrtho(0, REF_WIDTH, REF_HEIGHT, 0, -1, 1);
+
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glLoadIdentity();
+            // Fenster ist höher als Referenz: Höhe anpassen (letterbox)
+            float viewHeight = context.GetWidth() / aspect;
+            float yOffset = (context.GetHeight() - viewHeight) / 2.0f;
+            glOrtho(0.0, context.GetWidth(), yOffset + viewHeight, yOffset, -1.0, 1.0);
+
 
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
@@ -194,7 +235,7 @@ namespace Engine {
             float scaleRef = 1280.0f;
             float scaleX = context.GetWidth() / scaleRef;
             float scaleY = context.GetHeight() / scaleRef;
-            float scale = std::max(scaleX, scaleY);
+            float scale = 1.0f; //std::max(scaleX, scaleY);
             float posX = x;
 
             // 1. Finde maximale bearingY für die Baseline
@@ -243,9 +284,6 @@ namespace Engine {
             glDisable(GL_TEXTURE_2D);
 
             // --- Matrix wiederherstellen ---
-
-            scale = 1.0f; // Bleibt 1.0f, da die Schriftgröße angepasst wird
-
             glEnable(GL_DEPTH_TEST);
             // Hinweis: Bei Fenster-Resize muss context.GetWidth()/GetHeight() aktuell sein und glViewport(0,0,w,h) aufgerufen werden!
         }
