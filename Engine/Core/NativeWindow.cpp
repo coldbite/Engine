@@ -192,7 +192,6 @@ namespace Engine {
 
         std::cout << "[NativeWindow] Setting up rendering context for: " << api << std::endl;
 
-#ifdef _WIN32
         if(api == "OpenGL") {
             // Basic OpenGL context setup (low-level)
             PIXELFORMATDESCRIPTOR pfd = {};
@@ -238,18 +237,10 @@ namespace Engine {
             }
             
             // Now initialize our OpenGL wrapper
-            auto self = std::make_shared<NativeWindow>(*this);
-            return Graphics::OpenGL::OpenGL::Init(self);
+            auto self   = std::make_shared<NativeWindow>(*this);
+            auto OGL    = std::make_shared<Graphics::OpenGL::OpenGL>();
+            return OGL->Init(self);
         }
-#elif defined(__CYGWIN__)
-        // Mock rendering context for Cygwin
-        std::cout << "[NativeWindow] Mock rendering context setup for: " << api << std::endl;
-        if(api == "OpenGL") {
-            auto self = std::make_shared<NativeWindow>(*this);
-            return Graphics::OpenGL::OpenGL::Init(self);
-        }
-        return true;
-#endif
 
         std::cout << "[NativeWindow] Rendering API '" << api << "' not implemented yet" << std::endl;
         return false;

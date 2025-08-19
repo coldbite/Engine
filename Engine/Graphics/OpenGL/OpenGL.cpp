@@ -16,6 +16,10 @@ namespace Engine {
             std::shared_ptr<NativeWindow> OpenGL::currentWindow = nullptr;
             bool OpenGL::initialized = false;
 
+            OpenGL::~OpenGL() {
+
+            }
+
             bool OpenGL::Init(std::shared_ptr<NativeWindow> window) {
                 if(initialized) {
                     return true;
@@ -38,6 +42,22 @@ namespace Engine {
 
                 initialized = true;
                 return true;
+            }
+
+            void OpenGL::CreateDevice() {
+                // Implementation for device creation
+            }
+
+            void OpenGL::GetDevice() {
+                // Implementation for getting the device
+            }
+
+            void OpenGL::CreateContext() {
+                // Implementation for context creation
+            }
+
+            void OpenGL::GetContext() {
+                // Implementation for getting the context
             }
 
             void OpenGL::Shutdown() {

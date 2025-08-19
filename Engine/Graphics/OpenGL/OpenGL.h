@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../IRenderingAPI.h"
 #include <string>
 #include <memory>
 #include <map>
@@ -16,9 +17,18 @@ namespace Engine {
     namespace Graphics {
         namespace OpenGL {
 
-            class OpenGL {
+            class OpenGL : public IRenderingAPI {
             public:
-                static bool Init(std::shared_ptr<NativeWindow> window);
+                virtual ~OpenGL();
+                bool Init(std::shared_ptr<NativeWindow> window) override;
+
+                // Implementations for the pure virtual functions
+                void CreateDevice() override;
+                void GetDevice() override;
+                void CreateContext() override;
+                void GetContext() override;
+                void DrawText(const std::string& text, float x, float y, float r = 1.0f, float g = 1.0f, float b = 1.0f) override;
+
                 static void Shutdown();
                 static void MakeContextCurrent();
 
@@ -32,7 +42,6 @@ namespace Engine {
 
                 // Primitive drawing
                 static void DrawRect(float x, float y, float width, float height, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f);
-                static void DrawText(const std::string& text, float x, float y, float r = 1.0f, float g = 1.0f, float b = 1.0f);
                 static void DrawSpinner(float x, float y, float radius, float rotation);
 
             private:
