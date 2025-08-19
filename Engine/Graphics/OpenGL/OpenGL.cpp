@@ -10,6 +10,9 @@
 #include <vector>
 #endif
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 namespace Engine {
     namespace Graphics {
         namespace OpenGL {
@@ -20,12 +23,37 @@ namespace Engine {
 
             }
 
+            void OpenGL::SetViewport(int width, int height) {
+                glViewport(0, 0, width, height);
+            }
+
+            int OpenGL::GetWidth() {
+                return currentWindow->GetWidth();
+            }
+
+            int OpenGL::GetHeight() {
+                return currentWindow->GetHeight();
+            }
+
             bool OpenGL::Init(std::shared_ptr<NativeWindow> window) {
                 if(initialized) {
                     return true;
                 }
 
                 currentWindow = window;
+
+                glGenerateMipmap_ptr = (PFNGLGENERATEMIPMAPPROC) wglGetProcAddress("glGenerateMipmap");
+
+                if(!glGenerateMipmap_ptr) {
+                    throw std::runtime_error("glGenerateMipmap konnte nicht geladen werden!");
+                }
+
+                glGenTextures_ptr = (PFNGLGENTEXTURESPROC) wglGetProcAddress("glGenTextures");
+                glGenerateMipmap_ptr = (PFNGLGENERATEMIPMAPPROC) wglGetProcAddress("glGenerateMipmap");
+
+                if(!glGenTextures_ptr || !glGenerateMipmap_ptr) {
+                    throw std::runtime_error("Konnte OpenGL-Funktionen nicht laden!");
+                }
 
                 // Basic OpenGL setup - this was moved from NativeWindow::SetupRenderingContext
                 std::cout << "[OpenGL] Initializing OpenGL context" << std::endl;
@@ -79,51 +107,30 @@ namespace Engine {
             }
 
             // Virtual method implementations
-            void OpenGL::Clear(float r, float g, float b, float a) {
-                ClearStatic(r, g, b, a);
+            void OpenGL::Clear() {
+                Clear(RGBA(0.0f, 0.0f, 0.0f, 1.0f));
             }
 
-            void OpenGL::SwapBuffers() {
-                SwapBuffersStatic();
-            }
-
-            void OpenGL::Begin2D(int width, int height) {
-                Begin2DStatic(width, height);
-            }
-
-            void OpenGL::End2D() {
-                End2DStatic();
-            }
-
-            void OpenGL::DrawRect(float x, float y, float width, float height, float r, float g, float b, float a) {
-                DrawRectStatic(x, y, width, height, r, g, b, a);
-            }
-
-            void OpenGL::DrawSpinner(float x, float y, float radius, float rotation) {
-                DrawSpinnerStatic(x, y, radius, rotation);
-            }
-
-            // Static method implementations
-            void OpenGL::ClearStatic(float r, float g, float b, float a) {
-                if (!initialized) {
+            void OpenGL::Clear(const IColor& color) {
+                if(!initialized) {
                     std::cout << "[OpenGL] Clear called but OpenGL not initialized!" << std::endl;
                     return;
                 }
 
-                glClearColor(r, g, b, a);
+                glClearColor(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             }
 
-            void OpenGL::SwapBuffersStatic() {
-                if (!initialized || !currentWindow) {
+            void OpenGL::SwapBuffers() {
+                if(!initialized || !currentWindow) {
                     return;
                 }
 
                 currentWindow->SwapBuffers();
             }
 
-            void OpenGL::Begin2DStatic(int width, int height) {
-                if (!initialized) {
+            void OpenGL::Begin2D(int width, int height) {
+                if(!initialized) {
                     return;
                 }
 
@@ -137,33 +144,39 @@ namespace Engine {
                 glDisable(GL_DEPTH_TEST);
             }
 
-            void OpenGL::End2DStatic() {
-                if (!initialized) {
+            void OpenGL::End2D() {
+                if(!initialized) {
                     return;
                 }
 
                 glEnable(GL_DEPTH_TEST);
             }
 
-            void OpenGL::DrawRectStatic(float x, float y, float width, float height, float r, float g, float b, float a) {
-                if (!initialized) {
+            void OpenGL::DrawRect(float x, float y, float width, float height, const IColor& color) {
+                if(!initialized) {
                     return;
                 }
 
-                glColor4f(r, g, b, a);
+                // Enable blending for transparency
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                glColor4f(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+
                 glBegin(GL_QUADS);
                     glVertex2f(x, y);
                     glVertex2f(x + width, y);
                     glVertex2f(x + width, y + height);
                     glVertex2f(x, y + height);
                 glEnd();
+
+                // Restore blending state
+                glDisable(GL_BLEND);
             }
 
-            void OpenGL::DrawTextString(const std::string& text, float /*x*/, float /*y*/, const IColor& color) {
-                std::cout << "[DEBUG] DrawTextString called: '" << text << "' initialized=" << initialized << std::endl;
-
-                if (!initialized) {
-                    std::cout << "[DEBUG] DrawTextString returning early - not initialized" << std::endl;
+            void OpenGL::PaintText(const std::string& text, float x, float y, const IColor& color) {
+                if(!initialized) {
+                    std::cout << "[DEBUG] PaintText returning early - not initialized" << std::endl;
                     return;
                 }
 
@@ -174,6 +187,8 @@ namespace Engine {
                 // Set text color
                 glColor3f(color.GetRed(), color.GetBlue(), color.GetGreen());
 
+                // @ToDo color.GetAlpha()
+
                 // Enable texturing
                 glEnable(GL_TEXTURE_2D);
 
@@ -182,32 +197,35 @@ namespace Engine {
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
 
-            void OpenGL::DrawSpinnerStatic(float x, float y, float radius, float rotation) {
-                if (!initialized) {
-                    return;
+            Texture OpenGL::LoadTexture(const std::string& filename) {
+                Texture tex{};
+
+                int channels;
+                unsigned char* data = stbi_load(filename.c_str(), &tex.width, &tex.height, &channels, 4);
+
+                if(!data) {
+                   throw std::runtime_error("Konnte PNG nicht laden: " + filename);
                 }
 
-                glColor4f(1.0f, 1.0f, 1.0f, 0.8f);
+                glGenTextures(1, &tex.id);
+                glBindTexture(GL_TEXTURE_2D, tex.id);
 
-                const int segments = 12;
-                const float angleStep = 2.0f * 3.14159f / segments;
+                // Bilddaten hochladen
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.width, tex.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-                for (int i = 0; i < segments; ++i) {
-                    float alpha = 1.0f - (float)i / segments;
-                    glColor4f(1.0f, 1.0f, 1.0f, alpha * 0.8f);
+                // Mipmap erzeugen
+                glGenerateMipmap(GL_TEXTURE_2D);
 
-                    float angle = rotation + i * angleStep;
-                    float startX = x + cos(angle) * (radius * 0.6f);
-                    float startY = y + sin(angle) * (radius * 0.6f);
-                    float endX = x + cos(angle) * radius;
-                    float endY = y + sin(angle) * radius;
+                // Standard-Parameter setzen
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-                    glLineWidth(3.0f);
-                    glBegin(GL_LINES);
-                        glVertex2f(startX, startY);
-                        glVertex2f(endX, endY);
-                    glEnd();
-                }
+                // Speicher freigeben (OpenGL hat jetzt die Daten)
+                stbi_image_free(data);
+
+                return tex;
             }
         }
     }

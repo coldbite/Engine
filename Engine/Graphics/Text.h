@@ -32,13 +32,16 @@ namespace Engine {
             ~Text();
 
             bool LoadFont(const std::string& fontPath, unsigned int fontSize = 48);
-            void RenderText(IRenderingAPI& renderingAPI, const std::string& text, float x, float y, float scale = 1.0f, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 1.0f)) const;
+            void RenderText(IRenderingAPI& renderingAPI, const std::string& text, float x, float y, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 1.0f)) const;
 
             void SetFontSize(unsigned int fontSize);
             unsigned int GetFontSize() const { return m_fontSize; }
 
             float GetTextWidth(const std::string& text, float scale = 1.0f) const;
             float GetTextHeight(float scale = 1.0f) const;
+
+            // Schriftgröße dynamisch an Fensterhöhe anpassen (im Resize-Callback aufrufen)
+            void UpdateFontSizeForWindow(int windowHeight, unsigned int baseFontSize, int referenceHeight = 720);
 
         private:
             void GenerateCharacterTextures() const;  // Made const for lazy loading

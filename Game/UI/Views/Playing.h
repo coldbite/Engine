@@ -16,11 +16,13 @@ class Playing : public Engine::View {
         void OnShow() override;
         void OnHide() override;
         void OnUpdate(float deltaTime) override;
+        void OnResize(int witdth, int height, int oldWidth, int oldHeight) override;
 
     protected:
         void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;
 
     private:
         Engine::Graphics::Text text;
-        Engine::Graphics::RGBA text_color = Engine::Graphics::RGBA(1.0f, 0.0f, 0.0f, 0.5f);
+        Engine::Graphics::RGBA text_color       = Engine::Graphics::RGBA(1.0f, 0.0f, 0.0f, 0.5f);
+        Engine::Graphics::HEX color_background  = Engine::Graphics::HEX("#333333");
 };

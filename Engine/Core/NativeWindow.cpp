@@ -390,14 +390,17 @@ namespace Engine {
 
     void NativeWindow::HandleWindowMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
         switch(uMsg) {
-            case WM_SIZE:
-                properties.width    = LOWORD(lParam);
-                properties.height   = HIWORD(lParam);
+            case WM_SIZE: {
+                int newWidth = LOWORD(lParam);
+                int newHeight = HIWORD(lParam);
+                
+                properties.width = newWidth;
+                properties.height = newHeight;
 
                 if(resizeCallback) {
                     resizeCallback(properties.width, properties.height);
                 }
-            break;
+            } break;
             case WM_CLOSE:
                 if(closeCallback) {
                     closeCallback();

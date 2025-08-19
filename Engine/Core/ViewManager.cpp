@@ -16,8 +16,15 @@ namespace Engine {
         }
 
         views[name] = view;
+
+        // Initialize view with current window dimensions if available
+        if(renderWindow) {
+            const auto& props = renderWindow->GetProperties();
+            view->SetWindowDimensions(props.width, props.height);
+        }
+
         /*std::cout << "[ViewManager] Registered view: " << view->GetName()
-                  << " with name '" << name << "' (Active: " << view->IsActive() 
+                  << " with name '" << name << "' (Active: " << view->IsActive()
                   << ", Visible: " << view->IsVisible() << ")" << std::endl;*/
     }
 
@@ -79,8 +86,11 @@ namespace Engine {
 
     void ViewManager::UpdateViews(float deltaTime) {
         // Update transition state
+        if(isTransitioning) {
+            // std::cout << "[ViewManager] UpdateViews: Transitioning, progress=" << transitionProgress << std::endl;
+        }
         UpdateTransition(deltaTime);
-        
+
         for(auto& [name, view] : views) {
             if(view && view->IsActive()) {
                 view->OnUpdate(deltaTime);
@@ -89,6 +99,7 @@ namespace Engine {
     }
 
     void ViewManager::OnViewChangeEvent(const ViewChangeEvent& event) {
+       //  std::cout << "[ViewManager] OnViewChangeEvent: target='" << event.GetTargetView() << "', transition=" << static_cast<int>(event.GetTransition()) << std::endl;
         TransitionTo(event.GetTargetView(), event.GetTransition());
     }
 
@@ -104,23 +115,38 @@ namespace Engine {
         currentTransition = transition;
         transitionSourceView = currentView;
         transitionTargetView = newView;
-        
-        // Activate target view immediately so it can render during transition
+
+        // std::cout << "[ViewManager] Starting transition from '" << transitionSourceView << "' to '" << transitionTargetView << "'" << std::endl;
+
+        // Keep source view active during fade out phase
+        // Activate target view immediately so it can render during fade in phase
         auto targetViewPtr = GetView(transitionTargetView);
         if(targetViewPtr) {
             targetViewPtr->SetActive(true);
+            // std::cout << "[ViewManager] Target view '" << transitionTargetView << "' activated" << std::endl;
+        }
+
+        // Source view stays active until transition is complete
+        auto sourceViewPtr = GetView(transitionSourceView);
+        if(sourceViewPtr) {
+           //  std::cout << "[ViewManager] Source view '" << transitionSourceView << "' remains active for fade out" << std::endl;
         }
     }
 
     void ViewManager::UpdateTransition(float deltaTime) {
         if (!isTransitioning) return;
 
-        // Transition speed (complete in 1.0 seconds)
-        float transitionSpeed = 1.0f;
+        // std::cout << "[ViewManager] UpdateTransition: deltaTime=" << deltaTime << ", progress=" << transitionProgress << std::endl;
+
+        // Transition speed (complete in 2.0 seconds for better visibility)
+        float transitionSpeed = 0.5f;
         transitionProgress += deltaTime * transitionSpeed;
+
+        // std::cout << "[ViewManager] UpdateTransition: new progress=" << transitionProgress << std::endl;
 
         if (transitionProgress >= 1.0f) {
             // Transition complete
+            // std::cout << "[ViewManager] Transition complete!" << std::endl;
             transitionProgress = 1.0f;
             isTransitioning = false;
 
@@ -129,17 +155,25 @@ namespace Engine {
                 auto sourceViewPtr = GetView(transitionSourceView);
                 if(sourceViewPtr) {
                     sourceViewPtr->SetActive(false);
+                    // std::cout << "[ViewManager] Source view '" << transitionSourceView << "' deactivated" << std::endl;
                 }
             }
 
             // Target view is already active, just update current view
             currentView = transitionTargetView;
+            // std::cout << "[ViewManager] Current view is now: " << currentView << std::endl;
         }
     }
 
 
     void ViewManager::SetRenderTarget(std::shared_ptr<NativeWindow> window) {
         renderWindow = window;
+
+        // Update all existing views with current window dimensions
+        if(renderWindow) {
+            const auto& props = renderWindow->GetProperties();
+            UpdateViewDimensions(props.width, props.height);
+        }
     }
 
     void ViewManager::SetRenderingAPI(std::shared_ptr<Graphics::IRenderingAPI> api) {
@@ -154,50 +188,66 @@ namespace Engine {
         // Make the window's rendering context current
         renderWindow->MakeContextCurrent();
 
+        // Views are updated via resize callback, no need to update every frame
+
         // Render the appropriate view(s)
         if(isTransitioning) {
-            std::cout << "[ViewManager] Rendering transition - progress: " << transitionProgress << std::endl;
-            
+            // std::cout << "[ViewManager] Rendering transition - progress: " << transitionProgress << std::endl;
+
             // Two-phase transition: fade out first half, fade in second half
             if(transitionProgress < 0.5f) {
                 // First half: fade out old view
-                std::cout << "[ViewManager] Fade out phase" << std::endl;
+                // std::cout << "[ViewManager] Fade out phase" << std::endl;
                 if(!transitionSourceView.empty()) {
                     auto sourceViewPtr = GetView(transitionSourceView);
                     if(sourceViewPtr && sourceViewPtr->IsActive() && sourceViewPtr->IsVisible()) {
-                        std::cout << "[ViewManager] Rendering source view: " << transitionSourceView << std::endl;
+                        // std::cout << "[ViewManager] Rendering source view: " << transitionSourceView << std::endl;
                         sourceViewPtr->Render(api);
                     }
+                } else {
+                    // If no source view, just clear with black
+                    // std::cout << "[ViewManager] No source view to render, clearing screen" << std::endl;
+                    api.Clear();
                 }
-                
-                // Black overlay that fades from transparent to opaque
+
+                // Render black overlay on top for fade out effect
                 float fadeOutProgress = transitionProgress * 2.0f; // 0.0 to 1.0 over first half
                 float overlayAlpha = fadeOutProgress;
-                
-                std::cout << "[ViewManager] Fade out overlay alpha: " << overlayAlpha << std::endl;
-                api.Begin2D(800, 600);
-                api.DrawRect(0, 0, 800, 600, 0.0f, 0.0f, 0.0f, overlayAlpha);
+
+                // std::cout << "[ViewManager] Fade out overlay alpha: " << overlayAlpha << std::endl;
+                const auto& props = renderWindow->GetProperties();
+                // std::cout << "[ViewManager] Window properties: " << props.width << "x" << props.height << std::endl;
+                api.Begin2D(props.width, props.height);
+                api.DrawRect(0, 0, props.width, props.height, ::Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, overlayAlpha));
                 api.End2D();
             } else {
                 // Second half: fade in new view
-                std::cout << "[ViewManager] Fade in phase" << std::endl;
+                // std::cout << "[ViewManager] Fade in phase" << std::endl;
                 auto targetViewPtr = GetView(transitionTargetView);
                 if(targetViewPtr && targetViewPtr->IsActive() && targetViewPtr->IsVisible()) {
-                    std::cout << "[ViewManager] Rendering target view: " << transitionTargetView << std::endl;
+                    // std::cout << "[ViewManager] Rendering target view: " << transitionTargetView << std::endl;
                     targetViewPtr->Render(api);
+                } else {
+                    // If no target view, just clear with black
+                    // std::cout << "[ViewManager] No target view to render, clearing screen" << std::endl;
+                    api.Clear();
                 }
-                
-                // Black overlay that fades from opaque to transparent
+
+                // Render black overlay on top for fade in effect
                 float fadeInProgress = (transitionProgress - 0.5f) * 2.0f; // 0.0 to 1.0 over second half
                 float overlayAlpha = 1.0f - fadeInProgress;
-                
-                std::cout << "[ViewManager] Fade in overlay alpha: " << overlayAlpha << std::endl;
-                api.Begin2D(800, 600);
-                api.DrawRect(0, 0, 800, 600, 0.0f, 0.0f, 0.0f, overlayAlpha);
+
+                // std::cout << "[ViewManager] Fade in overlay alpha: " << overlayAlpha << std::endl;
+                const auto& props = renderWindow->GetProperties();
+                // std::cout << "[ViewManager] Window properties: " << props.width << "x" << props.height << std::endl;
+                api.Begin2D(props.width, props.height);
+                api.DrawRect(0, 0, props.width, props.height, ::Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, overlayAlpha));
                 api.End2D();
             }
         } else {
             // Normal rendering: render all active views
+            const auto& props = renderWindow->GetProperties();
+            // std::cout << "[ViewManager] Normal rendering - Window properties: " << props.width << "x" << props.height << std::endl;
             for(auto& [name, view] : views) {
                 if(view && view->IsActive() && view->IsVisible()) {
                     view->Render(api);
@@ -207,5 +257,17 @@ namespace Engine {
 
         // Present the frame
         api.SwapBuffers();
+    }
+
+    void ViewManager::UpdateViewDimensions(int width, int height) {
+        if(renderingAPI) {
+            renderingAPI->SetViewport(width, height);
+        }
+
+        for(auto& [name, view] : views) {
+            if(view) {
+                view->SetWindowDimensions(width, height);
+            }
+        }
     }
 }

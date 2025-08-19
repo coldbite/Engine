@@ -46,8 +46,7 @@ namespace Engine {
     // View Management Events
     class ViewChangeEvent : public Event<ViewChangeEvent> {
     public:
-        ViewChangeEvent(const std::string& targetView, Transition transition = Transition::FADE) 
-            : targetView(targetView), transition(transition) {}
+        ViewChangeEvent(const std::string& targetView, Transition transition = Transition::FADE) : targetView(targetView), transition(transition) {}
         const std::string& GetTargetView() const { return targetView; }
         Transition GetTransition() const { return transition; }
 

@@ -101,7 +101,7 @@ namespace Engine {
         float deltaTime = 0.0f;
         bool fpsLimitEnabled = true;
         int targetFPS = 60;
-        
+
         // FPS monitoring
         mutable int currentFPS = 0;
         mutable std::chrono::high_resolution_clock::time_point lastFPSUpdate;

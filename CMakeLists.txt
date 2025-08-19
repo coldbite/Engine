@@ -23,11 +23,15 @@ file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
     "Game/Game.conf"
    # "Game/*/.gitkeep"
 )
+
 # Create Engine library
 add_library(Engine STATIC ${ENGINE_SOURCES})
 target_include_directories(Engine PUBLIC Engine/Core)
 
 # Depencies
+set(STB_DIR "${CMAKE_SOURCE_DIR}/Depencies/stb")
+target_include_directories(Engine PUBLIC ${STB_DIR})
+
 set(FREETYPE_DIR "${CMAKE_SOURCE_DIR}/Depencies/FreeType")
 target_include_directories(Engine PUBLIC ${FREETYPE_DIR}/include)
 

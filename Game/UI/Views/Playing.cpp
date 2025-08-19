@@ -5,7 +5,8 @@
 Engine::Graphics::Text text;
 
 Playing::Playing() : Engine::View("Playing") {
-    text.LoadFont("C:/Windows/Fonts/arial.ttf", 22);
+    SetBackground(color_background);
+    text.LoadFont("C:/Users/Bizzi/Documents/GitHub/Engine/Game/Assets/Fonts/Sansation-Regular.ttf", 18);
 }
 
 void Playing::OnShow() {
@@ -16,17 +17,18 @@ void Playing::OnHide() {
     std::cout << "[Playing] View hidden" << std::endl;
 }
 
-void Playing::OnUpdate(float deltaTime) {
-    if(IsActive()) {
-        UpdateInternal(deltaTime);
-    }
+void Playing::OnResize(int witdth, int height, int oldWidth, int oldHeight) {
+
 }
 
+void Playing::OnUpdate(float deltaTime) {
+    // Currently no internal updates needed for Playing view
+    // UpdateInternal(deltaTime) would be called here if we had animations or game logic
+}
 
 void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
-    context.Clear(0.0f, 0.0f, 0.0f, 1.0f);
+    context.Clear(GetBackground());
 
-    // Text rendering using IRenderingAPI abstraction
-    text.RenderText(context, "Hello World!", 100, 100, 1.0f, text_color);
+    text.RenderText(context, "Playing game...!", 100, 100, text_color);
 }
 

@@ -1,5 +1,6 @@
 #include "Masterball.h"
 #include "Event.h"
+#include "../Engine/Core/Settings/Config.h"
 
 using Engine::Config;
 using Engine::EngineOption;
@@ -88,23 +89,12 @@ void Masterball::OnInit() {
         }
     }
 
-    // Initialize View System
     loading = std::make_shared<Loading>();
     playing = std::make_shared<Playing>();
 
-    // Configure loading view
-    loading->SetMapName("Waterworld");
-    loading->SetGameMode("Singleplayer");
-
-    // Register views with ViewManager
     GetViewManager().RegisterView("Loading", loading);
     GetViewManager().RegisterView("Playing", playing);
 
-    // Show Loading UI
-    std::cout << "[Masterball] Dispatching ViewChangeEvent for Loading" << std::endl;
-    DispatchEvent(ViewChangeEvent("Loading"));
-
-    // Set up loading progress callback
     map.OnLoading([this](const std::string& message, int actual, int total, float percentage) {
         if(loading) {
             loading->UpdateProgress(message, actual, total, percentage);
@@ -113,13 +103,32 @@ void Masterball::OnInit() {
 
     // Set up loaded callback
     map.OnLoaded([this]() {
-        std::cout << "[Masterball] Map loaded successfully!" << std::endl;
-        // Transition to Playing UI
         DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
     });
 
-    // Load the map
-    map.Load("Waterworld");
+    // Received from Server
+    std::string mapName = "Waterworld";
+    loading->SetGameMode("Singleplayer");
+
+    map.Load(mapName, [this](const std::string& name, const Config& mapConfig) {
+        if(loading) {
+            if(mapConfig.HasImpl("Name")) {
+                loading->SetMapName(mapConfig.GetStringImpl("Name", name));
+            } else {
+                loading->SetMapName(name);
+            }
+
+            if(mapConfig.HasImpl("Loading.Background")) {
+                std::string loadingBg = "Maps/" + name + "/" + mapConfig.GetStringImpl("Loading.Background", "");
+
+                if(!loadingBg.empty()) {
+                    loading->SetBackgroundImage(loadingBg);
+                }
+            }
+        }
+    });
+
+    DispatchEvent(ViewChangeEvent("Loading"));
 }
 
 void Masterball::OnShutdown() {

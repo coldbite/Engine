@@ -40,6 +40,9 @@ namespace Engine {
 
         // Event handling
         void OnViewChangeEvent(const ViewChangeEvent& event);
+        
+        // Window dimension updates
+        void UpdateViewDimensions(int width, int height);
 
     private:
         std::unordered_map<std::string, ViewPtr> views;

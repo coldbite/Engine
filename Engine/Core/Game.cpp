@@ -6,6 +6,10 @@
 #include <chrono>
 #include <unistd.h>
 
+#ifdef _WIN32
+    #include <GL/gl.h>
+#endif
+
 namespace Engine {
     Game::Game() : Engine(), isInitialized(false) {
         viewManager     = std::make_unique<ViewManager>();
@@ -103,13 +107,21 @@ namespace Engine {
         // Connect ViewManager to the window and rendering API
         viewManager->SetRenderTarget(mainWindow);
         viewManager->SetRenderingAPI(renderingAPI);
-        
+
+        // Set up window resize callback to update view dimensions
+        mainWindow->SetResizeCallback([this](int width, int height) {
+            std::cout << "[Game] Window resized to: " << width << "x" << height << std::endl;
+            if (viewManager) {
+                viewManager->UpdateViewDimensions(width, height);
+            }
+        });
+
         // Ensure VSync is applied after context setup
         if(windowProps.vsync && mainWindow->IsValid()) {
             std::cout << "[Game] Applying VSync setting: ON" << std::endl;
             mainWindow->SetVSync(true);
         }
-        
+
         mainWindow->Show();
         isInitialized = true;
         return true;
@@ -144,7 +156,7 @@ namespace Engine {
             if(mainWindow && mainWindow->IsValid()) {
                 mainWindow->PollEvents();
             }
-            
+
             // Render in main thread (OpenGL requirement)
             if(viewManager && mainWindow && mainWindow->IsValid() && renderingAPI) {
                 viewManager->RenderViews(*renderingAPI);

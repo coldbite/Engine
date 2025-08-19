@@ -4,10 +4,6 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
-#include <iostream>
-#include "../../../Engine/Graphics/Text.h"
-
-Engine::Graphics::Text text1;
 
 Loading::Loading()
     : Engine::View("Loading")
@@ -16,17 +12,22 @@ Loading::Loading()
     , totalSteps(0)
     , progressPercentage(0.0f)
     , startTime(std::chrono::steady_clock::now()) {
-    /* Do Nothing */
 
-    text1.LoadFont("C:/Windows/Fonts/arial.ttf", 18);
+    SetBackground(color_background);
+    title.LoadFont("C:/Users/Bizzi/Documents/GitHub/Engine/Game/Assets/Fonts/Sansation-Bold.ttf", 40);
+    text1.LoadFont("C:/Users/Bizzi/Documents/GitHub/Engine/Game/Assets/Fonts/Sansation-Regular.ttf", 18);
 }
 
 void Loading::OnShow() {
-    DisplayProgress();
+    /* Do Nothing */
 }
 
 void Loading::OnHide() {
     /* Do Nothing */
+}
+
+void Loading::OnResize(int width, int height, int oldWidth, int oldHeight) {
+    title.UpdateFontSizeForWindow(height, 40, oldHeight);
 }
 
 void Loading::OnUpdate(float deltaTime) {
@@ -42,113 +43,232 @@ void Loading::UpdateProgress(const std::string& message, int actual, int total, 
     currentStep         = actual;
     totalSteps          = total;
     progressPercentage  = percentage;
+}
 
-    // Only display progress when it's actually updated from the loading thread
-    // Not during regular rendering
+void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
+    // Clear screen with static background color
+    context.Clear(GetBackground());
 
-    if(IsActive()) {
-        DisplayProgress();
+    // Set up 2D rendering with current window dimensions
+    context.Begin2D(context.GetWidth(), context.GetHeight());
+
+    // Rendering Background
+    std::string file = GetBackgroundImage();
+    if(!file.empty()) {
+        static auto texture = context.LoadTexture("../Game/" + file);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture.id);
+        glColor3f(1.0f, 1.0f, 1.0f);
+
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);
+            glTexCoord2f(1.0f, 0.0f); glVertex2f(context.GetWidth(), 0.0f);
+            glTexCoord2f(1.0f, 1.0f); glVertex2f(context.GetWidth(), context.GetHeight());
+            glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, context.GetHeight());
+        glEnd();
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_TEXTURE_2D);
+    }
+
+    // Header
+    title.RenderText(context, mapName, 40.0f, 70.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 1.0f, 0.8f));
+
+    // Render animated loading text (center of screen)
+    RenderAnimatedText(context);
+
+    context.End2D();
+}
+
+// Animation helper methods implementation
+float Loading::GetAnimationTime() const {
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime);
+    float totalSeconds = elapsed.count() / 1000.0f;
+
+    // Loop animation every animationCycleDuration seconds
+    return fmod(totalSeconds, animationCycleDuration);
+}
+
+float Loading::GetTitleAlpha(float animTime) const {
+    // Title animation: 0% opacity until 48%, then fade in at 52%, stay until 70%, then fade out
+    float progress = animTime / animationCycleDuration; // 0.0 to 1.0
+
+    if (progress < 0.48f) return 0.0f;
+    if (progress < 0.52f) return (progress - 0.48f) / 0.04f; // Fade in over 4%
+    if (progress < 0.70f) return 1.0f; // Full opacity
+    if (progress < 1.0f) return 1.0f - ((progress - 0.70f) / 0.30f); // Fade out over 30%
+    return 0.0f;
+}
+
+float Loading::GetTextAlpha(float animTime) const {
+    // Text animation: Same as title but delayed by 1.7 seconds (50% of cycle)
+    float delayedTime = fmod(animTime + animationCycleDuration * 0.5f, animationCycleDuration);
+    return GetTitleAlpha(delayedTime);
+}
+
+float Loading::GetTitleX(float animTime) const {
+    // X position animation: smooth sliding from right to center during visible period
+    float progress = animTime / animationCycleDuration;
+    float baseX = GetWindowWidth() * 0.5f; // Center of window
+
+    if (progress < 0.48f) return baseX + 130.0f;
+    if (progress < 0.70f) {
+        // Smooth easing during entire visible period (0.48 to 0.70)
+        float t = (progress - 0.48f) / 0.22f; // 0.0 to 1.0 over 22% of cycle
+        // Apply easing function for smooth motion
+        float eased = 1.0f - pow(1.0f - t, 3.0f); // Ease-out cubic
+        return baseX + 130.0f - (100.0f * eased); // Slide from +130 to +30
+    }
+    return baseX + 30.0f;
+}
+
+bool Loading::GetCursorVisible(float animTime) const {
+    // Blink animation: complex pattern with position changes
+    float progress = animTime / animationCycleDuration;
+
+    // Simplified blinking pattern - alternating visibility every 0.05 seconds
+    float blinkTime = fmod(animTime, 0.1f);
+    return blinkTime < 0.05f;
+}
+
+Engine::Graphics::RGBA Loading::GetAnimatedTextShadow(float animTime) const {
+    // Text shadow color animation: #306f99 -> #19470f -> #734a10
+    float progress = animTime / animationCycleDuration;
+
+    if (progress < 0.5f) {
+        // From blue (#306f99) to green (#19470f)
+        float t = progress * 2.0f; // 0.0 to 1.0
+        float r = 0x30/255.0f * (1-t) + 0x19/255.0f * t;
+        float g = 0x6f/255.0f * (1-t) + 0x47/255.0f * t;
+        float b = 0x99/255.0f * (1-t) + 0x0f/255.0f * t;
+        return Engine::Graphics::RGBA(r, g, b, 0.8f); // Semi-transparent for glow effect
+    } else if (progress < 0.9f) {
+        // From green (#19470f) to brown (#734a10)
+        float t = (progress - 0.5f) / 0.4f; // 0.0 to 1.0
+        float r = 0x19/255.0f * (1-t) + 0x73/255.0f * t;
+        float g = 0x47/255.0f * (1-t) + 0x4a/255.0f * t;
+        float b = 0x0f/255.0f * (1-t) + 0x10/255.0f * t;
+        return Engine::Graphics::RGBA(r, g, b, 0.8f); // Semi-transparent for glow effect
+    } else {
+        // Stay brown for last 10%
+        return Engine::Graphics::RGBA(0x73/255.0f, 0x4a/255.0f, 0x10/255.0f, 0.8f);
     }
 }
 
-void Loading::Render(Engine::Graphics::IRenderingAPI& renderingAPI) {
-    // Clear screen with dark background
-    renderingAPI.Clear(0.0f, 0.0f, 0.0f, 1.0f);
+void Loading::RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI) {
+    float animTime = GetAnimationTime();
 
-    // Set up 2D rendering
-    int windowWidth = 1024;
-    int windowHeight = 768;
-    renderingAPI.Begin2D(windowWidth, windowHeight);
+    // Get animation values
+    float titleAlpha = GetTitleAlpha(animTime);
+    float textAlpha = GetTextAlpha(animTime);
+    float titleX = GetTitleX(animTime);
+    bool cursorVisible = GetCursorVisible(animTime);
+    auto shadowColor = GetAnimatedTextShadow(animTime);
 
-    // Render header
-    RenderHeader(renderingAPI);
+    // Center container in window
+    float centerX = GetWindowWidth() * 0.5f;
+    float centerY = GetWindowHeight() * 0.5f;
 
-    // Render status text (bottom left)
-    text1.RenderText(renderingAPI, currentMessage, 50, 100, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
+    // Container dimensions with responsive scaling
+    float baseBoxWidth = 400.0f;
+    float baseBoxHeight = 120.0f;
+    float boxWidth = GetScaledX(baseBoxWidth);
+    float boxHeight = GetScaledY(baseBoxHeight);
+    float boxX = centerX - boxWidth * 0.5f;
+    float boxY = centerY - boxHeight * 0.5f;
 
-    // Render spinner (bottom right)
-    auto currentTime = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime);
-    float rotation = (elapsed.count() / 100.0f) * 0.1f; // Slow rotation
+    // Render background box with animated border (like the GIF)
+    renderingAPI.DrawRect(boxX, boxY, boxWidth, boxHeight, ::Engine::Graphics::RGBA(0.05f, 0.05f, 0.1f, 0.95f)); // Dark background
 
-    RenderSpinner(renderingAPI, 950, 720, rotation);
+    // Animated border with shadow color
+    renderingAPI.DrawRect(boxX - 2, boxY - 2, boxWidth + 4, 2, shadowColor); // Top
+    renderingAPI.DrawRect(boxX - 2, boxY + boxHeight, boxWidth + 4, 2, shadowColor); // Bottom
+    renderingAPI.DrawRect(boxX - 2, boxY, 2, boxHeight, shadowColor); // Left
+    renderingAPI.DrawRect(boxX + boxWidth, boxY, 2, boxHeight, shadowColor); // Right
 
-    // Render progress bar if we have progress
-    if (progressPercentage > 0) {
-        RenderProgressBar(renderingAPI, 50, 650, 300, 20, progressPercentage / 100.0f);
+    // Text positioning with responsive scaling
+    float textAreaX = boxX + boxWidth - GetScaledX(30.0f); // Right side with scaled margin
+    float textScale = GetScaleFactor();
+
+    // Glow offset calculations for consistent use
+    float glowOffset1 = GetScaleFactor();
+    float glowOffset2 = GetScaleFactor() * 2.0f;
+    float glowOffset3 = GetScaleFactor() * 3.0f;
+
+    // Render "loading" title with smooth glow effect
+    if (titleAlpha > 0.0f) {
+        float actualX = titleX - GetScaledX(120.0f); // Use animated X position with scaling
+
+        // Create multiple glow layers for softer effect
+        Engine::Graphics::RGBA glowColor1(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * titleAlpha * 0.3f);
+        Engine::Graphics::RGBA glowColor2(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * titleAlpha * 0.2f);
+        Engine::Graphics::RGBA glowColor3(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * titleAlpha * 0.1f);
+
+        // Multiple glow passes for smooth shadow with responsive scaling
+
+        text1.RenderText(renderingAPI, "LOADING", actualX + glowOffset1, centerY - 9, glowColor1);
+        text1.RenderText(renderingAPI, "LOADING", actualX - glowOffset1, centerY - 11, glowColor1);
+        text1.RenderText(renderingAPI, "LOADING", actualX + glowOffset1, centerY - 11, glowColor1);
+        text1.RenderText(renderingAPI, "LOADING", actualX - glowOffset1, centerY - 9, glowColor1);
+
+        text1.RenderText(renderingAPI, "LOADING", actualX + glowOffset2, centerY - 8, glowColor2);
+        text1.RenderText(renderingAPI, "LOADING", actualX - glowOffset2, centerY - 12, glowColor2);
+        text1.RenderText(renderingAPI, "LOADING", actualX + glowOffset2, centerY - 12, glowColor2);
+        text1.RenderText(renderingAPI, "LOADING", actualX - glowOffset2, centerY - 8, glowColor2);
+
+        text1.RenderText(renderingAPI, "LOADING", actualX + glowOffset3, centerY - 7, glowColor3);
+        text1.RenderText(renderingAPI, "LOADING", actualX - glowOffset3, centerY - 13, glowColor3);
+        text1.RenderText(renderingAPI, "LOADING", actualX + glowOffset3, centerY - 13, glowColor3);
+        text1.RenderText(renderingAPI, "LOADING", actualX - glowOffset3, centerY - 7, glowColor3);
+
+        // Main text on top
+        Engine::Graphics::RGBA titleColor(1.0f, 1.0f, 1.0f, titleAlpha);
+        text1.RenderText(renderingAPI, "LOADING", actualX, centerY - 10, titleColor);
     }
 
-    renderingAPI.End2D();
-}
+    // Render map name text with smooth glow effect (delayed)
+    if (textAlpha > 0.0f) {
+        float actualX = titleX - GetScaledX(120.0f); // Use same animated X position with scaling
 
-void Loading::DisplayProgress() {
-    std::cout << "[Loading] " << currentMessage;
+        // Create multiple glow layers for softer effect
+        Engine::Graphics::RGBA glowColor1(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * textAlpha * 0.3f);
+        Engine::Graphics::RGBA glowColor2(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * textAlpha * 0.2f);
+        Engine::Graphics::RGBA glowColor3(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * textAlpha * 0.1f);
 
-    if(totalSteps > 0) {
-        std::cout << " [" << currentStep << "/" << totalSteps << "]";
+        text1.RenderText(renderingAPI, mapName, actualX + glowOffset1, centerY + 16, glowColor1);
+        text1.RenderText(renderingAPI, mapName, actualX - glowOffset1, centerY + 14, glowColor1);
+        text1.RenderText(renderingAPI, mapName, actualX + glowOffset1, centerY + 14, glowColor1);
+        text1.RenderText(renderingAPI, mapName, actualX - glowOffset1, centerY + 16, glowColor1);
+
+        text1.RenderText(renderingAPI, mapName, actualX + glowOffset2, centerY + 17, glowColor2);
+        text1.RenderText(renderingAPI, mapName, actualX - glowOffset2, centerY + 13, glowColor2);
+        text1.RenderText(renderingAPI, mapName, actualX + glowOffset2, centerY + 13, glowColor2);
+        text1.RenderText(renderingAPI, mapName, actualX - glowOffset2, centerY + 17, glowColor2);
+
+        text1.RenderText(renderingAPI, mapName, actualX + glowOffset3, centerY + 18, glowColor3);
+        text1.RenderText(renderingAPI, mapName, actualX - glowOffset3, centerY + 12, glowColor3);
+        text1.RenderText(renderingAPI, mapName, actualX + glowOffset3, centerY + 12, glowColor3);
+        text1.RenderText(renderingAPI, mapName, actualX - glowOffset3, centerY + 18, glowColor3);
+
+        // Main text on top
+        Engine::Graphics::RGBA textColor(1.0f, 1.0f, 1.0f, textAlpha);
+        text1.RenderText(renderingAPI, mapName, actualX, centerY + 15, textColor);
     }
 
-    if(progressPercentage > 0) {
-        std::cout << " " << std::fixed << std::setprecision(1) << progressPercentage << "%";
+    // Render cursor (thin vertical line like in GIF) with responsive scaling
+    if (cursorVisible && (titleAlpha > 0.0f || textAlpha > 0.0f)) {
+        float cursorX = textAreaX - GetScaledX(20.0f);
+        float cursorY = (titleAlpha > textAlpha) ? centerY - 10 : centerY + 15;
+        float cursorWidth = GetScaleFactor() * 2.0f;
+        float cursorHeight = GetScaledSize(18.0f);
+
+        // Cursor glow effect
+        Engine::Graphics::RGBA cursorGlow(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * 0.5f);
+        renderingAPI.DrawRect(cursorX + glowOffset1, cursorY + glowOffset1, cursorWidth, cursorHeight, cursorGlow);
+        renderingAPI.DrawRect(cursorX - glowOffset1, cursorY - glowOffset1, cursorWidth, cursorHeight, cursorGlow);
+
+        // Main cursor
+        renderingAPI.DrawRect(cursorX, cursorY, cursorWidth, cursorHeight, ::Engine::Graphics::RGBA(1.0f, 1.0f, 1.0f, 1.0f));
     }
-
-    std::cout << std::endl;
-
-    // Simple ASCII progress bar
-    if(progressPercentage > 0) {
-        std::cout << "[Loading] [";
-        int barWidth = 30;
-        int progress = static_cast<int>(progressPercentage / 100.0f * barWidth);
-
-        for(int i = 0; i < barWidth; ++i) {
-            if(i < progress) {
-                std::cout << "=";
-            } else if (i == progress) {
-                std::cout << ">";
-            } else {
-                std::cout << " ";
-            }
-        }
-
-        std::cout << "] " << std::fixed << std::setprecision(1) << progressPercentage << "%" << std::endl;
-    }
-}
-
-
-
-
-
-
-void Loading::RenderHeader(Engine::Graphics::IRenderingAPI& context) {
-    // Header background
-    context.DrawRect(0, 0, 1024, 80, 0.2f, 0.2f, 0.3f, 0.9f);
-
-    // Text rendering using IRenderingAPI abstraction
-    text1.RenderText(context, "Mode: " + gameMode, 20, 550, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
-    text1.RenderText(context, "Loading: " + mapName, 400, 550, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
-    text1.RenderText(context, "Masterball Beta", 850, 550, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
-}
-
-void Loading::RenderSpinner(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float rotation) {
-    renderingAPI.DrawSpinner(x, y, 20, rotation);
-}
-
-void Loading::RenderProgressBar(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float width, float height, float progress) {
-    // Background
-    renderingAPI.DrawRect(x, y, width, height, 0.3f, 0.3f, 0.3f, 0.8f);
-
-    // Progress fill
-    if (progress > 0) {
-        renderingAPI.DrawRect(x + 2, y + 2, (width - 4) * progress, height - 4, 0.4f, 0.8f, 0.4f, 0.9f);
-    }
-
-    // Border
-    renderingAPI.DrawRect(x, y, width, 2, 0.6f, 0.6f, 0.6f, 1.0f); // Top
-    renderingAPI.DrawRect(x, y + height - 2, width, 2, 0.6f, 0.6f, 0.6f, 1.0f); // Bottom
-    renderingAPI.DrawRect(x, y, 2, height, 0.6f, 0.6f, 0.6f, 1.0f); // Left
-    renderingAPI.DrawRect(x + width - 2, y, 2, height, 0.6f, 0.6f, 0.6f, 1.0f); // Right
-
-    // Progress text
-    std::string progressText = std::to_string(static_cast<int>(progress * 100)) + "%";
-    text1.RenderText(renderingAPI, progressText, x + width + 10, 600 - (y + 5), 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 }
