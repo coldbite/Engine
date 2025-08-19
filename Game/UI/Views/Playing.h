@@ -1,29 +1,26 @@
 #pragma once
-
 #include "../../../Engine/Core/View.h"
-#include <string>
+#include "../../../Engine/Graphics/Text.h"
+#include "../../../Engine/Graphics/RGBA.h"
+
+namespace Engine {
+    namespace Graphics {
+        class IRenderingAPI;
+    }
+}
 
 class Playing : public Engine::View {
-public:
-    Playing();
+    public:
+        Playing();
 
-    // View lifecycle
-    void OnShow() override;
-    void OnHide() override;
-    void OnUpdate(float deltaTime) override;
+        void OnShow() override;
+        void OnHide() override;
+        void OnUpdate(float deltaTime) override;
 
-    // Game UI methods
-    void UpdateHUD(const std::string& info);
-    void ShowNotification(const std::string& message);
+    protected:
+        void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;
 
-protected:
-    void Render() override;
-
-private:
-    std::string hudInfo;
-    std::string lastNotification;
-    float notificationTimer;
-
-    void DisplayHUD();
-    void UpdateNotifications(float deltaTime);
+    private:
+        Engine::Graphics::Text text;
+        Engine::Graphics::RGBA text_color = Engine::Graphics::RGBA(1.0f, 0.0f, 0.0f, 0.5f);
 };

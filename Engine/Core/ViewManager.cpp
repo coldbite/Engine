@@ -1,5 +1,6 @@
 #include "ViewManager.h"
 #include "../Graphics/OpenGL/OpenGL.h"
+#include "../Graphics/IRenderingAPI.h"
 #include <iostream>
 #include <algorithm>
 
@@ -136,7 +137,16 @@ namespace Engine {
         }
     }
 
-    void ViewManager::RenderViews() {
+
+    void ViewManager::SetRenderTarget(std::shared_ptr<NativeWindow> window) {
+        renderWindow = window;
+    }
+
+    void ViewManager::SetRenderingAPI(std::shared_ptr<Graphics::IRenderingAPI> api) {
+        renderingAPI = api;
+    }
+
+    void ViewManager::RenderViews(Graphics::IRenderingAPI& api) {
         if(!renderWindow || !renderWindow->IsValid()) {
             return;
         }
@@ -146,13 +156,17 @@ namespace Engine {
 
         // Render the appropriate view(s)
         if(isTransitioning) {
+            std::cout << "[ViewManager] Rendering transition - progress: " << transitionProgress << std::endl;
+            
             // Two-phase transition: fade out first half, fade in second half
             if(transitionProgress < 0.5f) {
                 // First half: fade out old view
+                std::cout << "[ViewManager] Fade out phase" << std::endl;
                 if(!transitionSourceView.empty()) {
                     auto sourceViewPtr = GetView(transitionSourceView);
                     if(sourceViewPtr && sourceViewPtr->IsActive() && sourceViewPtr->IsVisible()) {
-                        sourceViewPtr->Render();
+                        std::cout << "[ViewManager] Rendering source view: " << transitionSourceView << std::endl;
+                        sourceViewPtr->Render(api);
                     }
                 }
                 
@@ -160,96 +174,38 @@ namespace Engine {
                 float fadeOutProgress = transitionProgress * 2.0f; // 0.0 to 1.0 over first half
                 float overlayAlpha = fadeOutProgress;
                 
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                
-                glMatrixMode(GL_PROJECTION);
-                glPushMatrix();
-                glLoadIdentity();
-                glOrtho(0, 800, 0, 600, -1, 1);
-                
-                glMatrixMode(GL_MODELVIEW);
-                glPushMatrix();
-                glLoadIdentity();
-                
-                glDisable(GL_TEXTURE_2D);
-                glDisable(GL_DEPTH_TEST);
-                
-                glColor4f(0.0f, 0.0f, 0.0f, overlayAlpha);
-                
-                glBegin(GL_QUADS);
-                    glVertex2f(0, 0);
-                    glVertex2f(800, 0);
-                    glVertex2f(800, 600);
-                    glVertex2f(0, 600);
-                glEnd();
-                
-                glMatrixMode(GL_PROJECTION);
-                glPopMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                glPopMatrix();
-                
-                glEnable(GL_DEPTH_TEST);
-                glDisable(GL_BLEND);
-                glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+                std::cout << "[ViewManager] Fade out overlay alpha: " << overlayAlpha << std::endl;
+                api.Begin2D(800, 600);
+                api.DrawRect(0, 0, 800, 600, 0.0f, 0.0f, 0.0f, overlayAlpha);
+                api.End2D();
             } else {
                 // Second half: fade in new view
+                std::cout << "[ViewManager] Fade in phase" << std::endl;
                 auto targetViewPtr = GetView(transitionTargetView);
                 if(targetViewPtr && targetViewPtr->IsActive() && targetViewPtr->IsVisible()) {
-                    targetViewPtr->Render();
+                    std::cout << "[ViewManager] Rendering target view: " << transitionTargetView << std::endl;
+                    targetViewPtr->Render(api);
                 }
                 
                 // Black overlay that fades from opaque to transparent
                 float fadeInProgress = (transitionProgress - 0.5f) * 2.0f; // 0.0 to 1.0 over second half
                 float overlayAlpha = 1.0f - fadeInProgress;
                 
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                
-                glMatrixMode(GL_PROJECTION);
-                glPushMatrix();
-                glLoadIdentity();
-                glOrtho(0, 800, 0, 600, -1, 1);
-                
-                glMatrixMode(GL_MODELVIEW);
-                glPushMatrix();
-                glLoadIdentity();
-                
-                glDisable(GL_TEXTURE_2D);
-                glDisable(GL_DEPTH_TEST);
-                
-                glColor4f(0.0f, 0.0f, 0.0f, overlayAlpha);
-                
-                glBegin(GL_QUADS);
-                    glVertex2f(0, 0);
-                    glVertex2f(800, 0);
-                    glVertex2f(800, 600);
-                    glVertex2f(0, 600);
-                glEnd();
-                
-                glMatrixMode(GL_PROJECTION);
-                glPopMatrix();
-                glMatrixMode(GL_MODELVIEW);
-                glPopMatrix();
-                
-                glEnable(GL_DEPTH_TEST);
-                glDisable(GL_BLEND);
-                glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+                std::cout << "[ViewManager] Fade in overlay alpha: " << overlayAlpha << std::endl;
+                api.Begin2D(800, 600);
+                api.DrawRect(0, 0, 800, 600, 0.0f, 0.0f, 0.0f, overlayAlpha);
+                api.End2D();
             }
         } else {
             // Normal rendering: render all active views
             for(auto& [name, view] : views) {
                 if(view && view->IsActive() && view->IsVisible()) {
-                    view->Render();
+                    view->Render(api);
                 }
             }
         }
 
         // Present the frame
-        renderWindow->SwapBuffers();
-    }
-
-    void ViewManager::SetRenderTarget(std::shared_ptr<NativeWindow> window) {
-        renderWindow = window;
+        api.SwapBuffers();
     }
 }

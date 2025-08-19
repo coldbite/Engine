@@ -7,6 +7,10 @@
 #include <memory>
 
 namespace Engine {
+    namespace Graphics {
+        class IRenderingAPI;
+    }
+
     class ViewManager {
     public:
         ViewManager();
@@ -30,8 +34,9 @@ namespace Engine {
         void UpdateViews(float deltaTime);
 
         // Rendering
-        void RenderViews();
+        void RenderViews(Graphics::IRenderingAPI& renderingAPI);
         void SetRenderTarget(std::shared_ptr<NativeWindow> window);
+        void SetRenderingAPI(std::shared_ptr<Graphics::IRenderingAPI> api);
 
         // Event handling
         void OnViewChangeEvent(const ViewChangeEvent& event);
@@ -40,6 +45,7 @@ namespace Engine {
         std::unordered_map<std::string, ViewPtr> views;
         std::string currentView;
         std::shared_ptr<NativeWindow> renderWindow;
+        std::shared_ptr<Graphics::IRenderingAPI> renderingAPI;
         
         // Transition state
         bool isTransitioning = false;

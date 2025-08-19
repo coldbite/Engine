@@ -3,7 +3,6 @@
 #include "../IRenderingAPI.h"
 #include <string>
 #include <memory>
-#include <map>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -27,22 +26,29 @@ namespace Engine {
                 void GetDevice() override;
                 void CreateContext() override;
                 void GetContext() override;
-                void DrawText(const std::string& text, float x, float y, const IColor& color) override;
+                
+                // Rendering operations
+                void Clear(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) override;
+                void SwapBuffers() override;
 
-                static void Shutdown();
-                static void MakeContextCurrent();
-
-                // Basic rendering functions
-                static void Clear(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f);
-                static void SwapBuffers();
-
-                // 2D rendering for UI
-                static void Begin2D(int width, int height);
-                static void End2D();
+                // 2D rendering setup
+                void Begin2D(int width, int height) override;
+                void End2D() override;
 
                 // Primitive drawing
-                static void DrawRect(float x, float y, float width, float height, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f);
-                static void DrawSpinner(float x, float y, float radius, float rotation);
+                void DrawRect(float x, float y, float width, float height, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f) override;
+                void DrawSpinner(float x, float y, float radius, float rotation) override;
+                void DrawTextString(const std::string& text, float x, float y, const IColor& color) override;
+
+                // Static methods for backwards compatibility
+                static void Shutdown();
+                static void MakeContextCurrent();
+                static void ClearStatic(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f);
+                static void SwapBuffersStatic();
+                static void Begin2DStatic(int width, int height);
+                static void End2DStatic();
+                static void DrawRectStatic(float x, float y, float width, float height, float r = 1.0f, float g = 1.0f, float b = 1.0f, float a = 1.0f);
+                static void DrawSpinnerStatic(float x, float y, float radius, float rotation);
 
             private:
                 static std::shared_ptr<NativeWindow> currentWindow;

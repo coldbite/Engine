@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine.h"
-#include "RenderManager.h"
 #include "ViewManager.h"
 #include "NativeWindow.h"
 #include "Settings/Options.h"
@@ -9,6 +8,10 @@
 #include <atomic>
 
 namespace Engine {
+    namespace Graphics {
+        class IRenderingAPI;
+    }
+
     class Game : public Engine {
     public:
         Game();
@@ -59,9 +62,9 @@ namespace Engine {
     private:
         void SetupEventHandlers();
 
-        std::unique_ptr<RenderManager> renderManager;
         std::unique_ptr<ViewManager> viewManager;
         std::shared_ptr<NativeWindow> mainWindow;
+        std::shared_ptr<Graphics::IRenderingAPI> renderingAPI;
         bool isInitialized;
         std::atomic<bool> shouldStop{false};
     };

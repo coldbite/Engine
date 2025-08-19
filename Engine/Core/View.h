@@ -5,6 +5,10 @@
 #include <memory>
 
 namespace Engine {
+    namespace Graphics {
+        class IRenderingAPI;
+    }
+
     class View : public Renderable {
     public:
         View(const std::string& name = "View");
@@ -18,8 +22,8 @@ namespace Engine {
         virtual void OnHide() {}
         virtual void OnUpdate(float /*deltaTime*/) {}
 
-        // Rendering
-        virtual void Render() {}
+        // Rendering with context - ONLY method for rendering
+        virtual void Render(Graphics::IRenderingAPI& /*renderingAPI*/) {}
 
         // Override from Renderable
         void PrepareForRendering() override;

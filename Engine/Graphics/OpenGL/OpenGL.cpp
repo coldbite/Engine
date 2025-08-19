@@ -78,7 +78,33 @@ namespace Engine {
                 currentWindow->MakeContextCurrent();
             }
 
+            // Virtual method implementations
             void OpenGL::Clear(float r, float g, float b, float a) {
+                ClearStatic(r, g, b, a);
+            }
+
+            void OpenGL::SwapBuffers() {
+                SwapBuffersStatic();
+            }
+
+            void OpenGL::Begin2D(int width, int height) {
+                Begin2DStatic(width, height);
+            }
+
+            void OpenGL::End2D() {
+                End2DStatic();
+            }
+
+            void OpenGL::DrawRect(float x, float y, float width, float height, float r, float g, float b, float a) {
+                DrawRectStatic(x, y, width, height, r, g, b, a);
+            }
+
+            void OpenGL::DrawSpinner(float x, float y, float radius, float rotation) {
+                DrawSpinnerStatic(x, y, radius, rotation);
+            }
+
+            // Static method implementations
+            void OpenGL::ClearStatic(float r, float g, float b, float a) {
                 if (!initialized) {
                     std::cout << "[OpenGL] Clear called but OpenGL not initialized!" << std::endl;
                     return;
@@ -88,7 +114,7 @@ namespace Engine {
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             }
 
-            void OpenGL::SwapBuffers() {
+            void OpenGL::SwapBuffersStatic() {
                 if (!initialized || !currentWindow) {
                     return;
                 }
@@ -96,7 +122,7 @@ namespace Engine {
                 currentWindow->SwapBuffers();
             }
 
-            void OpenGL::Begin2D(int width, int height) {
+            void OpenGL::Begin2DStatic(int width, int height) {
                 if (!initialized) {
                     return;
                 }
@@ -111,7 +137,7 @@ namespace Engine {
                 glDisable(GL_DEPTH_TEST);
             }
 
-            void OpenGL::End2D() {
+            void OpenGL::End2DStatic() {
                 if (!initialized) {
                     return;
                 }
@@ -119,7 +145,7 @@ namespace Engine {
                 glEnable(GL_DEPTH_TEST);
             }
 
-            void OpenGL::DrawRect(float x, float y, float width, float height, float r, float g, float b, float a) {
+            void OpenGL::DrawRectStatic(float x, float y, float width, float height, float r, float g, float b, float a) {
                 if (!initialized) {
                     return;
                 }
@@ -133,11 +159,11 @@ namespace Engine {
                 glEnd();
             }
 
-            void OpenGL::DrawText(const std::string& text, float x, float y, const IColor& color) {
-                std::cout << "[DEBUG] DrawText called: '" << text << "' initialized=" << initialized << std::endl;
+            void OpenGL::DrawTextString(const std::string& text, float /*x*/, float /*y*/, const IColor& color) {
+                std::cout << "[DEBUG] DrawTextString called: '" << text << "' initialized=" << initialized << std::endl;
 
                 if (!initialized) {
-                    std::cout << "[DEBUG] DrawText returning early - not initialized" << std::endl;
+                    std::cout << "[DEBUG] DrawTextString returning early - not initialized" << std::endl;
                     return;
                 }
 
@@ -156,7 +182,7 @@ namespace Engine {
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
 
-            void OpenGL::DrawSpinner(float x, float y, float radius, float rotation) {
+            void OpenGL::DrawSpinnerStatic(float x, float y, float radius, float rotation) {
                 if (!initialized) {
                     return;
                 }

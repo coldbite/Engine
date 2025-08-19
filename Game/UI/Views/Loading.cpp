@@ -1,5 +1,6 @@
 #include "Loading.h"
 #include "../../../Engine/Graphics/OpenGL/OpenGL.h"
+#include "../../../Engine/Graphics/IRenderingAPI.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
@@ -50,8 +51,34 @@ void Loading::UpdateProgress(const std::string& message, int actual, int total, 
     }
 }
 
-void Loading::Render() {
-    RenderOpenGL();
+void Loading::Render(Engine::Graphics::IRenderingAPI& renderingAPI) {
+    // Clear screen with dark background
+    renderingAPI.Clear(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // Set up 2D rendering
+    int windowWidth = 1024;
+    int windowHeight = 768;
+    renderingAPI.Begin2D(windowWidth, windowHeight);
+
+    // Render header
+    RenderHeader(renderingAPI);
+
+    // Render status text (bottom left)
+    text1.RenderText(renderingAPI, currentMessage, 50, 100, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
+
+    // Render spinner (bottom right)
+    auto currentTime = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime);
+    float rotation = (elapsed.count() / 100.0f) * 0.1f; // Slow rotation
+
+    RenderSpinner(renderingAPI, 950, 720, rotation);
+
+    // Render progress bar if we have progress
+    if (progressPercentage > 0) {
+        RenderProgressBar(renderingAPI, 50, 650, 300, 20, progressPercentage / 100.0f);
+    }
+
+    renderingAPI.End2D();
 }
 
 void Loading::DisplayProgress() {
@@ -87,81 +114,41 @@ void Loading::DisplayProgress() {
     }
 }
 
-void Loading::RenderOpenGL() {
-    using namespace Engine::Graphics::OpenGL;
 
-    // Clear screen with dark background
-    OpenGL::Clear(0.0f, 0.0f, 0.0f, 1.0f);
 
-    // Set up 2D rendering - get actual window size
-    // TODO: Get actual window dimensions from ViewManager
-    int windowWidth = 1024;  // Default fallback
-    int windowHeight = 768;   // Default fallback
-    OpenGL::Begin2D(windowWidth, windowHeight);
 
-    // Render header
-    RenderHeader();
 
-    // Render status text (bottom left)
-    text1.RenderText(currentMessage, 50, 700, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 
-    // Render spinner (bottom right)
-    auto currentTime = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime);
-    float rotation = (elapsed.count() / 100.0f) * 0.1f; // Slow rotation
-
-    RenderSpinner(950, 720, rotation);
-
-    // Render progress bar if we have progress
-    if (progressPercentage > 0) {
-        RenderProgressBar(50, 650, 300, 20, progressPercentage / 100.0f);
-    }
-
-    OpenGL::End2D();
-
-    // Note: ViewManager will handle SwapBuffers()
-}
-
-void Loading::RenderHeader() {
-    using namespace Engine::Graphics::OpenGL;
-
+void Loading::RenderHeader(Engine::Graphics::IRenderingAPI& context) {
     // Header background
-    OpenGL::DrawRect(0, 0, 1024, 80, 0.2f, 0.2f, 0.3f, 0.9f);
+    context.DrawRect(0, 0, 1024, 80, 0.2f, 0.2f, 0.3f, 0.9f);
 
-    // Game mode (top left)
-    text1.RenderText("Mode: " + gameMode, 20, 25, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
-
-    // Map name (top center)
-    text1.RenderText("Loading: " + mapName, 400, 25, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
-
-    // Version/title (top right)
-    text1.RenderText("Masterball Beta", 850, 25, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
+    // Text rendering using IRenderingAPI abstraction
+    text1.RenderText(context, "Mode: " + gameMode, 20, 550, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
+    text1.RenderText(context, "Loading: " + mapName, 400, 550, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
+    text1.RenderText(context, "Masterball Beta", 850, 550, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 }
 
-void Loading::RenderSpinner(float x, float y, float rotation) {
-    using namespace Engine::Graphics::OpenGL;
-
-    OpenGL::DrawSpinner(x, y, 20, rotation);
+void Loading::RenderSpinner(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float rotation) {
+    renderingAPI.DrawSpinner(x, y, 20, rotation);
 }
 
-void Loading::RenderProgressBar(float x, float y, float width, float height, float progress) {
-    using namespace Engine::Graphics::OpenGL;
-
+void Loading::RenderProgressBar(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float width, float height, float progress) {
     // Background
-    OpenGL::DrawRect(x, y, width, height, 0.3f, 0.3f, 0.3f, 0.8f);
+    renderingAPI.DrawRect(x, y, width, height, 0.3f, 0.3f, 0.3f, 0.8f);
 
     // Progress fill
     if (progress > 0) {
-        OpenGL::DrawRect(x + 2, y + 2, (width - 4) * progress, height - 4, 0.4f, 0.8f, 0.4f, 0.9f);
+        renderingAPI.DrawRect(x + 2, y + 2, (width - 4) * progress, height - 4, 0.4f, 0.8f, 0.4f, 0.9f);
     }
 
     // Border
-    OpenGL::DrawRect(x, y, width, 2, 0.6f, 0.6f, 0.6f, 1.0f); // Top
-    OpenGL::DrawRect(x, y + height - 2, width, 2, 0.6f, 0.6f, 0.6f, 1.0f); // Bottom
-    OpenGL::DrawRect(x, y, 2, height, 0.6f, 0.6f, 0.6f, 1.0f); // Left
-    OpenGL::DrawRect(x + width - 2, y, 2, height, 0.6f, 0.6f, 0.6f, 1.0f); // Right
+    renderingAPI.DrawRect(x, y, width, 2, 0.6f, 0.6f, 0.6f, 1.0f); // Top
+    renderingAPI.DrawRect(x, y + height - 2, width, 2, 0.6f, 0.6f, 0.6f, 1.0f); // Bottom
+    renderingAPI.DrawRect(x, y, 2, height, 0.6f, 0.6f, 0.6f, 1.0f); // Left
+    renderingAPI.DrawRect(x + width - 2, y, 2, height, 0.6f, 0.6f, 0.6f, 1.0f); // Right
 
     // Progress text
     std::string progressText = std::to_string(static_cast<int>(progress * 100)) + "%";
-    text1.RenderText(progressText, x + width + 10, y + 5, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
+    text1.RenderText(renderingAPI, progressText, x + width + 10, 600 - (y + 5), 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 }

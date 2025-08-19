@@ -25,7 +25,7 @@ namespace Engine {
     void View::PrepareForRendering() {
         if(isActive && IsVisible()) {
             RenderInternal();
-            Render();
+            // Note: Render(IRenderingAPI&) is called by ViewManager, not here
         }
     }
 }

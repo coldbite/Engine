@@ -113,9 +113,7 @@ void Masterball::OnInit() {
 
     // Set up loaded callback
     map.OnLoaded([this]() {
-        if(playing) {
-            playing->ShowNotification("Map loaded successfully!");
-        }
+        std::cout << "[Masterball] Map loaded successfully!" << std::endl;
         // Transition to Playing UI
         DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
     });

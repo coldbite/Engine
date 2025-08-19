@@ -4,6 +4,12 @@
 #include <string>
 #include <chrono>
 
+namespace Engine {
+    namespace Graphics {
+        class IRenderingAPI;
+    }
+}
+
 class Loading : public Engine::View {
 public:
     Loading();
@@ -21,7 +27,7 @@ public:
     void SetGameMode(const std::string& gameMode) { this->gameMode = gameMode; }
 
 protected:
-    void Render() override;
+    void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;
 
 private:
     std::string currentMessage;
@@ -37,9 +43,7 @@ private:
     std::chrono::steady_clock::time_point startTime;
     
     void DisplayProgress();
-    void RenderOpenGL();
-    void RenderSpinner(float x, float y, float rotation);
-    void RenderProgressBar(float x, float y, float width, float height, float progress);
-    void RenderText(const std::string& text, float x, float y);
-    void RenderHeader();
+    void RenderSpinner(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float rotation);
+    void RenderProgressBar(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float width, float height, float progress);
+    void RenderHeader(Engine::Graphics::IRenderingAPI& renderingAPI);
 };

@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Exceptions/CoreException.h"
+#include "../Graphics/OpenGL/OpenGL.h"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -7,7 +8,6 @@
 
 namespace Engine {
     Game::Game() : Engine(), isInitialized(false) {
-        renderManager   = std::make_unique<RenderManager>();
         viewManager     = std::make_unique<ViewManager>();
         mainWindow      = std::make_shared<NativeWindow>();
     }
@@ -93,8 +93,16 @@ namespace Engine {
             std::cout << "[Game] Warning: Failed to setup rendering context for " << renderer << std::endl;
         }
 
-        // Connect ViewManager to the window for rendering
+        // Create rendering API instance
+        renderingAPI = std::make_shared<Graphics::OpenGL::OpenGL>();
+        if (!renderingAPI->Init(mainWindow)) {
+            throw CoreException("Failed to initialize rendering API!");
+            return false;
+        }
+
+        // Connect ViewManager to the window and rendering API
         viewManager->SetRenderTarget(mainWindow);
+        viewManager->SetRenderingAPI(renderingAPI);
         
         // Ensure VSync is applied after context setup
         if(windowProps.vsync && mainWindow->IsValid()) {
@@ -138,8 +146,8 @@ namespace Engine {
             }
             
             // Render in main thread (OpenGL requirement)
-            if(viewManager && mainWindow && mainWindow->IsValid()) {
-                viewManager->RenderViews();
+            if(viewManager && mainWindow && mainWindow->IsValid() && renderingAPI) {
+                viewManager->RenderViews(*renderingAPI);
             }
 
             // Small sleep for main thread timing
@@ -170,16 +178,14 @@ namespace Engine {
 
     void Game::SetupEventHandlers() {
         SubscribeToEvent<InitEvent>(
-            [this, &renderManager = this->renderManager](const IEvent& event) {
-                renderManager->OnInitEvent(event);
+            [this](const IEvent& /*event*/) {
                 OnInit();
             }
         );
 
         SubscribeToEvent<RenderEvent>(
-            [this, &renderManager = this->renderManager](const IEvent& event) {
-                renderManager->OnRenderEvent(event);
-                // Note: viewManager->RenderViews() is now called in main thread
+            [this](const IEvent& /*event*/) {
+                // Rendering is now handled directly in main loop via viewManager->RenderViews()
             }
         );
 
@@ -191,8 +197,7 @@ namespace Engine {
         );
 
         SubscribeToEvent<ShutdownEvent>(
-            [this, &renderManager = this->renderManager, &viewManager = this->viewManager](const IEvent& event) {
-                renderManager->OnShutdownEvent(event);
+            [this](const IEvent& /*event*/) {
                 viewManager->HideAllViews();
                 OnShutdown();
             }
