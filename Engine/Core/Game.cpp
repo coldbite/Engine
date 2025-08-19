@@ -85,7 +85,7 @@ namespace Engine {
 
         std::string renderer = "OpenGL";
 
-        if(HasOption(EngineOption::VSYNC)) {
+        if(HasOption(EngineOption::RENDERER)) {
             renderer = GetOption(EngineOption::RENDERER, renderer);
         }
 
@@ -95,6 +95,13 @@ namespace Engine {
 
         // Connect ViewManager to the window for rendering
         viewManager->SetRenderTarget(mainWindow);
+        
+        // Ensure VSync is applied after context setup
+        if(windowProps.vsync && mainWindow->IsValid()) {
+            std::cout << "[Game] Applying VSync setting: ON" << std::endl;
+            mainWindow->SetVSync(true);
+        }
+        
         mainWindow->Show();
         isInitialized = true;
         return true;
@@ -123,14 +130,19 @@ namespace Engine {
             hasInputThread = true;
         }
 
-        // Keep main thread free for window message pumping
+        // Keep main thread for window message pumping AND rendering (OpenGL context requirement)
         while(!shouldStop.load()) {
             // Process window events in main thread
             if(mainWindow && mainWindow->IsValid()) {
                 mainWindow->PollEvents();
             }
+            
+            // Render in main thread (OpenGL requirement)
+            if(viewManager && mainWindow && mainWindow->IsValid()) {
+                viewManager->RenderViews();
+            }
 
-            // Small sleep to prevent high CPU usage
+            // Small sleep for main thread timing
             std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~60 FPS
         }
 
@@ -165,9 +177,9 @@ namespace Engine {
         );
 
         SubscribeToEvent<RenderEvent>(
-            [this, &renderManager = this->renderManager, &viewManager = this->viewManager](const IEvent& event) {
+            [this, &renderManager = this->renderManager](const IEvent& event) {
                 renderManager->OnRenderEvent(event);
-                viewManager->RenderViews();
+                // Note: viewManager->RenderViews() is now called in main thread
             }
         );
 

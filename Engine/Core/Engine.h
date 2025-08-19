@@ -3,6 +3,7 @@
 #include "Event.h"
 #include "ThreadPool.h"
 #include "Settings/Config.h"
+#include "Settings/Options.h"
 #include "CommandLine/Arguments.h"
 #include <memory>
 #include <stdexcept>
@@ -62,6 +63,24 @@ namespace Engine {
             eventDispatcher.Dispatch(event);
         }
 
+        // Configuration access
+        template<typename EnumType>
+        bool HasOption(EnumType option) const {
+            return Settings::OptionsManager::GetInstance().HasOption(option);
+        }
+
+        template<typename EnumType, typename T>
+        T GetOption(EnumType option, const T& defaultValue = T{}) const {
+            return Settings::OptionsManager::GetInstance().GetOption<EnumType, T>(option, defaultValue);
+        }
+
+        // Frame timing control
+        void InitializeFrameTiming();
+        float GetDeltaTime() const;
+        int GetCurrentFPS() const;
+        bool IsFPSLimitEnabled() const { return fpsLimitEnabled; }
+        int GetTargetFPS() const { return targetFPS; }
+
     protected:
         Engine() = default;
         virtual ~Engine() = default;
@@ -77,6 +96,15 @@ namespace Engine {
         std::atomic<bool> isInitialized{false};
 
         std::chrono::high_resolution_clock::time_point lastFrameTime;
-        const float targetFrameTime = 1.0f / 60.0f;
+        std::chrono::high_resolution_clock::time_point frameStartTime;
+        float targetFrameTime = 1.0f / 60.0f;
+        float deltaTime = 0.0f;
+        bool fpsLimitEnabled = true;
+        int targetFPS = 60;
+        
+        // FPS monitoring
+        mutable int currentFPS = 0;
+        mutable std::chrono::high_resolution_clock::time_point lastFPSUpdate;
+        mutable int frameCount = 0;
     };
 }

@@ -100,6 +100,7 @@ void Masterball::OnInit() {
     GetViewManager().RegisterView("Playing", playing);
 
     // Show Loading UI
+    std::cout << "[Masterball] Dispatching ViewChangeEvent for Loading" << std::endl;
     DispatchEvent(ViewChangeEvent("Loading"));
 
     // Set up loading progress callback

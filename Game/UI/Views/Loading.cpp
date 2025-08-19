@@ -3,6 +3,10 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <iostream>
+#include "../../../Engine/Graphics/Text.h"
+
+Engine::Graphics::Text text1;
 
 Loading::Loading()
     : Engine::View("Loading")
@@ -12,6 +16,8 @@ Loading::Loading()
     , progressPercentage(0.0f)
     , startTime(std::chrono::steady_clock::now()) {
     /* Do Nothing */
+
+    text1.LoadFont("C:/Windows/Fonts/arial.ttf", 18);
 }
 
 void Loading::OnShow() {
@@ -45,8 +51,6 @@ void Loading::UpdateProgress(const std::string& message, int actual, int total, 
 }
 
 void Loading::Render() {
-    std::cout << "[Loading] Render() called!" << std::endl;
-    // Call OpenGL rendering
     RenderOpenGL();
 }
 
@@ -84,20 +88,22 @@ void Loading::DisplayProgress() {
 }
 
 void Loading::RenderOpenGL() {
-    std::cout << "[Loading] RenderOpenGL() called!" << std::endl;
     using namespace Engine::Graphics::OpenGL;
 
     // Clear screen with dark background
     OpenGL::Clear(0.0f, 0.0f, 0.0f, 1.0f);
 
-    // Set up 2D rendering
-    OpenGL::Begin2D(1024, 768); // Use standard resolution for now
+    // Set up 2D rendering - get actual window size
+    // TODO: Get actual window dimensions from ViewManager
+    int windowWidth = 1024;  // Default fallback
+    int windowHeight = 768;   // Default fallback
+    OpenGL::Begin2D(windowWidth, windowHeight);
 
     // Render header
     RenderHeader();
 
     // Render status text (bottom left)
-    RenderText(currentMessage, 50, 700);
+    text1.RenderText(currentMessage, 50, 700, 1.0f, 0.5f, 0.0f, 1.0f);
 
     // Render spinner (bottom right)
     auto currentTime = std::chrono::steady_clock::now();
@@ -123,13 +129,13 @@ void Loading::RenderHeader() {
     OpenGL::DrawRect(0, 0, 1024, 80, 0.2f, 0.2f, 0.3f, 0.9f);
 
     // Game mode (top left)
-    RenderText("Mode: " + gameMode, 20, 25);
+    text1.RenderText("Mode: " + gameMode, 20, 25, 1.0f, 0.5f, 0.0f, 1.0f);
 
     // Map name (top center)
-    RenderText("Loading: " + mapName, 400, 25);
+    text1.RenderText("Loading: " + mapName, 400, 25, 1.0f, 0.5f, 0.0f, 1.0f);
 
     // Version/title (top right)
-    RenderText("Masterball Beta", 850, 25);
+    text1.RenderText("Masterball Beta", 850, 25, 1.0f, 0.5f, 0.0f, 1.0f);
 }
 
 void Loading::RenderSpinner(float x, float y, float rotation) {
@@ -157,12 +163,5 @@ void Loading::RenderProgressBar(float x, float y, float width, float height, flo
 
     // Progress text
     std::string progressText = std::to_string(static_cast<int>(progress * 100)) + "%";
-    RenderText(progressText, x + width + 10, y + 5);
-}
-
-void Loading::RenderText(const std::string& text, float x, float y) {
-    using namespace Engine::Graphics::OpenGL;
-
-    std::cout << "[Loading] RenderText called with: '" << text << "'" << std::endl;
-    OpenGL::DrawText(text, x, y, 1.0f, 1.0f, 1.0f);
+    text1.RenderText(progressText, x + width + 10, y + 5, 1.0f, 0.5f, 0.0f, 1.0f);
 }

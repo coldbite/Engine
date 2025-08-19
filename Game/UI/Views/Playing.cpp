@@ -1,5 +1,9 @@
 #include "Playing.h"
+#include "../../../Engine/Graphics/OpenGL/OpenGL.h"
 #include <iostream>
+#include "../../../Engine/Graphics/Text.h"
+
+Engine::Graphics::Text text;
 
 Playing::Playing()
     : Engine::View("Playing")
@@ -7,6 +11,9 @@ Playing::Playing()
     , lastNotification("")
     , notificationTimer(0.0f) {
     /* Do Nothing */
+
+
+    text.LoadFont("C:/Windows/Fonts/arial.ttf", 22);
 }
 
 void Playing::OnShow() {
@@ -43,6 +50,11 @@ void Playing::ShowNotification(const std::string& message) {
 
 
 void Playing::Render() {
+    using namespace Engine::Graphics::OpenGL;
+
+    OpenGL::Clear(0.0f, 0.0f, 0.0f, 1.0f);
+
+    text.RenderText("Hello World!", 100, 100, 1.0f, 0.5f, 0.0f, 1.0f);
 
 }
 

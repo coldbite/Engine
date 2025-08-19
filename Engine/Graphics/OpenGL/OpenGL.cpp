@@ -60,6 +60,7 @@ namespace Engine {
 
             void OpenGL::Clear(float r, float g, float b, float a) {
                 if (!initialized) {
+                    std::cout << "[OpenGL] Clear called but OpenGL not initialized!" << std::endl;
                     return;
                 }
 

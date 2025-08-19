@@ -20,6 +20,9 @@ namespace Engine {
         , hwnd(nullptr)
         , hdc(nullptr)
         , hglrc(nullptr)
+        , wglSwapIntervalEXT(nullptr)
+        , vsyncSupported(false)
+        , currentVSyncState(false)
 #endif
     {
         /* Do Nothing */
@@ -152,8 +155,34 @@ namespace Engine {
 
     void NativeWindow::SetVSync(bool enabled) {
         properties.vsync = enabled;
-        // TODO: Implement VSync control through OpenGL/DirectX
-        std::cout << "[NativeWindow] VSync: " << (enabled ? "ON" : "OFF") << std::endl;
+        
+#ifdef _WIN32
+        if(!hglrc) {
+            std::cout << "[NativeWindow] Warning: No OpenGL context for VSync" << std::endl;
+            return;
+        }
+        
+        if(!vsyncSupported) {
+            std::cout << "[NativeWindow] Warning: VSync not supported" << std::endl;
+            return;
+        }
+        
+        if(currentVSyncState == enabled) {
+            return; // Already in desired state
+        }
+        
+        if(wglSwapIntervalEXT) {
+            BOOL result = wglSwapIntervalEXT(enabled ? 1 : 0);
+            if(result) {
+                currentVSyncState = enabled;
+                std::cout << "[NativeWindow] VSync: " << (enabled ? "ON" : "OFF") << std::endl;
+            } else {
+                std::cout << "[NativeWindow] Error: Failed to set VSync" << std::endl;
+            }
+        }
+#else
+        std::cout << "[NativeWindow] VSync: " << (enabled ? "ON" : "OFF") << " (Platform not supported)" << std::endl;
+#endif
     }
 
     bool NativeWindow::SetupRenderingContext(const std::string& api) {
@@ -190,6 +219,23 @@ namespace Engine {
             }
 
             std::cout << "[NativeWindow] OpenGL context created successfully" << std::endl;
+            
+            // Make context current to initialize VSync
+            if(!wglMakeCurrent(hdc, hglrc)) {
+                std::cout << "[NativeWindow] Warning: Could not make context current for VSync init" << std::endl;
+            }
+            
+            // Initialize VSync extension
+            wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+            vsyncSupported = (wglSwapIntervalEXT != nullptr);
+            
+            if(vsyncSupported) {
+                std::cout << "[NativeWindow] VSync extension available" << std::endl;
+                // Apply VSync setting from properties
+                SetVSync(properties.vsync);
+            } else {
+                std::cout << "[NativeWindow] Warning: VSync extension not available" << std::endl;
+            }
             
             // Now initialize our OpenGL wrapper
             auto self = std::make_shared<NativeWindow>(*this);

@@ -15,8 +15,9 @@ namespace Engine {
         }
 
         views[name] = view;
-        std::cout << "[ViewManager] Registered view: " << view->GetName()
-                  << " with name '" << name << "'" << std::endl;
+        /*std::cout << "[ViewManager] Registered view: " << view->GetName()
+                  << " with name '" << name << "' (Active: " << view->IsActive() 
+                  << ", Visible: " << view->IsVisible() << ")" << std::endl;*/
     }
 
     void ViewManager::UnregisterView(const std::string& name) {
@@ -28,7 +29,7 @@ namespace Engine {
                 currentView = "";
             }
 
-            std::cout << "[ViewManager] Unregistered view: " << name << std::endl;
+           // std::cout << "[ViewManager] Unregistered view: " << name << std::endl;
             views.erase(it);
         }
     }
@@ -37,8 +38,7 @@ namespace Engine {
         auto it = views.find(name);
 
         if(it == views.end()) {
-            std::cout << "[ViewManager] Warning: View '" << name
-                      << "' not registered" << std::endl;
+           //std::cout << "[ViewManager] Warning: View '" << name << "' not registered" << std::endl;
             return;
         }
 
@@ -63,8 +63,8 @@ namespace Engine {
                 view->SetActive(false);
             }
         }
+
         currentView = "";
-        std::cout << "[ViewManager] All views hidden" << std::endl;
     }
 
     ViewPtr ViewManager::GetView(const std::string& name) {
@@ -90,6 +90,7 @@ namespace Engine {
 
     void ViewManager::TransitionTo(const std::string& newView) {
         if(currentView == newView) {
+            //std::cout << "[ViewManager] Already showing view: " << newView << std::endl;
             return;
         }
 
@@ -108,11 +109,9 @@ namespace Engine {
         if(newViewPtr) {
             newViewPtr->SetActive(true);
             currentView = newView;
-            std::cout << "[ViewManager] Transitioned to view '" << newView << "'" << std::endl;
         } else {
             currentView = "";
-            std::cout << "[ViewManager] Warning: Could not transition to view '"
-                      << newView << "'" << std::endl;
+            //std::cout << "[ViewManager] Warning: Could not transition to view '" << newView << "'" << std::endl;
         }
     }
 
@@ -124,18 +123,10 @@ namespace Engine {
         // Make the window's rendering context current
         renderWindow->MakeContextCurrent();
 
-        // Use OpenGL wrapper for proper screen clearing
-        Graphics::OpenGL::OpenGL::Clear(1.0f, 0.0f, 0.0f, 1.0f);
-
         // Render all active views
         for(auto& [name, view] : views) {
             if(view && view->IsActive() && view->IsVisible()) {
-                std::cout << "[ViewManager] Rendering view: " << name << std::endl;
                 view->Render();
-            } else {
-                std::cout << "[ViewManager] Skipping view: " << name 
-                         << " (Active: " << (view ? view->IsActive() : false) 
-                         << ", Visible: " << (view ? view->IsVisible() : false) << ")" << std::endl;
             }
         }
 
@@ -145,7 +136,5 @@ namespace Engine {
 
     void ViewManager::SetRenderTarget(std::shared_ptr<NativeWindow> window) {
         renderWindow = window;
-        std::cout << "[ViewManager] Render target set to window: "
-                  << (window ? window->GetTitle() : "nullptr") << std::endl;
     }
 }

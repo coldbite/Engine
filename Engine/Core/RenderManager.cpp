@@ -67,7 +67,7 @@ namespace Engine {
                   << " - Rendering " << renderables.size() << " objects with " << GetAPIName(api)
                   << " API (Thread: " << threadId << ")" << std::endl;*/
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        // Frame timing is now handled centrally by Engine::Run()
     }
 
     void RenderManager::AddRenderable(RenderablePtr renderable) {

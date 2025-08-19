@@ -29,7 +29,7 @@ target_include_directories(Engine PUBLIC Engine/Core)
 
 # Depencies
 set(FREETYPE_DIR "${CMAKE_SOURCE_DIR}/Depencies/FreeType")
-target_include_directories(Engine PRIVATE ${FREETYPE_DIR}/include)
+target_include_directories(Engine PUBLIC ${FREETYPE_DIR}/include)
 
 find_library(FREETYPE_LIBRARY
     NAMES freetype

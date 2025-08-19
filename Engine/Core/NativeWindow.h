@@ -78,6 +78,12 @@ namespace Engine {
         HDC hdc;
         HGLRC hglrc; // OpenGL context
         WNDCLASS windowClass;
+        
+        // VSync support
+        typedef BOOL (WINAPI *PFNWGLSWAPINTERVALEXTPROC)(int);
+        PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
+        bool vsyncSupported;
+        bool currentVSyncState;
 #endif
 
         // Callbacks
