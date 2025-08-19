@@ -180,7 +180,7 @@ namespace Engine {
             glMatrixMode(GL_PROJECTION);
             glPushMatrix();
             glLoadIdentity();
-            glOrtho(0, 800, 600, 0, -1, 1);
+            glOrtho(0, 800, 0, 600, -1, 1);
             
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
@@ -204,7 +204,7 @@ namespace Engine {
                 const Character& ch = it->second;
                 
                 float xpos = posX + ch.bearingX * scale;
-                float ypos = y - (ch.height - ch.bearingY) * scale;
+                float ypos = (600 - y) - (ch.height - ch.bearingY) * scale;
                 float w = ch.width * scale;
                 float h = ch.height * scale;
                 
