@@ -40,7 +40,15 @@ namespace Engine {
         std::unordered_map<std::string, ViewPtr> views;
         std::string currentView;
         std::shared_ptr<NativeWindow> renderWindow;
+        
+        // Transition state
+        bool isTransitioning = false;
+        float transitionProgress = 0.0f;
+        Transition currentTransition = Transition::FADE;
+        std::string transitionTargetView;
+        std::string transitionSourceView;
 
-        void TransitionTo(const std::string& newView);
+        void TransitionTo(const std::string& newView, Transition transition = Transition::FADE);
+        void UpdateTransition(float deltaTime);
     };
 }

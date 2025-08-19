@@ -8,6 +8,10 @@
 #include <typeindex>
 
 namespace Engine {
+    enum class Transition {
+        FADE
+    };
+
     class IEvent {
     public:
         virtual ~IEvent() = default;
@@ -42,11 +46,14 @@ namespace Engine {
     // View Management Events
     class ViewChangeEvent : public Event<ViewChangeEvent> {
     public:
-        ViewChangeEvent(const std::string& targetView) : targetView(targetView) {}
+        ViewChangeEvent(const std::string& targetView, Transition transition = Transition::FADE) 
+            : targetView(targetView), transition(transition) {}
         const std::string& GetTargetView() const { return targetView; }
+        Transition GetTransition() const { return transition; }
 
     private:
         std::string targetView;
+        Transition transition;
     };
 
     using EventHandler = std::function<void(const IEvent&)>;

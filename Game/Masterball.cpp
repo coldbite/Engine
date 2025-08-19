@@ -1,4 +1,5 @@
 #include "Masterball.h"
+#include "Event.h"
 
 using Engine::Config;
 using Engine::EngineOption;
@@ -116,7 +117,7 @@ void Masterball::OnInit() {
             playing->ShowNotification("Map loaded successfully!");
         }
         // Transition to Playing UI
-        DispatchEvent(ViewChangeEvent("Playing"));
+        DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
     });
 
     // Load the map
