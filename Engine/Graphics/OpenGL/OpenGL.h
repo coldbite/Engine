@@ -27,7 +27,7 @@ namespace Engine {
                 void GetDevice() override;
                 void CreateContext() override;
                 void GetContext() override;
-                void DrawText(const std::string& text, float x, float y, float r = 1.0f, float g = 1.0f, float b = 1.0f) override;
+                void DrawText(const std::string& text, float x, float y, const IColor& color) override;
 
                 static void Shutdown();
                 static void MakeContextCurrent();

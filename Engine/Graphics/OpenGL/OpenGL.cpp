@@ -133,7 +133,7 @@ namespace Engine {
                 glEnd();
             }
 
-            void OpenGL::DrawText(const std::string& text, float x, float y, float r, float g, float b) {
+            void OpenGL::DrawText(const std::string& text, float x, float y, const IColor& color) {
                 std::cout << "[DEBUG] DrawText called: '" << text << "' initialized=" << initialized << std::endl;
 
                 if (!initialized) {
@@ -146,7 +146,7 @@ namespace Engine {
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                 // Set text color
-                glColor3f(r, g, b);
+                glColor3f(color.GetRed(), color.GetBlue(), color.GetGreen());
 
                 // Enable texturing
                 glEnable(GL_TEXTURE_2D);

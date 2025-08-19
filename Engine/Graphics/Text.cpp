@@ -1,4 +1,5 @@
 #include "Text.h"
+#include "IColor.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -162,8 +163,8 @@ namespace Engine {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        void Text::RenderText(const std::string& text, float x, float y, float scale, 
-                             float r, float g, float b) const {
+        void Text::RenderText(const std::string& text, float x, float y, float scale,
+                              const IColor &color) const {
             
             // Generate textures on first render (lazy loading)
             if (!m_texturesGenerated && m_face) {
@@ -190,7 +191,7 @@ namespace Engine {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             
-            glColor3f(r, g, b);
+            glColor3f(color.GetRed(), color.GetBlue(), color.GetGreen());
             
             float posX = x;
             

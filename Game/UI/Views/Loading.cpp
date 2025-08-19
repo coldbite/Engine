@@ -103,7 +103,7 @@ void Loading::RenderOpenGL() {
     RenderHeader();
 
     // Render status text (bottom left)
-    text1.RenderText(currentMessage, 50, 700, 1.0f, 0.5f, 0.0f, 1.0f);
+    text1.RenderText(currentMessage, 50, 700, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 
     // Render spinner (bottom right)
     auto currentTime = std::chrono::steady_clock::now();
@@ -129,13 +129,13 @@ void Loading::RenderHeader() {
     OpenGL::DrawRect(0, 0, 1024, 80, 0.2f, 0.2f, 0.3f, 0.9f);
 
     // Game mode (top left)
-    text1.RenderText("Mode: " + gameMode, 20, 25, 1.0f, 0.5f, 0.0f, 1.0f);
+    text1.RenderText("Mode: " + gameMode, 20, 25, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 
     // Map name (top center)
-    text1.RenderText("Loading: " + mapName, 400, 25, 1.0f, 0.5f, 0.0f, 1.0f);
+    text1.RenderText("Loading: " + mapName, 400, 25, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 
     // Version/title (top right)
-    text1.RenderText("Masterball Beta", 850, 25, 1.0f, 0.5f, 0.0f, 1.0f);
+    text1.RenderText("Masterball Beta", 850, 25, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 }
 
 void Loading::RenderSpinner(float x, float y, float rotation) {
@@ -163,5 +163,5 @@ void Loading::RenderProgressBar(float x, float y, float width, float height, flo
 
     // Progress text
     std::string progressText = std::to_string(static_cast<int>(progress * 100)) + "%";
-    text1.RenderText(progressText, x + width + 10, y + 5, 1.0f, 0.5f, 0.0f, 1.0f);
+    text1.RenderText(progressText, x + width + 10, y + 5, 1.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 0.0f, 1.0f));
 }

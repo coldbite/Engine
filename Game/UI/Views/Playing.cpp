@@ -1,6 +1,7 @@
 #include "Playing.h"
 #include "../../../Engine/Graphics/OpenGL/OpenGL.h"
 #include <iostream>
+#include "../../../Engine/Graphics/RGBA.h"
 #include "../../../Engine/Graphics/Text.h"
 
 Engine::Graphics::Text text;
@@ -54,7 +55,7 @@ void Playing::Render() {
 
     OpenGL::Clear(0.0f, 0.0f, 0.0f, 1.0f);
 
-    text.RenderText("Hello World!", 100, 100, 1.0f, 0.5f, 0.0f, 1.0f);
+    text.RenderText("Hello World!", 100, 100, 1.0f, Engine::Graphics::RGBA(1.0f, 0.0f, 0.0f, 0.5f));
 
 }
 

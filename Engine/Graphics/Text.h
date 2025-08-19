@@ -1,5 +1,7 @@
 #pragma once
 
+#include "IColor.h"
+#include "RGBA.h"
 #include <string>
 #include <memory>
 #include <map>
@@ -29,9 +31,8 @@ namespace Engine {
             ~Text();
 
             bool LoadFont(const std::string& fontPath, unsigned int fontSize = 48);
-            void RenderText(const std::string& text, float x, float y, float scale = 1.0f, 
-                          float r = 1.0f, float g = 1.0f, float b = 1.0f) const;
-            
+            void RenderText(const std::string& text, float x, float y, float scale = 1.0f, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 1.0f)) const;
+
             // Test function to render simple colored rectangles instead of text
             void RenderTestText(const std::string& text, float x, float y, float scale = 1.0f, 
                                float r = 1.0f, float g = 1.0f, float b = 1.0f) const;
