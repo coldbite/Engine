@@ -32,6 +32,7 @@ namespace Engine {
             ~Text();
 
             bool LoadFont(const std::string& fontPath, unsigned int fontSize = 48);
+            void RenderTextLegacy(IRenderingAPI& renderingAPI, const std::string& text, float x, float y, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 1.0f)) const;
             void RenderText(IRenderingAPI& renderingAPI, const std::string& text, float x, float y, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 1.0f)) const;
 
             void SetFontSize(unsigned int fontSize);

@@ -23,6 +23,6 @@ class Playing : public Engine::View {
 
     private:
         Engine::Graphics::Text text;
-        Engine::Graphics::RGBA text_color       = Engine::Graphics::RGBA(1.0f, 0.0f, 0.0f, 0.5f);
-        Engine::Graphics::HEX color_background  = Engine::Graphics::HEX("#333333");
+        Engine::Graphics::HEX text_color       = Engine::Graphics::HEX("#444444");
+        Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#AAAAAA");
 };

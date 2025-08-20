@@ -6,7 +6,7 @@ Engine::Graphics::Text text;
 
 Playing::Playing() : Engine::View("Playing") {
     SetBackground(color_background);
-    text.LoadFont("../Game/Assets/Fonts/Sansation-Regular.ttf", 18);
+    text.LoadFont("../Game/Assets/Fonts/Sansation-Regular.ttf", 22);
 }
 
 void Playing::OnShow() {
@@ -19,7 +19,7 @@ void Playing::OnHide() {
 
 void Playing::OnResize(int width, int height, int oldWidth, int oldHeight) {
     // Resize text to maintain relative size
-    text.UpdateFontSizeForWindow(height, 18, oldHeight);
+    text.UpdateFontSizeForWindow(height, 22, oldHeight);
 }
 
 void Playing::OnUpdate(float deltaTime) {
@@ -30,14 +30,11 @@ void Playing::OnUpdate(float deltaTime) {
 void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
 
-    // Set up 2D rendering with current window dimensions
+    // Set up direct pixel coordinate system
     context.Begin2D(GetWindowWidth(), GetWindowHeight());
 
-    // Use centered positioning (maintains aspect ratio)
-    float textX = GetCenteredX(100.0f);
-    float textY = GetCenteredY(100.0f);
-
-    text.RenderText(context, "Playing game...!", textX, textY, text_color);
+    // Use RenderText - now the good implementation
+    text.RenderText(context, "Playing game...!", 10.0f, 10.0f, text_color);
 
     context.End2D();
 }

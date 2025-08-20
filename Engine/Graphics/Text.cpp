@@ -163,7 +163,7 @@ namespace Engine {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-       void Text::RenderText(IRenderingAPI& context, const std::string& text, float x, float y, const IColor &color) const {
+       void Text::RenderTextLegacy(IRenderingAPI& context, const std::string& text, float x, float y, const IColor &color) const {
             if(!m_texturesGenerated && m_face) {
                 GenerateCharacterTextures();
                 m_texturesGenerated = true;
@@ -286,6 +286,74 @@ namespace Engine {
             // --- Matrix wiederherstellen ---
             glEnable(GL_DEPTH_TEST);
             // Hinweis: Bei Fenster-Resize muss context.GetWidth()/GetHeight() aktuell sein und glViewport(0,0,w,h) aufgerufen werden!
+        }
+
+        void Text::RenderText(IRenderingAPI& context, const std::string& text, float x, float y, const IColor &color) const {
+            if(!m_texturesGenerated && m_face) {
+                GenerateCharacterTextures();
+                m_texturesGenerated = true;
+            }
+
+            if(m_characters.empty()) {
+                return;
+            }
+
+            // Use the current coordinate system directly (no matrix changes)
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_TEXTURE_2D);
+
+            // Set color
+            glColor4f(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+
+            // Copy the EXACT working logic from the original RenderText method
+            float scale = 1.0f; // Direct 1:1 pixel mapping
+            float posX = x;
+            
+            // Calculate maxBearingY for baseline alignment (like original)
+            float maxBearingY = 0;
+            for(char c : text) {
+                auto it = m_characters.find(c);
+                if(it != m_characters.end()) {
+                    const Character& ch = it->second;
+                    if(ch.bearingY > maxBearingY) {
+                        maxBearingY = static_cast<float>(ch.bearingY);
+                    }
+                }
+            }
+            
+            // Render characters using EXACT original logic
+            for(char c : text) {
+                auto it = m_characters.find(c);
+                if(it == m_characters.end()) {
+                    continue;
+                }
+
+                const Character& ch = it->second;
+
+                float xpos = posX + ch.bearingX * scale;
+                float ypos = y + (maxBearingY - ch.bearingY) * scale;
+                float w = ch.width * scale;
+                float h = ch.height * scale;
+
+                if (w > 0 && h > 0) {
+                    glBindTexture(GL_TEXTURE_2D, ch.textureID);
+
+                    glBegin(GL_QUADS);
+                        // Use EXACT original texture coordinates
+                        glTexCoord2f(0.0f, 1.0f); glVertex2f(xpos, ypos);
+                        glTexCoord2f(1.0f, 1.0f); glVertex2f(xpos + w, ypos);
+                        glTexCoord2f(1.0f, 0.0f); glVertex2f(xpos + w, ypos + h);
+                        glTexCoord2f(0.0f, 0.0f); glVertex2f(xpos, ypos + h);
+                    glEnd();
+                }
+
+                posX += ch.advance * scale;
+            }
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_BLEND);
+            glDisable(GL_TEXTURE_2D);
         }
 
         void Text::SetFontSize(unsigned int fontSize) {

@@ -134,6 +134,9 @@ namespace Engine {
                     return;
                 }
 
+                // Set viewport to match the rendering dimensions
+                glViewport(0, 0, width, height);
+
                 glMatrixMode(GL_PROJECTION);
                 glLoadIdentity();
                 glOrtho(0, width, height, 0, -1, 1); // Top-left origin for UI

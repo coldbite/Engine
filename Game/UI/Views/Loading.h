@@ -42,7 +42,7 @@ private:
     // Display info
     std::string mapName = "Unknown Map";
     std::string gameMode = "Singleplayer";
-    Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#0F0E12");
+    Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#FF0000");
 
     // Animation timing
     std::chrono::steady_clock::time_point startTime;
