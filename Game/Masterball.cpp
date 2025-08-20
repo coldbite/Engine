@@ -97,7 +97,7 @@ void Masterball::OnInit() {
 
     map.OnLoading([this](const std::string& message, int actual, int total, float percentage) {
         if(loading) {
-            loading->UpdateProgress(message, actual, total, percentage);
+            loading->OnUpdateProgress(message, actual, total, percentage);
         }
     });
 

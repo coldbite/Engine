@@ -230,6 +230,362 @@ namespace Engine {
 
                 return tex;
             }
+
+            void OpenGL::DrawTexture(const Texture& texture, float x, float y, float width, float height) {
+                if(!initialized) {
+                    return;
+                }
+
+                glEnable(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, texture.id);
+                glColor3f(1.0f, 1.0f, 1.0f);
+
+                glBegin(GL_QUADS);
+                    glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
+                    glTexCoord2f(1.0f, 0.0f); glVertex2f(x + width, y);
+                    glTexCoord2f(1.0f, 1.0f); glVertex2f(x + width, y + height);
+                    glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + height);
+                glEnd();
+
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDisable(GL_TEXTURE_2D);
+            }
+
+            void OpenGL::DrawTextureBlurred(const Texture& texture, float x, float y, float width, float height, float blurRadius) {
+                if(!initialized) {
+                    return;
+                }
+
+                glEnable(GL_TEXTURE_2D);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glBindTexture(GL_TEXTURE_2D, texture.id);
+                
+                // Subtle natural blur effect like Steam screenshot
+                // Step 1: Render the main image darker for better contrast with scanlines
+                glColor4f(0.6f, 0.6f, 0.6f, 0.8f); // Darkened main image
+                glBegin(GL_QUADS);
+                    glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
+                    glTexCoord2f(1.0f, 0.0f); glVertex2f(x + width, y);
+                    glTexCoord2f(1.0f, 1.0f); glVertex2f(x + width, y + height);
+                    glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + height);
+                glEnd();
+                
+                // Step 2: Add subtle blur layers with very low intensity
+                float baseAlpha = 0.05f; // Very subtle blur layers
+                int maxPasses = static_cast<int>(blurRadius * 0.5f); // Fewer passes for subtlety
+                
+                for(int pass = 1; pass <= maxPasses; pass++) {
+                    float radius = pass * (blurRadius / maxPasses);
+                    float alpha = baseAlpha * (1.0f - (static_cast<float>(pass-1) / maxPasses));
+                    
+                    glColor4f(1.0f, 1.0f, 1.0f, alpha); // Full brightness, very low alpha
+                    
+                    // Simple 4-direction blur (horizontal and vertical only)
+                    // Horizontal blur
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0.0f, 0.0f); glVertex2f(x + radius, y);
+                        glTexCoord2f(1.0f, 0.0f); glVertex2f(x + width + radius, y);
+                        glTexCoord2f(1.0f, 1.0f); glVertex2f(x + width + radius, y + height);
+                        glTexCoord2f(0.0f, 1.0f); glVertex2f(x + radius, y + height);
+                    glEnd();
+                    
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0.0f, 0.0f); glVertex2f(x - radius, y);
+                        glTexCoord2f(1.0f, 0.0f); glVertex2f(x + width - radius, y);
+                        glTexCoord2f(1.0f, 1.0f); glVertex2f(x + width - radius, y + height);
+                        glTexCoord2f(0.0f, 1.0f); glVertex2f(x - radius, y + height);
+                    glEnd();
+                    
+                    // Vertical blur
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y + radius);
+                        glTexCoord2f(1.0f, 0.0f); glVertex2f(x + width, y + radius);
+                        glTexCoord2f(1.0f, 1.0f); glVertex2f(x + width, y + height + radius);
+                        glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + height + radius);
+                    glEnd();
+                    
+                    glBegin(GL_QUADS);
+                        glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y - radius);
+                        glTexCoord2f(1.0f, 0.0f); glVertex2f(x + width, y - radius);
+                        glTexCoord2f(1.0f, 1.0f); glVertex2f(x + width, y + height - radius);
+                        glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + height - radius);
+                    glEnd();
+                }
+                
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDisable(GL_BLEND);
+                glDisable(GL_TEXTURE_2D);
+            }
+
+            void OpenGL::DrawDiagonalLines(float x, float y, float width, float height, float lineSpacing, float lineWidth, const IColor& color) {
+                if(!initialized) {
+                    return;
+                }
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glColor4f(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+                
+                // Draw diagonal lines from top-left to bottom-right
+                glLineWidth(lineWidth);
+                glBegin(GL_LINES);
+                
+                // Calculate the diagonal distance to cover entire area
+                float maxDistance = width + height;
+                
+                // Draw lines at regular intervals
+                for(float offset = -height; offset < width + height; offset += lineSpacing) {
+                    // Start point (top edge or left edge)
+                    float startX, startY;
+                    float endX, endY;
+                    
+                    if(offset < 0) {
+                        // Line starts on left edge
+                        startX = x;
+                        startY = y - offset;
+                    } else {
+                        // Line starts on top edge
+                        startX = x + offset;
+                        startY = y;
+                    }
+                    
+                    // End point (bottom edge or right edge)
+                    if(offset + height > width) {
+                        // Line ends on bottom edge
+                        endX = x + width - (offset + height - width);
+                        endY = y + height;
+                    } else {
+                        // Line ends on right edge
+                        endX = x + width;
+                        endY = y + offset + height;
+                    }
+                    
+                    // Clamp to rectangle bounds
+                    if(startY > y + height) continue;
+                    if(endY < y) continue;
+                    if(startX > x + width) continue;
+                    if(endX < x) continue;
+                    
+                    // Clamp start point
+                    if(startY < y) {
+                        float ratio = (y - startY) / (endY - startY);
+                        startX = startX + ratio * (endX - startX);
+                        startY = y;
+                    }
+                    if(startX < x) {
+                        float ratio = (x - startX) / (endX - startX);
+                        startY = startY + ratio * (endY - startY);
+                        startX = x;
+                    }
+                    
+                    // Clamp end point
+                    if(endY > y + height) {
+                        float ratio = (y + height - startY) / (endY - startY);
+                        endX = startX + ratio * (endX - startX);
+                        endY = y + height;
+                    }
+                    if(endX > x + width) {
+                        float ratio = (x + width - startX) / (endX - startX);
+                        endY = startY + ratio * (endY - startY);
+                        endX = x + width;
+                    }
+                    
+                    // Draw the line
+                    glVertex2f(startX, startY);
+                    glVertex2f(endX, endY);
+                }
+                
+                glEnd();
+                glDisable(GL_BLEND);
+            }
+
+            void OpenGL::DrawRadialLines(float x, float y, float width, float height, float centerX1, float centerY1, float centerX2, float centerY2, int numLines, float lineWidth, const IColor& color) {
+                if(!initialized) {
+                    return;
+                }
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glColor4f(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+                glLineWidth(lineWidth);
+                
+                glBegin(GL_LINES);
+                
+                // Draw radial lines from first center point
+                for(int i = 0; i < numLines; i++) {
+                    float angle = (i * 360.0f / numLines) * (3.14159f / 180.0f); // Convert to radians
+                    float lineLength = width + height; // Long enough to extend beyond screen
+                    
+                    float endX1 = centerX1 + cos(angle) * lineLength;
+                    float endY1 = centerY1 + sin(angle) * lineLength;
+                    
+                    // Clip line to screen bounds
+                    float clippedStartX = centerX1;
+                    float clippedStartY = centerY1;
+                    float clippedEndX = endX1;
+                    float clippedEndY = endY1;
+                    
+                    // Simple bounds check - only draw if line intersects with screen
+                    if((clippedStartX >= x && clippedStartX <= x + width && clippedStartY >= y && clippedStartY <= y + height) ||
+                       (clippedEndX >= x && clippedEndX <= x + width && clippedEndY >= y && clippedEndY <= y + height)) {
+                        glVertex2f(clippedStartX, clippedStartY);
+                        glVertex2f(clippedEndX, clippedEndY);
+                    }
+                }
+                
+                // Draw radial lines from second center point  
+                for(int i = 0; i < numLines; i++) {
+                    float angle = (i * 360.0f / numLines) * (3.14159f / 180.0f); // Convert to radians
+                    float lineLength = width + height; // Long enough to extend beyond screen
+                    
+                    float endX2 = centerX2 + cos(angle) * lineLength;
+                    float endY2 = centerY2 + sin(angle) * lineLength;
+                    
+                    // Clip line to screen bounds
+                    float clippedStartX = centerX2;
+                    float clippedStartY = centerY2;
+                    float clippedEndX = endX2;
+                    float clippedEndY = endY2;
+                    
+                    // Simple bounds check - only draw if line intersects with screen
+                    if((clippedStartX >= x && clippedStartX <= x + width && clippedStartY >= y && clippedStartY <= y + height) ||
+                       (clippedEndX >= x && clippedEndX <= x + width && clippedEndY >= y && clippedEndY <= y + height)) {
+                        glVertex2f(clippedStartX, clippedStartY);
+                        glVertex2f(clippedEndX, clippedEndY);
+                    }
+                }
+                
+                glEnd();
+                glDisable(GL_BLEND);
+            }
+
+            void OpenGL::DrawVerticalLines(float x, float y, float width, float height, float lineSpacing, float lineWidth, const IColor& color) {
+                if(!initialized) {
+                    return;
+                }
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glColor4f(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+                glLineWidth(lineWidth);
+                
+                glBegin(GL_LINES);
+                
+                // Draw simple vertical lines across the screen
+                for(float lineX = x; lineX <= x + width; lineX += lineSpacing) {
+                    glVertex2f(lineX, y);
+                    glVertex2f(lineX, y + height);
+                }
+                
+                glEnd();
+                glDisable(GL_BLEND);
+            }
+
+            void OpenGL::DrawHorizontalLines(float x, float y, float width, float height, float lineSpacing, float lineWidth, const IColor& color) {
+                if(!initialized) {
+                    return;
+                }
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glColor4f(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+                glLineWidth(lineWidth);
+                
+                // Use GL_QUADS for thicker, more visible lines
+                glBegin(GL_QUADS);
+                
+                // Draw simple horizontal lines across the screen
+                // lineSpacing should be the total distance between line starts
+                // This means: lineSpacing = lineWidth + gap between lines
+                for(float lineY = y; lineY <= y + height; lineY += lineSpacing + lineWidth) {
+                    // Draw rectangle for each line
+                    glVertex2f(x, lineY);
+                    glVertex2f(x + width, lineY);
+                    glVertex2f(x + width, lineY + lineWidth);
+                    glVertex2f(x, lineY + lineWidth);
+                }
+                glEnd();
+                glDisable(GL_BLEND);
+            }
+
+            void OpenGL::DrawFilmGrain(float x, float y, float width, float height, float intensity, int seed) {
+                if(!initialized) {
+                    return;
+                }
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                
+                // Simple pseudo-random number generator for film grain
+                auto random = [](int& state) -> float {
+                    state = (state * 1103515245 + 12345) & 0x7fffffff;
+                    return (float)state / (float)0x7fffffff;
+                };
+                
+                int randomState = seed + static_cast<int>(x * y); // Different seed per position
+                
+                glBegin(GL_POINTS);
+                
+                // Generate random grain points across the screen
+                int grainDensity = static_cast<int>(width * height * 0.0002f); // About 0.02% of pixels
+                
+                for(int i = 0; i < grainDensity; i++) {
+                    // Random position within the rectangle
+                    float grainX = x + random(randomState) * width;
+                    float grainY = y + random(randomState) * height;
+                    
+                    // Random brightness (both bright and dark grain)
+                    float brightness = random(randomState);
+                    float alpha = intensity * random(randomState);
+                    
+                    // Mix of bright and dark spots for authentic film grain
+                    if (brightness > 0.5f) {
+                        // Bright grain
+                        glColor4f(1.0f, 1.0f, 1.0f, alpha);
+                    } else {
+                        // Dark grain  
+                        glColor4f(0.0f, 0.0f, 0.0f, alpha);
+                    }
+                    
+                    glVertex2f(grainX, grainY);
+                }
+                
+                glEnd();
+                glDisable(GL_BLEND);
+                
+                // Add some slightly larger grain for more authentic look
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glBegin(GL_QUADS);
+                
+                int largerGrainCount = static_cast<int>(width * height * 0.00005f); // Fewer but larger grains
+                randomState += 1000; // Different sequence for larger grains
+                
+                for(int i = 0; i < largerGrainCount; i++) {
+                    float grainX = x + random(randomState) * width;
+                    float grainY = y + random(randomState) * height;
+                    float grainSize = 0.5f + random(randomState) * 1.5f; // 0.5-2.0 pixel size
+                    
+                    float brightness = random(randomState);
+                    float alpha = intensity * 0.5f * random(randomState);
+                    
+                    if (brightness > 0.6f) {
+                        glColor4f(1.0f, 1.0f, 1.0f, alpha);
+                    } else {
+                        glColor4f(0.0f, 0.0f, 0.0f, alpha);
+                    }
+                    
+                    // Draw small rectangle for grain
+                    glVertex2f(grainX, grainY);
+                    glVertex2f(grainX + grainSize, grainY);
+                    glVertex2f(grainX + grainSize, grainY + grainSize);
+                    glVertex2f(grainX, grainY + grainSize);
+                }
+                
+                glEnd();
+                glDisable(GL_BLEND);
+            }
         }
     }
 }

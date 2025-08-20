@@ -40,6 +40,9 @@ namespace Engine {
 
             float GetTextWidth(const std::string& text, float scale = 1.0f) const;
             float GetTextHeight(float scale = 1.0f) const;
+            
+            // Get actual rendered text dimensions (more accurate for UI layout)
+            float GetActualTextHeight(const std::string& text, float scale = 1.0f) const;
 
             // Schriftgröße dynamisch an Fensterhöhe anpassen (im Resize-Callback aufrufen)
             void UpdateFontSizeForWindow(int windowHeight, unsigned int baseFontSize, int referenceHeight = 720);

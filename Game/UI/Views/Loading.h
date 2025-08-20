@@ -1,8 +1,7 @@
 #pragma once
 #include "../../../Engine/Core/View.h"
 #include "../../../Engine/Graphics/Text.h"
-#include <string>
-#include <chrono>
+#include "../../../Engine/Graphics/RGBA.h"
 
 namespace Engine {
     namespace Graphics {
@@ -11,54 +10,29 @@ namespace Engine {
 }
 
 class Loading : public Engine::View {
-public:
-    Loading();
+    public:
+        Loading();
 
-    // View lifecycle
-    void OnShow() override;
-    void OnHide() override;
-    void OnUpdate(float deltaTime) override;
-    void OnResize(int width, int height, int oldWidth, int oldHeight) override;
+        void OnShow() override;
+        void OnHide() override;
+        void OnUpdate(float deltaTime) override;
+        void OnResize(int width, int height, int oldWidth, int oldHeight) override;
 
-    // Loading progress
-    void UpdateProgress(const std::string& message, int actual, int total, float percentage);
+        void OnUpdateProgress(const std::string& message, int actual, int total, float percentage);
+        void SetMapName(const std::string& name) { this->mapName = name; }
+        void SetGameMode(const std::string& mode) { this->gameMode = mode; }
 
-    // Game info
-    void SetMapName(const std::string& mapName) { this->mapName = mapName; }
-    void SetGameMode(const std::string& gameMode) { this->gameMode = gameMode; }
+    protected:
+        void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;
 
-protected:
-    void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;
+    private:
+        Engine::Graphics::Text text_map;
+        Engine::Graphics::Text text_mode;
+        Engine::Graphics::HEX text_color       = Engine::Graphics::HEX("#FEFEFE");
+        Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#333333");
 
-private:
-    std::string currentMessage;
-    int currentStep;
-    int totalSteps;
-    float progressPercentage;
+        std::string mapName     = "MAP";
+        std::string gameMode    = "MODE";
 
-    Engine::Graphics::Text title;
-    Engine::Graphics::Text text1;
-
-    // Display info
-    std::string mapName = "Unknown Map";
-    std::string gameMode = "Singleplayer";
-    Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#FF0000");
-
-    // Animation timing
-    std::chrono::steady_clock::time_point startTime;
-    float animationCycleDuration = 3.4f; // Total animation cycle in seconds
-
-    // Animation helper methods
-    float GetAnimationTime() const;
-    float GetTitleAlpha(float animTime) const;
-    float GetTextAlpha(float animTime) const;
-    float GetTitleX(float animTime) const;
-    bool GetCursorVisible(float animTime) const;
-    Engine::Graphics::RGBA GetAnimatedTextShadow(float animTime) const;
-
-    void DisplayProgress();
-    void RenderSpinner(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float rotation);
-    void RenderProgressBar(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float width, float height, float progress);
-    void RenderHeader(Engine::Graphics::IRenderingAPI& renderingAPI);
-    void RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI, int windowWidth, int windowHeight);
+        void TextBox(Engine::Graphics::IRenderingAPI& context, Engine::Graphics::Text& font, const std::string& text, float x, float y);
 };

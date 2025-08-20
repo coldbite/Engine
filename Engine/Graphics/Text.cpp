@@ -379,6 +379,37 @@ namespace Engine {
             return m_fontSize * scale;
         }
 
+        float Text::GetActualTextHeight(const std::string& text, float scale) const {
+            if (!m_texturesGenerated) {
+                GenerateCharacterTextures();
+            }
+
+            int maxBearingY = 0;
+            int minBearingY = 0;
+            
+            // Find the actual top and bottom bounds of the text
+            for (char c : text) {
+                auto it = m_characters.find(c);
+                if (it != m_characters.end()) {
+                    const Character& ch = it->second;
+                    
+                    // Top of character (bearingY is distance from baseline to top)
+                    if (ch.bearingY > maxBearingY) {
+                        maxBearingY = ch.bearingY;
+                    }
+                    
+                    // Bottom of character (height - bearingY gives distance from baseline to bottom)
+                    int bottomY = static_cast<int>(ch.height) - ch.bearingY;
+                    if (bottomY > minBearingY) {
+                        minBearingY = bottomY;
+                    }
+                }
+            }
+            
+            // Total height is distance from top to bottom
+            return static_cast<float>(maxBearingY + minBearingY) * scale;
+        }
+
         void Text::CleanupCharacters() {
             for (auto& pair : m_characters) {
                 glDeleteTextures(1, &pair.second.textureID);

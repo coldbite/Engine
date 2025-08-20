@@ -52,6 +52,17 @@ namespace Engine {
 
                 Texture LoadTexture(const std::string& path) override;
 
+                // Texture drawing
+                void DrawTexture(const Texture& texture, float x, float y, float width, float height) override;
+                void DrawTextureBlurred(const Texture& texture, float x, float y, float width, float height, float blurRadius = 2.0f) override;
+                
+                // Overlay effects
+                void DrawDiagonalLines(float x, float y, float width, float height, float lineSpacing = 10.0f, float lineWidth = 1.0f, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 0.1f)) override;
+                void DrawRadialLines(float x, float y, float width, float height, float centerX1, float centerY1, float centerX2, float centerY2, int numLines = 20, float lineWidth = 1.0f, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 0.1f)) override;
+                void DrawVerticalLines(float x, float y, float width, float height, float lineSpacing = 15.0f, float lineWidth = 1.0f, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 0.08f)) override;
+                void DrawHorizontalLines(float x, float y, float width, float height, float lineSpacing = 15.0f, float lineWidth = 1.0f, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 0.08f)) override;
+                void DrawFilmGrain(float x, float y, float width, float height, float intensity = 0.08f, int seed = 0) override;
+
                 // Primitive drawing
                 void DrawRect(float x, float y, float width, float height, const IColor& color) override;
                 void PaintText(const std::string& text, float x, float y, const IColor& color) override;
