@@ -31,7 +31,7 @@ void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
 
     // Set up direct pixel coordinate system
-    context.Begin2D(GetWindowWidth(), GetWindowHeight());
+    context.Begin2D(context.GetWidth(), context.GetHeight());
 
     // Use RenderText - now the good implementation
     text.RenderText(context, "Playing game...!", 10.0f, 10.0f, text_color);

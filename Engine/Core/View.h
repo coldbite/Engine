@@ -32,8 +32,6 @@ namespace Engine {
 
         // Window dimensions
         void SetWindowDimensions(int width, int height);
-        int GetWindowWidth() const { return windowWidth; }
-        int GetWindowHeight() const { return windowHeight; }
 
         // Responsive scaling helpers - Smart scaling approach
         // Use different scaling for X and Y to fill the entire window

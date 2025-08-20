@@ -118,7 +118,7 @@ float Loading::GetTextAlpha(float animTime) const {
 float Loading::GetTitleX(float animTime) const {
     // X position animation: smooth sliding from right to center during visible period
     float progress = animTime / animationCycleDuration;
-    float baseX = GetWindowWidth() * 0.5f; // Center of window
+    float baseX = windowWidth * 0.5f; // Center of window
 
     if (progress < 0.48f) return baseX + 130.0f;
     if (progress < 0.70f) {

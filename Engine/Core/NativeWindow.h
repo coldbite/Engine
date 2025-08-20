@@ -48,6 +48,7 @@ namespace Engine {
         bool IsFullscreen() const { return properties.fullscreen; }
         bool IsVSyncEnabled() const { return properties.vsync; }
         const WindowProperties& GetProperties() const { return properties; }
+        void UpdateWindowProperties(int width, int height);
 
         // Event callbacks
         using ResizeCallback = std::function<void(int width, int height)>;

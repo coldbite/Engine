@@ -264,6 +264,11 @@ namespace Engine {
             renderingAPI->SetViewport(width, height);
         }
 
+        // Update the NativeWindow properties so context.GetWidth/Height() returns correct values
+        if(renderWindow) {
+            renderWindow->UpdateWindowProperties(width, height);
+        }
+
         for(auto& [name, view] : views) {
             if(view) {
                 view->SetWindowDimensions(width, height);

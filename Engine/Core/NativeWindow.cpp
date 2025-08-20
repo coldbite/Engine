@@ -409,3 +409,10 @@ namespace Engine {
     }
 #endif
 }
+
+namespace Engine {
+    void NativeWindow::UpdateWindowProperties(int width, int height) {
+        properties.width = width;
+        properties.height = height;
+    }
+}
