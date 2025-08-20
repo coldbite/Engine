@@ -132,5 +132,5 @@ void Masterball::OnInit() {
 }
 
 void Masterball::OnShutdown() {
-    // std::cout << "[Masterball] Game shutting down!" << std::endl;
+    std::cout << "[Masterball] Game shutting down!" << std::endl;
 }

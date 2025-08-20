@@ -107,9 +107,6 @@ namespace Engine {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-#elif defined(__CYGWIN__)
-        // Mock event polling for Cygwin
-        // No actual events to poll in mock mode
 #endif
     }
 
@@ -193,6 +190,7 @@ namespace Engine {
         std::cout << "[NativeWindow] Setting up rendering context for: " << api << std::endl;
 
         if(api == "OpenGL") {
+#ifdef _WIN32
             // Basic OpenGL context setup (low-level)
             PIXELFORMATDESCRIPTOR pfd = {};
             pfd.nSize           = sizeof(PIXELFORMATDESCRIPTOR);
@@ -240,6 +238,10 @@ namespace Engine {
             auto self   = std::make_shared<NativeWindow>(*this);
             auto OGL    = std::make_shared<Graphics::OpenGL::OpenGL>();
             return OGL->Init(self);
+#else
+            std::cout << "[NativeWindow] OpenGL context creation not supported on this platform" << std::endl;
+            return false;
+#endif
         }
 
         std::cout << "[NativeWindow] Rendering API '" << api << "' not implemented yet" << std::endl;
@@ -252,8 +254,7 @@ namespace Engine {
         }
 
 #ifdef _WIN32
-        // @ToDO api specific???
-        if(hglrc) {
+        if(hglrc && hdc) {
             wglMakeCurrent(hdc, hglrc);
         }
 #endif
@@ -325,12 +326,6 @@ namespace Engine {
         windowMap[hwnd] = this;
 
         return true;
-#elif defined(__CYGWIN__)
-        // Mock window creation for Cygwin environment
-        std::cout << "[NativeWindow] Creating mock window in Cygwin environment" << std::endl;
-        std::cout << "[NativeWindow] Mock window: " << properties.title
-                  << " (" << properties.width << "x" << properties.height << ")" << std::endl;
-        return true;
 #else
         std::cout << "[NativeWindow] Platform not supported" << std::endl;
         return false;
@@ -358,9 +353,6 @@ namespace Engine {
         }
 
         UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-#elif defined(__CYGWIN__)
-        // Mock window cleanup for Cygwin
-        std::cout << "[NativeWindow] Mock window cleanup in Cygwin environment" << std::endl;
 #endif
     }
 

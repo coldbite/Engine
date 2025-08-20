@@ -4,6 +4,10 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#ifdef _WIN32
+    #include <windows.h>
+    #include <gl/gl.h>
+#endif
 
 Loading::Loading()
     : Engine::View("Loading")
@@ -49,8 +53,12 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
     // Clear screen with static background color
     context.Clear(GetBackground());
 
-    // Set up 2D rendering with current window dimensions
-    context.Begin2D(context.GetWidth(), context.GetHeight());
+    // Get actual window dimensions for the entire function
+    int actualWidth = context.GetWidth();
+    int actualHeight = context.GetHeight();
+    
+    // Set up 2D rendering with actual context dimensions
+    context.Begin2D(actualWidth, actualHeight);
 
     // Rendering Background
     std::string file = GetBackgroundImage();
@@ -62,9 +70,9 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
 
         glBegin(GL_QUADS);
             glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);
-            glTexCoord2f(1.0f, 0.0f); glVertex2f(context.GetWidth(), 0.0f);
-            glTexCoord2f(1.0f, 1.0f); glVertex2f(context.GetWidth(), context.GetHeight());
-            glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, context.GetHeight());
+            glTexCoord2f(1.0f, 0.0f); glVertex2f(actualWidth, 0.0f);
+            glTexCoord2f(1.0f, 1.0f); glVertex2f(actualWidth, actualHeight);
+            glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, actualHeight);
         glEnd();
 
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -75,7 +83,7 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
     title.RenderText(context, mapName, 40.0f, 70.0f, Engine::Graphics::RGBA(1.0f, 1.0f, 1.0f, 0.8f));
 
     // Render animated loading text (center of screen)
-    RenderAnimatedText(context);
+    RenderAnimatedText(context, actualWidth, actualHeight);
 
     context.End2D();
 }
@@ -156,7 +164,7 @@ Engine::Graphics::RGBA Loading::GetAnimatedTextShadow(float animTime) const {
     }
 }
 
-void Loading::RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI) {
+void Loading::RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI, int windowWidth, int windowHeight) {
     float animTime = GetAnimationTime();
 
     // Get animation values
@@ -166,15 +174,19 @@ void Loading::RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI) 
     bool cursorVisible = GetCursorVisible(animTime);
     auto shadowColor = GetAnimatedTextShadow(animTime);
 
-    // Center container in window
-    float centerX = GetWindowWidth() * 0.5f;
-    float centerY = GetWindowHeight() * 0.5f;
+    // Center container in actual window
+    float centerX = windowWidth * 0.5f;
+    float centerY = windowHeight * 0.5f;
 
-    // Container dimensions with responsive scaling
+    // Container dimensions with uniform scaling to maintain aspect ratio
     float baseBoxWidth = 400.0f;
     float baseBoxHeight = 120.0f;
-    float boxWidth = GetScaledX(baseBoxWidth);
-    float boxHeight = GetScaledY(baseBoxHeight);
+    // Calculate scaling based on actual window dimensions
+    float scaleX = windowWidth / 1024.0f;
+    float scaleY = windowHeight / 768.0f;
+    float uniformScale = std::min(scaleX, scaleY);
+    float boxWidth = baseBoxWidth * uniformScale;
+    float boxHeight = baseBoxHeight * uniformScale;
     float boxX = centerX - boxWidth * 0.5f;
     float boxY = centerY - boxHeight * 0.5f;
 
@@ -187,18 +199,18 @@ void Loading::RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI) 
     renderingAPI.DrawRect(boxX - 2, boxY, 2, boxHeight, shadowColor); // Left
     renderingAPI.DrawRect(boxX + boxWidth, boxY, 2, boxHeight, shadowColor); // Right
 
-    // Text positioning with responsive scaling
-    float textAreaX = boxX + boxWidth - GetScaledX(30.0f); // Right side with scaled margin
-    float textScale = GetScaleFactor();
+    // Text positioning with uniform scaling
+    float textAreaX = boxX + boxWidth - (30.0f * uniformScale); // Right side with scaled margin
+    float textScale = uniformScale;
 
     // Glow offset calculations for consistent use
-    float glowOffset1 = GetScaleFactor();
-    float glowOffset2 = GetScaleFactor() * 2.0f;
-    float glowOffset3 = GetScaleFactor() * 3.0f;
+    float glowOffset1 = uniformScale;
+    float glowOffset2 = uniformScale * 2.0f;
+    float glowOffset3 = uniformScale * 3.0f;
 
     // Render "loading" title with smooth glow effect
     if (titleAlpha > 0.0f) {
-        float actualX = titleX - GetScaledX(120.0f); // Use animated X position with scaling
+        float actualX = titleX - (120.0f * uniformScale); // Use animated X position with scaling
 
         // Create multiple glow layers for softer effect
         Engine::Graphics::RGBA glowColor1(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * titleAlpha * 0.3f);
@@ -229,7 +241,7 @@ void Loading::RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI) 
 
     // Render map name text with smooth glow effect (delayed)
     if (textAlpha > 0.0f) {
-        float actualX = titleX - GetScaledX(120.0f); // Use same animated X position with scaling
+        float actualX = titleX - (120.0f * uniformScale); // Use same animated X position with scaling
 
         // Create multiple glow layers for softer effect
         Engine::Graphics::RGBA glowColor1(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * textAlpha * 0.3f);
@@ -258,10 +270,10 @@ void Loading::RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI) 
 
     // Render cursor (thin vertical line like in GIF) with responsive scaling
     if (cursorVisible && (titleAlpha > 0.0f || textAlpha > 0.0f)) {
-        float cursorX = textAreaX - GetScaledX(20.0f);
+        float cursorX = textAreaX - (20.0f * uniformScale);
         float cursorY = (titleAlpha > textAlpha) ? centerY - 10 : centerY + 15;
-        float cursorWidth = GetScaleFactor() * 2.0f;
-        float cursorHeight = GetScaledSize(18.0f);
+        float cursorWidth = uniformScale * 2.0f;
+        float cursorHeight = 18.0f * uniformScale;
 
         // Cursor glow effect
         Engine::Graphics::RGBA cursorGlow(shadowColor.GetRed(), shadowColor.GetGreen(), shadowColor.GetBlue(), shadowColor.GetAlpha() * 0.5f);

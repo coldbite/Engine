@@ -18,7 +18,7 @@ public:
     void OnShow() override;
     void OnHide() override;
     void OnUpdate(float deltaTime) override;
-    void OnResize(int witdth, int height, int oldWidth, int oldHeight) override;
+    void OnResize(int width, int height, int oldWidth, int oldHeight) override;
 
     // Loading progress
     void UpdateProgress(const std::string& message, int actual, int total, float percentage);
@@ -60,5 +60,5 @@ private:
     void RenderSpinner(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float rotation);
     void RenderProgressBar(Engine::Graphics::IRenderingAPI& renderingAPI, float x, float y, float width, float height, float progress);
     void RenderHeader(Engine::Graphics::IRenderingAPI& renderingAPI);
-    void RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI);
+    void RenderAnimatedText(Engine::Graphics::IRenderingAPI& renderingAPI, int windowWidth, int windowHeight);
 };

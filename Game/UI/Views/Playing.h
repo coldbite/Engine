@@ -16,7 +16,7 @@ class Playing : public Engine::View {
         void OnShow() override;
         void OnHide() override;
         void OnUpdate(float deltaTime) override;
-        void OnResize(int witdth, int height, int oldWidth, int oldHeight) override;
+        void OnResize(int width, int height, int oldWidth, int oldHeight) override;
 
     protected:
         void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;

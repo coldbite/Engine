@@ -35,11 +35,34 @@ namespace Engine {
         int GetWindowWidth() const { return windowWidth; }
         int GetWindowHeight() const { return windowHeight; }
 
-        // Responsive scaling helpers
-        float GetScaleFactor() const { return std::min(windowWidth / 1024.0f, windowHeight / 768.0f); }
-        float GetScaledX(float baseX) const { return baseX * (windowWidth / 1024.0f); }
-        float GetScaledY(float baseY) const { return baseY * (windowHeight / 768.0f); }
-        float GetScaledSize(float baseSize) const { return baseSize * GetScaleFactor(); }
+        // Responsive scaling helpers - Smart scaling approach
+        // Use different scaling for X and Y to fill the entire window
+        float GetScaleX() const { return windowWidth / 1024.0f; }
+        float GetScaleY() const { return windowHeight / 768.0f; }
+        
+        // Uniform scaling (for elements that must maintain aspect ratio)
+        float GetUniformScale() const { return std::min(GetScaleX(), GetScaleY()); }
+        
+        // Full window scaling (for backgrounds, full-screen elements)
+        float GetScaledX(float baseX) const { return baseX * GetScaleX(); }
+        float GetScaledY(float baseY) const { return baseY * GetScaleY(); }
+        
+        // Centered positioning for aspect-ratio preserved elements
+        float GetCenteredX(float baseX) const { 
+            float scale = GetUniformScale();
+            float scaledWidth = 1024.0f * scale;
+            float offsetX = (windowWidth - scaledWidth) * 0.5f;
+            return offsetX + baseX * scale;
+        }
+        float GetCenteredY(float baseY) const { 
+            float scale = GetUniformScale();
+            float scaledHeight = 768.0f * scale;
+            float offsetY = (windowHeight - scaledHeight) * 0.5f;
+            return offsetY + baseY * scale;
+        }
+        
+        // Size scaling
+        float GetScaledSize(float baseSize) const { return baseSize * GetUniformScale(); }
 
         // View lifecycle methods
         virtual void OnShow() {}

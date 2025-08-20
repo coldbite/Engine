@@ -17,8 +17,9 @@ void Playing::OnHide() {
     std::cout << "[Playing] View hidden" << std::endl;
 }
 
-void Playing::OnResize(int witdth, int height, int oldWidth, int oldHeight) {
-
+void Playing::OnResize(int width, int height, int oldWidth, int oldHeight) {
+    // Resize text to maintain relative size
+    text.UpdateFontSizeForWindow(height, 18, oldHeight);
 }
 
 void Playing::OnUpdate(float deltaTime) {
@@ -29,6 +30,15 @@ void Playing::OnUpdate(float deltaTime) {
 void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
 
-    text.RenderText(context, "Playing game...!", 100, 100, text_color);
+    // Set up 2D rendering with current window dimensions
+    context.Begin2D(GetWindowWidth(), GetWindowHeight());
+
+    // Use centered positioning (maintains aspect ratio)
+    float textX = GetCenteredX(100.0f);
+    float textY = GetCenteredY(100.0f);
+    
+    text.RenderText(context, "Playing game...!", textX, textY, text_color);
+
+    context.End2D();
 }
 

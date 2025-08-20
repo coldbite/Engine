@@ -116,6 +116,14 @@ namespace Engine {
             }
         });
 
+        // Set up window close callback to shutdown the game
+        mainWindow->SetCloseCallback([this]() {
+            std::cout << "[Game] Window close requested - shutting down..." << std::endl;
+            RequestStop();
+            Engine::RequestStop();
+            std::cout << "[Game] Stop requests sent" << std::endl;
+        });
+
         // Ensure VSync is applied after context setup
         if(windowProps.vsync && mainWindow->IsValid()) {
             std::cout << "[Game] Applying VSync setting: ON" << std::endl;
@@ -166,14 +174,24 @@ namespace Engine {
             std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~60 FPS
         }
 
+        std::cout << "[Game] Main loop exited" << std::endl;
+
         // Wait for threads to finish after stop is requested
+        std::cout << "[Game] Waiting for engine thread to finish..." << std::endl;
         if(engineThread.joinable()) {
             engineThread.join();
         }
+        std::cout << "[Game] Engine thread finished" << std::endl;
 
         if(hasInputThread && inputThread.joinable()) {
-            inputThread.join();
+            std::cout << "[Game] Detaching input thread (it's waiting for stdin)..." << std::endl;
+            inputThread.detach(); // Don't wait for input thread - it's blocking on stdin
+            std::cout << "[Game] Input thread detached" << std::endl;
         }
+
+        // Call shutdown after the main loop ends
+        std::cout << "[Game] Calling Shutdown()..." << std::endl;
+        Shutdown();
     }
 
     void Game::Shutdown() {
@@ -181,11 +199,15 @@ namespace Engine {
             return;
         }
 
+        // Set to false immediately to prevent double shutdown
+        isInitialized = false;
+
+        std::cout << "[Game] Shutting down..." << std::endl;
+        std::cout << "[Game] Calling OnShutdown()..." << std::endl;
         OnShutdown();
+        std::cout << "[Game] OnShutdown() finished" << std::endl;
 
         Engine::Shutdown();
-
-        isInitialized = false;
     }
 
     void Game::SetupEventHandlers() {
@@ -211,7 +233,7 @@ namespace Engine {
         SubscribeToEvent<ShutdownEvent>(
             [this](const IEvent& /*event*/) {
                 viewManager->HideAllViews();
-                OnShutdown();
+                // OnShutdown() is called explicitly in Game::Shutdown(), not here
             }
         );
 
