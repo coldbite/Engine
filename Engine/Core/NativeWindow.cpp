@@ -235,8 +235,13 @@ namespace Engine {
             }
             
             // Now initialize our OpenGL wrapper
-            auto self   = std::make_shared<NativeWindow>(*this);
+            // NOTE: We need to get a shared_ptr to 'this', but we can't use shared_from_this here
+            // For now, we'll pass the current instance directly - this needs to be refactored
             auto OGL    = std::make_shared<Graphics::OpenGL::OpenGL>();
+            
+            // HACK: Create a shared_ptr that doesn't delete the object when it goes out of scope
+            // This is not ideal, but works for now until we refactor to proper shared_ptr management
+            std::shared_ptr<NativeWindow> self(this, [](NativeWindow*){});
             return OGL->Init(self);
 #else
             std::cout << "[NativeWindow] OpenGL context creation not supported on this platform" << std::endl;
