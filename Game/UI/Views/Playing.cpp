@@ -6,7 +6,7 @@ Engine::Graphics::Text text;
 
 Playing::Playing() : Engine::View("Playing") {
     SetBackground(color_background);
-    text.LoadFont("C:/Users/Bizzi/Documents/GitHub/Engine/Game/Assets/Fonts/Sansation-Regular.ttf", 18);
+    text.LoadFont("../Game/Assets/Fonts/Sansation-Regular.ttf", 18);
 }
 
 void Playing::OnShow() {
@@ -36,7 +36,7 @@ void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     // Use centered positioning (maintains aspect ratio)
     float textX = GetCenteredX(100.0f);
     float textY = GetCenteredY(100.0f);
-    
+
     text.RenderText(context, "Playing game...!", textX, textY, text_color);
 
     context.End2D();

@@ -18,8 +18,8 @@ Loading::Loading()
     , startTime(std::chrono::steady_clock::now()) {
 
     SetBackground(color_background);
-    title.LoadFont("C:/Users/Bizzi/Documents/GitHub/Engine/Game/Assets/Fonts/Sansation-Bold.ttf", 40);
-    text1.LoadFont("C:/Users/Bizzi/Documents/GitHub/Engine/Game/Assets/Fonts/Sansation-Regular.ttf", 18);
+    title.LoadFont("../Game/Assets/Fonts/Sansation-Bold.ttf", 40);
+    text1.LoadFont("../Game/Assets/Fonts/Sansation-Regular.ttf", 18);
 }
 
 void Loading::OnShow() {
@@ -56,7 +56,7 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
     // Get actual window dimensions for the entire function
     int actualWidth = context.GetWidth();
     int actualHeight = context.GetHeight();
-    
+
     // Set up 2D rendering with actual context dimensions
     context.Begin2D(actualWidth, actualHeight);
 
