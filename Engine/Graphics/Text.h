@@ -19,6 +19,47 @@ namespace Engine {
     namespace Graphics {
         class IRenderingAPI;
 
+        enum class FontStyle {
+            NORMAL      = 0,
+            ITALIC      = 1,
+            BOLD        = 2,
+            UNDERLINED  = 4,
+            UPPERCASE   = 8,
+            LOWERCASE   = 16
+        };
+
+        enum class HorizontalAlignment {
+            LEFT,
+            CENTER,
+            RIGHT
+        };
+
+        enum class VerticalAlignment {
+            TOP,
+            CENTER,
+            BOTTOM
+        };
+
+        struct TextAlignment {
+            HorizontalAlignment horizontal;
+            VerticalAlignment vertical;
+            
+            TextAlignment(HorizontalAlignment h = HorizontalAlignment::LEFT, 
+                         VerticalAlignment v = VerticalAlignment::TOP) 
+                : horizontal(h), vertical(v) {}
+
+            // Common alignment presets
+            static const TextAlignment TOP_LEFT;
+            static const TextAlignment TOP_CENTER;
+            static const TextAlignment TOP_RIGHT;
+            static const TextAlignment CENTER_LEFT;
+            static const TextAlignment CENTER;
+            static const TextAlignment CENTER_RIGHT;
+            static const TextAlignment BOTTOM_LEFT;
+            static const TextAlignment BOTTOM_CENTER;
+            static const TextAlignment BOTTOM_RIGHT;
+        };
+
         struct Character {
             unsigned int textureID;
             unsigned int width, height;
@@ -31,9 +72,22 @@ namespace Engine {
             Text();
             ~Text();
 
+            // New API methods
+            void SetValue(const std::string& text);
+            void SetFont(const std::string& fontName);
+            void SetColor(const IColor& color);
+            void SetBackground(const IColor& color);
+            void SetPadding(float x, float y);
+            void SetPadding(float top, float right, float bottom, float left);
+            void SetMargin(float x, float y);
+            void SetMargin(float top, float right, float bottom, float left);
+            void SetSize(float size);
+            void SetStyle(FontStyle style);
+            void Render(IRenderingAPI& context, float x, float y);
+            void Render(IRenderingAPI& context, const TextAlignment& alignment);
+
+            // Legacy methods (keep for compatibility)
             bool LoadFont(const std::string& fontPath, unsigned int fontSize = 48);
-            void RenderTextLegacy(IRenderingAPI& renderingAPI, const std::string& text, float x, float y, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 1.0f)) const;
-            void RenderText(IRenderingAPI& renderingAPI, const std::string& text, float x, float y, const IColor& color = RGBA(1.0f, 1.0f, 1.0f, 1.0f)) const;
 
             void SetFontSize(unsigned int fontSize);
             unsigned int GetFontSize() const { return m_fontSize; }
@@ -50,16 +104,30 @@ namespace Engine {
         private:
             void GenerateCharacterTextures() const;  // Made const for lazy loading
             void CleanupCharacters();
+            void LoadFontByName(const std::string& fontName);
+            std::string ApplyTextTransformation(const std::string& text) const;
 
             static bool s_initialized;
             static FT_Library s_library;
             static int s_instanceCount;
 
+            // Legacy font loading
             FT_Face m_face;
             unsigned int m_fontSize;
             std::string m_fontPath;  // Store font path for lazy loading
             mutable std::map<char, Character> m_characters;  // Made mutable
             mutable bool m_texturesGenerated;  // Track if textures are generated
+
+            // New text properties
+            std::string m_text;
+            std::string m_fontName;
+            RGBA m_textColor;
+            RGBA m_backgroundColor;
+            float m_paddingTop, m_paddingRight, m_paddingBottom, m_paddingLeft;
+            float m_marginTop, m_marginRight, m_marginBottom, m_marginLeft;
+            float m_size;
+            FontStyle m_style;
+            bool m_hasBackground;
         };
     }
 }

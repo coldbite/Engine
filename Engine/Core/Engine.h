@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <atomic>
 #include <chrono>
+#include <map>
+#include <string>
 
 namespace Engine {
     /* Simple Alias */
@@ -81,6 +83,10 @@ namespace Engine {
         bool IsFPSLimitEnabled() const { return fpsLimitEnabled; }
         int GetTargetFPS() const { return targetFPS; }
 
+        // Font management
+        void RegisterFont(const std::string& name, const std::string& pathToTtf);
+        std::string GetFont(const std::string& name) const;
+
     protected:
         Engine() = default;
         virtual ~Engine() = default;
@@ -106,5 +112,8 @@ namespace Engine {
         mutable int currentFPS = 0;
         mutable std::chrono::high_resolution_clock::time_point lastFPSUpdate;
         mutable int frameCount = 0;
+
+        // Font registry
+        std::map<std::string, std::string> m_fontRegistry;
     };
 }

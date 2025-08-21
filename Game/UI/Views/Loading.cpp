@@ -5,8 +5,21 @@
 Loading::Loading() : Engine::View("Loading") {
     SetBackground(color_background);
 
-    text_map.LoadFont("../Game/Assets/Fonts/Sansation-Regular.ttf", 40);
-    text_mode.LoadFont("../Game/Assets/Fonts/Sansation-Regular.ttf", 20);
+    text_map.SetValue(this->mapName);
+    text_map.SetFont("Sansation");
+    text_map.SetColor(text_color); // Red text
+    text_map.SetBackground(Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f)); // Semi-transparent black background
+    text_map.SetPadding(10.0f, 5.0f); // 10px horizontal, 5px vertical padding
+    text_map.SetSize(40.0f);
+    text_map.SetStyle(Engine::Graphics::FontStyle::BOLD);
+
+    text_mode.SetValue(this->gameMode);
+    text_mode.SetFont("Sansation");
+    text_mode.SetColor(text_color); // Red text
+    text_mode.SetBackground(Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f)); // Semi-transparent black background
+    text_mode.SetPadding(10.0f, 5.0f); // 10px horizontal, 5px vertical padding
+    text_mode.SetSize(20.0f);
+    text_mode.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
 }
 
 void Loading::OnShow() {
@@ -18,13 +31,14 @@ void Loading::OnHide() {
 }
 
 void Loading::OnResize(int width, int height, int oldWidth, int oldHeight) {
-    // Resize text to maintain relative size
-    text_map.UpdateFontSizeForWindow(height, 40, oldHeight);
+    // Text positions are now handled proportionally in Render(), no need for manual resize handling
 }
 
 void Loading::OnUpdate(float deltaTime) {
     // Currently no internal updates needed for Loading view
     // UpdateInternal(deltaTime) would be called here if we had animations or game logic
+    text_map.SetValue(this->mapName);
+    text_mode.SetValue(this->gameMode);
 }
 
 void Loading::OnUpdateProgress(const std::string& message, int actual, int total, float percentage) {
@@ -65,25 +79,13 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
                             123);   // Random seed
     }
 
-    /* Map Name */
-    std::string mode = this->gameMode;
-    std::transform(mode.begin(), mode.end(), mode.begin(), ::toupper);
-
-    TextBox(context, text_map, this->mapName, 20, 30);
-    TextBox(context, text_mode, mode, 20, 90);
+    /* Text Rendering with proportional scaling */
+    // Scale positions based on window size proportionally
+    float scaleX = w / 1280.0f;
+    float scaleY = h / 720.0f;
+    
+    text_map.Render(context, 20.0f * scaleX, 30.0f * scaleY);
+    text_mode.Render(context, 20.0f * scaleX, 90.0f * scaleY);
 
     context.End2D();
 }
-
-void Loading::TextBox(Engine::Graphics::IRenderingAPI& context, Engine::Graphics::Text& font, const std::string& text, float x, float y) {
-    float padding_x = 10.0f;
-    float padding_y = 10.0f;
-    float textWidth = font.GetTextWidth(text);
-    float textHeight = font.GetActualTextHeight(text, 1.0f);
-    float boxWidth = textWidth + (padding_x * 2);
-    float boxHeight = textHeight + (padding_y * 2);
-
-    context.DrawRect(x, y, boxWidth, boxHeight, Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f));
-    font.RenderText(context, text, x + padding_x, y + padding_y, text_color);
-}
-

@@ -89,6 +89,9 @@ void Masterball::OnInit() {
         }
     }
 
+    /* Register Fonts */
+    RegisterFont("Sansation", "../Game/Assets/Fonts/Sansation-Regular.ttf");
+
     loading = std::make_shared<Loading>();
     playing = std::make_shared<Playing>();
 

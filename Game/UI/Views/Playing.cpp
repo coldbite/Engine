@@ -6,7 +6,12 @@ Engine::Graphics::Text text;
 
 Playing::Playing() : Engine::View("Playing") {
     SetBackground(color_background);
-    text.LoadFont("../Game/Assets/Fonts/Sansation-Regular.ttf", 22);
+    
+    // Use new font API instead of direct LoadFont
+    text.SetValue("Playing game...!");
+    text.SetFont("Sansation");
+    text.SetSize(22.0f);
+    text.SetColor(text_color);
 }
 
 void Playing::OnShow() {
@@ -29,9 +34,8 @@ void Playing::OnUpdate(float deltaTime) {
 
 void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
-
     context.Begin2D(context.GetWidth(), context.GetHeight());
-    text.RenderText(context, "Playing game...!", 10.0f, 10.0f, text_color);
+    text.Render(context, Engine::Graphics::TextAlignment::CENTER);
     context.End2D();
 }
 

@@ -33,6 +33,4 @@ class Loading : public Engine::View {
 
         std::string mapName     = "MAP";
         std::string gameMode    = "MODE";
-
-        void TextBox(Engine::Graphics::IRenderingAPI& context, Engine::Graphics::Text& font, const std::string& text, float x, float y);
 };

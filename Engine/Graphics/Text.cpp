@@ -1,17 +1,35 @@
 #include "Text.h"
 #include "IRenderingAPI.h"
 #include "IColor.h"
+#include "../Core/Engine.h"
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
+#include <cctype>
 
 namespace Engine {
     namespace Graphics {
+        // Define TextAlignment static constants
+        const TextAlignment TextAlignment::TOP_LEFT(HorizontalAlignment::LEFT, VerticalAlignment::TOP);
+        const TextAlignment TextAlignment::TOP_CENTER(HorizontalAlignment::CENTER, VerticalAlignment::TOP);
+        const TextAlignment TextAlignment::TOP_RIGHT(HorizontalAlignment::RIGHT, VerticalAlignment::TOP);
+        const TextAlignment TextAlignment::CENTER_LEFT(HorizontalAlignment::LEFT, VerticalAlignment::CENTER);
+        const TextAlignment TextAlignment::CENTER(HorizontalAlignment::CENTER, VerticalAlignment::CENTER);
+        const TextAlignment TextAlignment::CENTER_RIGHT(HorizontalAlignment::RIGHT, VerticalAlignment::CENTER);
+        const TextAlignment TextAlignment::BOTTOM_LEFT(HorizontalAlignment::LEFT, VerticalAlignment::BOTTOM);
+        const TextAlignment TextAlignment::BOTTOM_CENTER(HorizontalAlignment::CENTER, VerticalAlignment::BOTTOM);
+        const TextAlignment TextAlignment::BOTTOM_RIGHT(HorizontalAlignment::RIGHT, VerticalAlignment::BOTTOM);
 
         bool Text::s_initialized = false;
         FT_Library Text::s_library;
         int Text::s_instanceCount = 0;
 
-        Text::Text() : m_face(nullptr), m_fontSize(14), m_texturesGenerated(false) {
+        Text::Text() : m_face(nullptr), m_fontSize(14), m_texturesGenerated(false),
+                       m_text(""), m_fontName(""), m_textColor(1.0f, 1.0f, 1.0f, 1.0f), 
+                       m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
+                       m_paddingTop(0.0f), m_paddingRight(0.0f), m_paddingBottom(0.0f), m_paddingLeft(0.0f),
+                       m_marginTop(0.0f), m_marginRight(0.0f), m_marginBottom(0.0f), m_marginLeft(0.0f),
+                       m_size(14.0f), m_style(FontStyle::NORMAL), m_hasBackground(false) {
             s_instanceCount++;
 
             if (!s_initialized) {
@@ -51,7 +69,7 @@ namespace Engine {
 
             m_fontSize = fontSize;
             m_fontPath = fontPath;
-            m_texturesGenerated = false;  // Mark textures as not generated yet
+            m_texturesGenerated = false;  // Mark textures as not generated yet - they will be generated on first render
             FT_Set_Pixel_Sizes(m_face, 0, fontSize);
 
             return true;
@@ -163,204 +181,12 @@ namespace Engine {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-       void Text::RenderTextLegacy(IRenderingAPI& context, const std::string& text, float x, float y, const IColor &color) const {
-            if(!m_texturesGenerated && m_face) {
-                GenerateCharacterTextures();
-                m_texturesGenerated = true;
-            }
-
-            if(m_characters.empty()) {
-                return;
-            }
-
-            // --- Setze Projektionsmatrix pixelgenau, Y-Achse von oben nach unten (0,0 = oben links) ---
-            glMatrixMode(GL_PROJECTION);
-            glPushMatrix();
-            glLoadIdentity();
-            //glOrtho(0.0, context.GetWidth(), context.GetHeight(), 0.0, -1.0, 1.0);
-            const float REF_WIDTH = 1280.0f;
-            const float REF_HEIGHT = 720.0f;
-            float aspect = (float)context.GetWidth() / (float)context.GetHeight();
-
-            // Fenster ist breiter als Referenz: Breite anpassen (pillarbox)
-            float viewWidth = context.GetHeight() * aspect;
-            float xOffset = (context.GetWidth() - viewWidth) / 2.0f;
-            glOrtho(xOffset, xOffset + viewWidth, context.GetHeight(), 0.0, -1.0, 1.0);
-            // --- Optimiertes Letterboxing/Pillarboxing: Immer im festen Referenzsystem rendern ---
-
-            float windowWidth = static_cast<float>(context.GetWidth());
-            float windowHeight = static_cast<float>(context.GetHeight());
-            float windowAspect = windowWidth / windowHeight;
-            float refAspect = REF_WIDTH / REF_HEIGHT;
-
-            // Passe Viewport an, damit Seitenverhältnis stimmt (schwarze Balken möglich)
-            if (windowAspect > refAspect) {
-                // Pillarbox: links/rechts Balken
-                int viewWidth = static_cast<int>(windowHeight * refAspect);
-                int xOffset = static_cast<int>((windowWidth - viewWidth) / 2.0f);
-                glViewport(xOffset, 0, viewWidth, static_cast<int>(windowHeight));
-            } else {
-                // Letterbox: oben/unten Balken
-                int viewHeight = static_cast<int>(windowWidth / refAspect);
-                int yOffset = static_cast<int>((windowHeight - viewHeight) / 2.0f);
-                glViewport(0, yOffset, static_cast<int>(windowWidth), viewHeight);
-            }
-
-            // Setze Ortho-Projektion immer auf Referenzsystem
-            glMatrixMode(GL_PROJECTION);
-            glPushMatrix();
-            glLoadIdentity();
-            glOrtho(0, REF_WIDTH, REF_HEIGHT, 0, -1, 1);
-
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-            glLoadIdentity();
-            // Fenster ist höher als Referenz: Höhe anpassen (letterbox)
-            float viewHeight = context.GetWidth() / aspect;
-            float yOffset = (context.GetHeight() - viewHeight) / 2.0f;
-            glOrtho(0.0, context.GetWidth(), yOffset + viewHeight, yOffset, -1.0, 1.0);
-
-
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-            glLoadIdentity();
-
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_TEXTURE_2D);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            glColor3f(color.GetRed(), color.GetGreen(), color.GetBlue());
-
-            float scaleRef = 1280.0f;
-            float scaleX = context.GetWidth() / scaleRef;
-            float scaleY = context.GetHeight() / scaleRef;
-            float scale = 1.0f; //std::max(scaleX, scaleY);
-            float posX = x;
-
-            // 1. Finde maximale bearingY für die Baseline
-            int maxBearingY = 0;
-            for(char c : text) {
-                auto it = m_characters.find(c);
-                if(it != m_characters.end()) {
-                    if(it->second.bearingY > maxBearingY) maxBearingY = it->second.bearingY;
-                }
-            }
-
-            // 2. Zeichne alle Zeichen an gemeinsamer Baseline
-            for(char c : text) {
-                auto it = m_characters.find(c);
-                if(it == m_characters.end()) {
-                    continue;
-                }
-
-                const Character& ch = it->second;
-
-                float xpos = posX + ch.bearingX * scale;
-                // y ist oben, maxBearingY ist die gemeinsame Baseline
-                float ypos = y + (maxBearingY - ch.bearingY) * scale;
-                float w = ch.width * scale;
-                float h = ch.height * scale;
-
-                float drawY = ypos;
-
-                if (w > 0 && h > 0) {
-                    glBindTexture(GL_TEXTURE_2D, ch.textureID);
-
-                    glBegin(GL_QUADS);
-                        // Vertikale Texturkoordinaten gespiegelt, damit Zeichen nicht mehr auf dem Kopf stehen
-                        glTexCoord2f(0.0f, 1.0f); glVertex2f(xpos, drawY);
-                        glTexCoord2f(1.0f, 1.0f); glVertex2f(xpos + w, drawY);
-                        glTexCoord2f(1.0f, 0.0f); glVertex2f(xpos + w, drawY + h);
-                        glTexCoord2f(0.0f, 0.0f); glVertex2f(xpos, drawY + h);
-                    glEnd();
-                }
-
-                posX += ch.advance * scale;
-            }
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glDisable(GL_BLEND);
-            glDisable(GL_TEXTURE_2D);
-
-            // --- Matrix wiederherstellen ---
-            glEnable(GL_DEPTH_TEST);
-            // Hinweis: Bei Fenster-Resize muss context.GetWidth()/GetHeight() aktuell sein und glViewport(0,0,w,h) aufgerufen werden!
-        }
-
-        void Text::RenderText(IRenderingAPI& context, const std::string& text, float x, float y, const IColor &color) const {
-            if(!m_texturesGenerated && m_face) {
-                GenerateCharacterTextures();
-                m_texturesGenerated = true;
-            }
-
-            if(m_characters.empty()) {
-                return;
-            }
-
-            // Use the current coordinate system directly (no matrix changes)
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_TEXTURE_2D);
-
-            // Set color
-            glColor4f(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
-
-            // Copy the EXACT working logic from the original RenderText method
-            float scale = 1.0f; // Direct 1:1 pixel mapping
-            float posX = x;
-            
-            // Calculate maxBearingY for baseline alignment (like original)
-            float maxBearingY = 0;
-            for(char c : text) {
-                auto it = m_characters.find(c);
-                if(it != m_characters.end()) {
-                    const Character& ch = it->second;
-                    if(ch.bearingY > maxBearingY) {
-                        maxBearingY = static_cast<float>(ch.bearingY);
-                    }
-                }
-            }
-            
-            // Render characters using EXACT original logic
-            for(char c : text) {
-                auto it = m_characters.find(c);
-                if(it == m_characters.end()) {
-                    continue;
-                }
-
-                const Character& ch = it->second;
-
-                float xpos = posX + ch.bearingX * scale;
-                float ypos = y + (maxBearingY - ch.bearingY) * scale;
-                float w = ch.width * scale;
-                float h = ch.height * scale;
-
-                if (w > 0 && h > 0) {
-                    glBindTexture(GL_TEXTURE_2D, ch.textureID);
-
-                    glBegin(GL_QUADS);
-                        // Use EXACT original texture coordinates
-                        glTexCoord2f(0.0f, 1.0f); glVertex2f(xpos, ypos);
-                        glTexCoord2f(1.0f, 1.0f); glVertex2f(xpos + w, ypos);
-                        glTexCoord2f(1.0f, 0.0f); glVertex2f(xpos + w, ypos + h);
-                        glTexCoord2f(0.0f, 0.0f); glVertex2f(xpos, ypos + h);
-                    glEnd();
-                }
-
-                posX += ch.advance * scale;
-            }
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glDisable(GL_BLEND);
-            glDisable(GL_TEXTURE_2D);
-        }
 
         void Text::SetFontSize(unsigned int fontSize) {
             if (m_fontSize != fontSize && m_face) {
                 m_fontSize = fontSize;
                 FT_Set_Pixel_Sizes(m_face, 0, fontSize);
-                GenerateCharacterTextures();
+                m_texturesGenerated = false;  // Mark for regeneration on next render
             }
         }
 
@@ -432,6 +258,266 @@ namespace Engine {
             if(dynamicFontSize != m_fontSize && m_face) {
                 SetFontSize(dynamicFontSize);
             }
+        }
+
+        // New API method implementations
+        void Text::SetValue(const std::string& text) {
+            m_text = text;
+        }
+
+        void Text::SetFont(const std::string& fontName) {
+            m_fontName = fontName;
+            LoadFontByName(fontName);
+        }
+
+        void Text::SetColor(const IColor& color) {
+            m_textColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        }
+
+        void Text::SetBackground(const IColor& color) {
+            m_backgroundColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+            m_hasBackground = true;
+        }
+
+        void Text::SetPadding(float x, float y) {
+            m_paddingLeft = m_paddingRight = x;
+            m_paddingTop = m_paddingBottom = y;
+        }
+
+        void Text::SetPadding(float top, float right, float bottom, float left) {
+            m_paddingTop = top;
+            m_paddingRight = right;
+            m_paddingBottom = bottom;
+            m_paddingLeft = left;
+        }
+
+        void Text::SetMargin(float x, float y) {
+            m_marginLeft = m_marginRight = x;
+            m_marginTop = m_marginBottom = y;
+        }
+
+        void Text::SetMargin(float top, float right, float bottom, float left) {
+            m_marginTop = top;
+            m_marginRight = right;
+            m_marginBottom = bottom;
+            m_marginLeft = left;
+        }
+
+        void Text::SetSize(float size) {
+            m_size = size;
+            if (m_face) {
+                SetFontSize(static_cast<unsigned int>(size));
+            }
+        }
+
+        void Text::SetStyle(FontStyle style) {
+            m_style = style;
+        }
+
+        void Text::Render(IRenderingAPI& context, float x, float y) {
+            if (m_text.empty()) {
+                return;
+            }
+            
+            if (!m_face) {
+                return;
+            }
+
+            // Apply text transformations (like UPPERCASE)
+            std::string renderedText = ApplyTextTransformation(m_text);
+
+            float renderX = x + m_marginLeft;
+            float renderY = y + m_marginTop;
+
+            // Render background if needed
+            if (m_hasBackground) {
+                // Ensure character textures are generated before accessing characters
+                if (!m_texturesGenerated && m_face) {
+                    GenerateCharacterTextures();
+                    m_texturesGenerated = true;
+                }
+                
+                float textWidth = GetTextWidth(renderedText);
+                float textHeight = GetTextHeight(); // Use font size based height
+                
+                // Find the actual leftmost position of the text (considering bearingX)
+                float minBearingX = 0;
+                if (!m_characters.empty() && !renderedText.empty()) {
+                    char firstChar = renderedText[0];
+                    auto it = m_characters.find(firstChar);
+                    if (it != m_characters.end()) {
+                        minBearingX = static_cast<float>(it->second.bearingX);
+                    }
+                }
+                
+                float actualTextX = renderX + m_paddingLeft + minBearingX;
+                float bgX = actualTextX - m_paddingLeft;
+                float bgY = renderY - m_paddingTop;
+                float bgWidth = textWidth + m_paddingLeft + m_paddingRight;
+                float bgHeight = textHeight + m_paddingTop + m_paddingBottom;
+
+
+                // Simple background rendering using OpenGL quads
+                glDisable(GL_TEXTURE_2D);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                
+                glColor4f(m_backgroundColor.GetRed(), m_backgroundColor.GetGreen(), 
+                         m_backgroundColor.GetBlue(), m_backgroundColor.GetAlpha());
+                
+                glBegin(GL_QUADS);
+                    glVertex2f(bgX, bgY);
+                    glVertex2f(bgX + bgWidth, bgY);
+                    glVertex2f(bgX + bgWidth, bgY + bgHeight);
+                    glVertex2f(bgX, bgY + bgHeight);
+                glEnd();
+                
+                glDisable(GL_BLEND);
+            }
+
+            // Render text with padding offset
+            float textX = renderX + m_paddingLeft;
+            float textY = renderY + m_paddingTop;
+            
+            // Inline text rendering (replaces RenderText call)
+            if(!m_texturesGenerated && m_face) {
+                GenerateCharacterTextures();
+                m_texturesGenerated = true;
+            }
+
+            if(!m_characters.empty() && !renderedText.empty()) {
+                // Use the current coordinate system directly (no matrix changes)
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glEnable(GL_TEXTURE_2D);
+
+                // Set color
+                glColor4f(m_textColor.GetRed(), m_textColor.GetGreen(), m_textColor.GetBlue(), m_textColor.GetAlpha());
+
+                float scale = 1.0f; // Direct 1:1 pixel mapping
+                float posX = textX;
+                
+                // Calculate maxBearingY for baseline alignment
+                float maxBearingY = 0;
+                for(char c : renderedText) {
+                    auto it = m_characters.find(c);
+                    if(it != m_characters.end()) {
+                        const Character& ch = it->second;
+                        if(ch.bearingY > maxBearingY) {
+                            maxBearingY = static_cast<float>(ch.bearingY);
+                        }
+                    }
+                }
+                
+                // Render characters
+                for(char c : renderedText) {
+                    auto it = m_characters.find(c);
+                    if(it == m_characters.end()) {
+                        continue;
+                    }
+
+                    const Character& ch = it->second;
+
+                    float xpos = posX + ch.bearingX * scale;
+                    float ypos = textY + (maxBearingY - ch.bearingY) * scale;
+                    float w = ch.width * scale;
+                    float h = ch.height * scale;
+
+                    if (w > 0 && h > 0) {
+                        glBindTexture(GL_TEXTURE_2D, ch.textureID);
+
+                        glBegin(GL_QUADS);
+                            glTexCoord2f(0.0f, 1.0f); glVertex2f(xpos, ypos);
+                            glTexCoord2f(1.0f, 1.0f); glVertex2f(xpos + w, ypos);
+                            glTexCoord2f(1.0f, 0.0f); glVertex2f(xpos + w, ypos + h);
+                            glTexCoord2f(0.0f, 0.0f); glVertex2f(xpos, ypos + h);
+                        glEnd();
+                    }
+
+                    posX += ch.advance * scale;
+                }
+
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDisable(GL_BLEND);
+                glDisable(GL_TEXTURE_2D);
+            }
+        }
+
+        void Text::Render(IRenderingAPI& context, const TextAlignment& alignment) {
+            if (m_text.empty() || !m_face) {
+                return;
+            }
+
+            // Apply text transformations (like UPPERCASE)
+            std::string renderedText = ApplyTextTransformation(m_text);
+
+            // Calculate text dimensions including padding and margin
+            float textWidth = GetTextWidth(renderedText);
+            float textHeight = GetTextHeight();
+            float totalWidth = textWidth + m_paddingLeft + m_paddingRight + m_marginLeft + m_marginRight;
+            float totalHeight = textHeight + m_paddingTop + m_paddingBottom + m_marginTop + m_marginBottom;
+
+            // Use reference resolution for alignment calculations
+            const float REFERENCE_WIDTH = 1280.0f;
+            const float REFERENCE_HEIGHT = 720.0f;
+
+            // Calculate X position based on horizontal alignment (in reference coordinates)
+            float x = 0.0f;
+            switch (alignment.horizontal) {
+                case HorizontalAlignment::LEFT:
+                    x = 0.0f;
+                    break;
+                case HorizontalAlignment::CENTER:
+                    x = (REFERENCE_WIDTH - totalWidth) / 2.0f;
+                    break;
+                case HorizontalAlignment::RIGHT:
+                    x = REFERENCE_WIDTH - totalWidth;
+                    break;
+            }
+
+            // Calculate Y position based on vertical alignment (in reference coordinates)
+            float y = 0.0f;
+            switch (alignment.vertical) {
+                case VerticalAlignment::TOP:
+                    y = 0.0f;
+                    break;
+                case VerticalAlignment::CENTER:
+                    y = (REFERENCE_HEIGHT - totalHeight) / 2.0f;
+                    break;
+                case VerticalAlignment::BOTTOM:
+                    y = REFERENCE_HEIGHT - totalHeight;
+                    break;
+            }
+
+            // Use the position-based render method (which will apply scaling)
+            Render(context, x, y);
+        }
+
+
+        void Text::LoadFontByName(const std::string& fontName) {
+            Engine& engine = Engine::GetInstance();
+            std::string fontPath = engine.GetFont(fontName);
+            
+            if (!fontPath.empty()) {
+                LoadFont(fontPath, static_cast<unsigned int>(m_size));
+            } else {
+                std::cerr << "Font not found: " << fontName << std::endl;
+            }
+        }
+
+        std::string Text::ApplyTextTransformation(const std::string& text) const {
+            std::string transformedText = text;
+            
+            // Apply UPPERCASE transformation if style contains UPPERCASE
+            if (static_cast<int>(m_style) & static_cast<int>(FontStyle::UPPERCASE)) {
+                std::transform(transformedText.begin(), transformedText.end(), transformedText.begin(), ::toupper);
+            }
+            // Apply LOWERCASE transformation if style contains LOWERCASE
+            else if (static_cast<int>(m_style) & static_cast<int>(FontStyle::LOWERCASE)) {
+                std::transform(transformedText.begin(), transformedText.end(), transformedText.begin(), ::tolower);
+            }
+            
+            return transformedText;
         }
     }
 }

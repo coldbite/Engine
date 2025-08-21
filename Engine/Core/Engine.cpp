@@ -123,4 +123,29 @@ namespace Engine {
     int Engine::GetCurrentFPS() const {
         return currentFPS;
     }
+
+    void Engine::RegisterFont(const std::string& name, const std::string& pathToTtf) {
+        // If this is called on a derived class instance, delegate to the singleton
+        if (this != &GetInstance()) {
+            GetInstance().RegisterFont(name, pathToTtf);
+            return;
+        }
+        
+        // This is the singleton instance
+        m_fontRegistry[name] = pathToTtf;
+    }
+
+    std::string Engine::GetFont(const std::string& name) const {
+        // If this is called on a derived class instance, delegate to the singleton
+        if (this != &GetInstance()) {
+            return GetInstance().GetFont(name);
+        }
+        
+        // This is the singleton instance
+        auto it = m_fontRegistry.find(name);
+        if (it != m_fontRegistry.end()) {
+            return it->second;
+        }
+        return "";
+    }
 }
