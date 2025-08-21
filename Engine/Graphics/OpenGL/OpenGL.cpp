@@ -23,6 +23,65 @@ namespace Engine {
 
             }
 
+            bool OpenGL::Available() {
+                // Dummy Window-Klasse registrieren
+                WNDCLASSA wc = {};
+                wc.style = CS_OWNDC;
+                wc.lpfnWndProc = DefWindowProcA;
+                wc.hInstance = GetModuleHandle(nullptr);
+                wc.lpszClassName = "CheckOpenGL";
+
+                if (!RegisterClassA(&wc)) return false;
+
+                // Dummy-Fenster erstellen (unsichtbar)
+                HWND hwnd = CreateWindowA(
+                    wc.lpszClassName, "CheckOpenGLWindow",
+                    WS_OVERLAPPEDWINDOW,
+                    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                    nullptr, nullptr, wc.hInstance, nullptr
+                    );
+
+                if (!hwnd) return false;
+
+                HDC hdc = GetDC(hwnd);
+
+                // Pixel-Format wählen
+                PIXELFORMATDESCRIPTOR pfd = {};
+                pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+                pfd.nVersion = 1;
+                pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+                pfd.iPixelType = PFD_TYPE_RGBA;
+                pfd.cColorBits = 32;
+                pfd.cDepthBits = 24;
+                pfd.cStencilBits = 8;
+                pfd.iLayerType = PFD_MAIN_PLANE;
+
+                int pf = ChoosePixelFormat(hdc, &pfd);
+                if (pf == 0) return false;
+                if (!SetPixelFormat(hdc, pf, &pfd)) return false;
+
+                // OpenGL-Kontext erstellen
+                HGLRC hglrc = wglCreateContext(hdc);
+                if (!hglrc) return false;
+                if (!wglMakeCurrent(hdc, hglrc)) return false;
+
+                // Version prüfen
+                version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+                // Aufräumen
+                wglMakeCurrent(nullptr, nullptr);
+                wglDeleteContext(hglrc);
+                ReleaseDC(hwnd, hdc);
+                DestroyWindow(hwnd);
+                UnregisterClassA(wc.lpszClassName, wc.hInstance);
+
+                return (!version.empty());
+            }
+
+            std::string OpenGL::GetVersion() {
+                return version;
+            }
+
             void OpenGL::SetViewport(int width, int height) {
                 glViewport(0, 0, width, height);
             }

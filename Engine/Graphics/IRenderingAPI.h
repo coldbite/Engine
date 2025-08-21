@@ -14,6 +14,8 @@ namespace Engine {
                 virtual ~IRenderingAPI() {}
                 virtual bool Init(std::shared_ptr<NativeWindow> window) = 0;
 
+                virtual bool Available() = 0;
+                virtual std::string GetVersion() = 0;
                 virtual void CreateDevice() = 0;
                 virtual void GetDevice() = 0;
                 virtual void CreateContext() = 0;

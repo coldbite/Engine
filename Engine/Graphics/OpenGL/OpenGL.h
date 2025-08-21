@@ -32,6 +32,8 @@ namespace Engine {
                 bool Init(std::shared_ptr<NativeWindow> window) override;
 
                 // Implementations for the pure virtual functions
+                bool Available() override;
+                std::string GetVersion() override;
                 void CreateDevice() override;
                 void GetDevice() override;
                 void CreateContext() override;
@@ -77,6 +79,7 @@ namespace Engine {
             private:
                 static std::shared_ptr<NativeWindow> currentWindow;
                 static bool initialized;
+                std::string version;
             };
         }
     }

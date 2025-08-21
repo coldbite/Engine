@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Exceptions/CoreException.h"
+#include "../Graphics/OpenGL/OpenGL.h"
 #include <iostream>
 #include <thread>
 
@@ -19,6 +20,7 @@ namespace Engine {
         frameStartTime  = lastFrameTime;
         lastFPSUpdate   = lastFrameTime;
         
+        CheckRenderingAPI();
         InitializeFrameTiming();
 
         InitEvent initEvent;
@@ -26,6 +28,45 @@ namespace Engine {
 
         isInitialized = true;
         return true;
+    }
+
+    std::string ToString(Renderer r) {
+        switch (r) {
+            case Renderer::OPENGL:   return "OpenGL";
+            case Renderer::VULKAN:   return "Vulkan";
+            case Renderer::DIRECTX_9:return "DirectX 9";
+            case Renderer::DIRECTX_10:return "DirectX 10";
+            case Renderer::DIRECTX_11:return "DirectX 11";
+            case Renderer::DIRECTX_12:return "DirectX 12";
+            default: return "Unbekannt";
+        }
+    }
+
+    void Engine::CheckRenderingAPI() {
+        std::vector<Renderer> available;
+        std::cout << "TEST" << std::endl;
+
+        // @ToDo iterate over Rednerer::<NAME>
+        {
+            std::cout << "Check OpenGL" << std::endl;
+            auto opengl = std::make_unique<Graphics::OpenGL::OpenGL>();
+
+            if(opengl->Available()) {
+                std::cout << "OpenGL = YES" << std::endl;
+                available.push_back(Renderer::OPENGL);
+            } else {
+                std::cout << "OpenGL = NO" << std::endl;
+            }
+            std::cout << "OpenGL Version = " << opengl->GetVersion() << std::endl;
+        }
+
+        std::cout << "AVAILABLE RENDERERS:" << std::endl;
+
+        for (auto& api : available) {
+            std::cout << ToString(api) << std::endl;
+        }
+
+        std::cout << "END" << std::endl;
     }
 
     void Engine::Run() {

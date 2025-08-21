@@ -32,6 +32,15 @@ namespace Engine {
         GAME_TITLE              = 4001
     };
 
+    enum class Renderer {
+        OPENGL      = 0,
+        DIRECTX_9   = 1,
+        DIRECTX_10  = 2,
+        DIRECTX_11  = 3,
+        DIRECTX_12  = 4,
+        VULKAN      = 5
+    };
+
     class Engine {
     public:
         static Engine& GetInstance();
@@ -47,6 +56,8 @@ namespace Engine {
         ThreadPool& GetThreadPool() {
                 return *threadPool;
         }
+
+        void CheckRenderingAPI();
 
         void RequestStop() {
                 shouldStop = true;
