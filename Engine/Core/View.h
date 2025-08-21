@@ -33,34 +33,43 @@ namespace Engine {
         // Window dimensions
         void SetWindowDimensions(int width, int height);
 
-        // Responsive scaling helpers - Smart scaling approach
-        // Use different scaling for X and Y to fill the entire window
-        float GetScaleX() const { return windowWidth / 1024.0f; }
-        float GetScaleY() const { return windowHeight / 768.0f; }
+        // Dynamic Resolution System - Resolution Independent UI
+        void SetReferenceResolution(float width, float height) { 
+            referenceWidth = width; 
+            referenceHeight = height; 
+        }
         
-        // Uniform scaling (for elements that must maintain aspect ratio)
+        // Scaling factors
+        float GetScaleX() const { return windowWidth / referenceWidth; }
+        float GetScaleY() const { return windowHeight / referenceHeight; }
+        
+        // Uniform scaling (maintains aspect ratio)
         float GetUniformScale() const { return std::min(GetScaleX(), GetScaleY()); }
         
-        // Full window scaling (for backgrounds, full-screen elements)
+        // Coordinate transformation methods
         float GetScaledX(float baseX) const { return baseX * GetScaleX(); }
         float GetScaledY(float baseY) const { return baseY * GetScaleY(); }
         
-        // Centered positioning for aspect-ratio preserved elements
+        // Aspect-ratio preserving positioning (with letterboxing/pillarboxing)
         float GetCenteredX(float baseX) const { 
             float scale = GetUniformScale();
-            float scaledWidth = 1024.0f * scale;
+            float scaledWidth = referenceWidth * scale;
             float offsetX = (windowWidth - scaledWidth) * 0.5f;
             return offsetX + baseX * scale;
         }
         float GetCenteredY(float baseY) const { 
             float scale = GetUniformScale();
-            float scaledHeight = 768.0f * scale;
+            float scaledHeight = referenceHeight * scale;
             float offsetY = (windowHeight - scaledHeight) * 0.5f;
             return offsetY + baseY * scale;
         }
         
         // Size scaling
         float GetScaledSize(float baseSize) const { return baseSize * GetUniformScale(); }
+        
+        // Reference resolution getters
+        float GetReferenceWidth() const { return referenceWidth; }
+        float GetReferenceHeight() const { return referenceHeight; }
 
         // View lifecycle methods
         virtual void OnShow() {}
@@ -80,6 +89,10 @@ namespace Engine {
         std::string backgroundImage;
         int windowWidth = 800;
         int windowHeight = 600;
+        
+        // Dynamic Resolution System
+        float referenceWidth = 1280.0f;   // Default reference resolution
+        float referenceHeight = 720.0f;
 
         // Helper for subclasses
         virtual void UpdateInternal(float /*deltaTime*/) {}

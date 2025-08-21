@@ -4,6 +4,9 @@
 
 Loading::Loading() : Engine::View("Loading") {
     SetBackground(color_background);
+    
+    // Set reference resolution for this view (1280x720 HD)
+    SetReferenceResolution(1280.0f, 720.0f);
 
     text_map.SetValue(this->mapName);
     text_map.SetFont("Sansation");
@@ -79,13 +82,10 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
                             123);   // Random seed
     }
 
-    /* Text Rendering with proportional scaling */
-    // Scale positions based on window size proportionally
-    float scaleX = w / 1280.0f;
-    float scaleY = h / 720.0f;
-    
-    text_map.Render(context, 20.0f * scaleX, 30.0f * scaleY);
-    text_mode.Render(context, 20.0f * scaleX, 90.0f * scaleY);
+    /* Text Rendering with Dynamic Resolution */
+    // Use View's Dynamic Resolution system for consistent scaling
+    text_map.Render(context, GetScaledX(20.0f), GetScaledY(30.0f));
+    text_mode.Render(context, GetScaledX(20.0f), GetScaledY(90.0f));
 
     context.End2D();
 }
