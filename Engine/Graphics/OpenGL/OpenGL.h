@@ -40,6 +40,7 @@ namespace Engine {
                 void GetContext() override;
 
                 void SetViewport(int width, int height) override;
+                void SetViewport(int x, int y, int width, int height) override;
                 int GetWidth() override;
                 int GetHeight() override;
 

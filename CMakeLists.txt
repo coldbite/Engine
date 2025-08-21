@@ -26,6 +26,7 @@ file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
 
 # Create Engine library
 add_library(Engine STATIC ${ENGINE_SOURCES})
+target_include_directories(Engine PUBLIC Engine)
 target_include_directories(Engine PUBLIC Engine/Core)
 
 # Depencies

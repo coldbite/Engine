@@ -30,7 +30,12 @@ void Playing::OnUpdate(float deltaTime) {}
 
 void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
-    context.Begin2D(context.GetWidth(), context.GetHeight());
+    
+    // Apply viewport for correct aspect ratio scaling
+    ApplyViewport(context);
+    
+    // Use reference resolution for rendering
+    context.Begin2D(GetReferenceWidth(), GetReferenceHeight());
     text.Render(context, Engine::Graphics::TextAlignment::CENTER);
     context.End2D();
 }

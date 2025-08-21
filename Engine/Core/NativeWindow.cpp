@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #ifdef _WIN32
+    #include <windows.h>
     #include <wingdi.h>
     #include <gl/gl.h>
 #endif
@@ -117,6 +118,7 @@ namespace Engine {
             return;
         }
 
+#ifdef _WIN32
         // Big Icon (Taskbar / Alt+Tab)
         HICON hIconBig = (HICON) LoadImage(
             nullptr,
@@ -144,6 +146,7 @@ namespace Engine {
         if(hIconSmall) {
             SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM) hIconSmall);
         }
+#endif
     }
 
     void NativeWindow::SetTitle(const std::string& title) {
@@ -178,6 +181,10 @@ namespace Engine {
 
 #ifdef _WIN32
         SetWindowPos(hwnd, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+#else
+        // Suppress unused parameter warnings on non-Windows platforms
+        (void)x;
+        (void)y;
 #endif
     }
 

@@ -1,4 +1,4 @@
-#include "Config.h"
+#include "Settings/Config.h"
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -9,6 +9,7 @@
 #else
     #include <unistd.h>
     #include <limits.h>
+    #include <sys/types.h>
     #ifndef PATH_MAX
         #define PATH_MAX 4096
     #endif
@@ -114,11 +115,16 @@ namespace Engine {
         }
 
         std::string Config::GetExecutableDirectory() {
+#ifdef _WIN32
             char buffer[MAX_PATH];
             GetModuleFileNameA(NULL, buffer, MAX_PATH);
             std::string exePath(buffer);
             size_t pos = exePath.find_last_of("\\/");
             return (pos != std::string::npos) ? exePath.substr(0, pos) : "";
+#else
+            // For non-Windows platforms, return current working directory as fallback
+            return std::filesystem::current_path().string();
+#endif
         }
 
         bool Config::ParseLine(const std::string& line, std::string& currentGroup) {

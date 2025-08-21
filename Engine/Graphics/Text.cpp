@@ -457,9 +457,9 @@ namespace Engine {
             float totalWidth = textWidth + m_paddingLeft + m_paddingRight + m_marginLeft + m_marginRight;
             float totalHeight = textHeight + m_paddingTop + m_paddingBottom + m_marginTop + m_marginBottom;
 
-            // Use reference resolution for alignment calculations
-            const float REFERENCE_WIDTH = 1280.0f;
-            const float REFERENCE_HEIGHT = 720.0f;
+            // Get current rendering context dimensions (which should be reference resolution after Begin2D)
+            const float REFERENCE_WIDTH = static_cast<float>(context.GetWidth());
+            const float REFERENCE_HEIGHT = static_cast<float>(context.GetHeight());
 
             // Calculate X position based on horizontal alignment (in reference coordinates)
             float x = 0.0f;

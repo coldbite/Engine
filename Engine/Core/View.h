@@ -2,6 +2,7 @@
 
 #include "Renderable.h"
 #include "Event.h"
+#include "ViewportManager.h"
 #include "../Graphics/IColor.h"
 #include "../Graphics/RGB.h"
 #include "../Graphics/RGBA.h"
@@ -33,49 +34,48 @@ namespace Engine {
         // Window dimensions
         void SetWindowDimensions(int width, int height);
 
-        // Dynamic Resolution System - Resolution Independent UI
+        // Viewport and scaling system
+        ViewportManager& GetViewportManager() { return viewportManager; }
+        const ViewportManager& GetViewportManager() const { return viewportManager; }
+        
+        // Legacy methods for backward compatibility - now use ViewportManager
         void SetReferenceResolution(float width, float height) { 
-            referenceWidth = width; 
-            referenceHeight = height; 
+            viewportManager.SetReferenceResolution((int)width, (int)height);
         }
         
         // Scaling factors
-        float GetScaleX() const { return windowWidth / referenceWidth; }
-        float GetScaleY() const { return windowHeight / referenceHeight; }
+        float GetScaleX() const { return viewportManager.GetScaleX(); }
+        float GetScaleY() const { return viewportManager.GetScaleY(); }
         
         // Uniform scaling (maintains aspect ratio)
-        float GetUniformScale() const { return std::min(GetScaleX(), GetScaleY()); }
+        float GetUniformScale() const { return viewportManager.GetUniformScale(); }
         
         // Coordinate transformation methods
-        float GetScaledX(float baseX) const { return baseX * GetScaleX(); }
-        float GetScaledY(float baseY) const { return baseY * GetScaleY(); }
+        float GetScaledX(float baseX) const { return viewportManager.TransformX(baseX); }
+        float GetScaledY(float baseY) const { return viewportManager.TransformY(baseY); }
         
         // Aspect-ratio preserving positioning (with letterboxing/pillarboxing)
-        float GetCenteredX(float baseX) const { 
-            float scale = GetUniformScale();
-            float scaledWidth = referenceWidth * scale;
-            float offsetX = (windowWidth - scaledWidth) * 0.5f;
-            return offsetX + baseX * scale;
-        }
-        float GetCenteredY(float baseY) const { 
-            float scale = GetUniformScale();
-            float scaledHeight = referenceHeight * scale;
-            float offsetY = (windowHeight - scaledHeight) * 0.5f;
-            return offsetY + baseY * scale;
-        }
+        float GetCenteredX(float baseX) const { return viewportManager.TransformX(baseX); }
+        float GetCenteredY(float baseY) const { return viewportManager.TransformY(baseY); }
         
         // Size scaling
-        float GetScaledSize(float baseSize) const { return baseSize * GetUniformScale(); }
+        float GetScaledSize(float baseSize) const { 
+            ViewportInfo viewport = viewportManager.CalculateViewport();
+            return baseSize * std::min(viewport.scaleX, viewport.scaleY); 
+        }
         
         // Reference resolution getters
-        float GetReferenceWidth() const { return referenceWidth; }
-        float GetReferenceHeight() const { return referenceHeight; }
+        float GetReferenceWidth() const { return (float)viewportManager.GetReferenceWidth(); }
+        float GetReferenceHeight() const { return (float)viewportManager.GetReferenceHeight(); }
+        
+        // Apply viewport to rendering API
+        void ApplyViewport(Graphics::IRenderingAPI& renderingAPI);
 
         // View lifecycle methods
         virtual void OnShow() {}
         virtual void OnHide() {}
         virtual void OnUpdate(float /*deltaTime*/) {}
-        virtual void OnResize(int width, int height, int oldWidth, int oldHeight) {}
+        virtual void OnResize(int /*width*/, int /*height*/, int /*oldWidth*/, int /*oldHeight*/) {}
 
         // Rendering with context - ONLY method for rendering
         virtual void Render(Graphics::IRenderingAPI& /*renderingAPI*/) {}
@@ -90,9 +90,8 @@ namespace Engine {
         int windowWidth = 800;
         int windowHeight = 600;
         
-        // Dynamic Resolution System
-        float referenceWidth = 1280.0f;   // Default reference resolution
-        float referenceHeight = 720.0f;
+        // Viewport and scaling system
+        ViewportManager viewportManager;
 
         // Helper for subclasses
         virtual void UpdateInternal(float /*deltaTime*/) {}

@@ -1,4 +1,4 @@
-#include "HEX.h"
+#include "Graphics/HEX.h"
 #include <string>
 #include <sstream>
 #include <iomanip>

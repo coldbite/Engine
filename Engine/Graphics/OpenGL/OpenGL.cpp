@@ -1,5 +1,5 @@
-#include "OpenGL.h"
-#include "../../Core/NativeWindow.h"
+#include "Graphics/OpenGL/OpenGL.h"
+#include "Core/NativeWindow.h"
 #include <iostream>
 #include <cmath>
 
@@ -84,6 +84,10 @@ namespace Engine {
 
             void OpenGL::SetViewport(int width, int height) {
                 glViewport(0, 0, width, height);
+            }
+
+            void OpenGL::SetViewport(int x, int y, int width, int height) {
+                glViewport(x, y, width, height);
             }
 
             int OpenGL::GetWidth() {

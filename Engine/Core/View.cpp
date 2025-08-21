@@ -1,4 +1,5 @@
 #include "View.h"
+#include "../Graphics/IRenderingAPI.h"
 #include <iostream>
 
 namespace Engine {
@@ -39,8 +40,17 @@ namespace Engine {
             int oldHeight = windowHeight;
             windowWidth = width;
             windowHeight = height;
+            
+            // Update viewport manager with new window dimensions
+            viewportManager.SetWindowDimensions(width, height);
+            
             OnResize(width, height, oldWidth, oldHeight);
         }
+    }
+    
+    void View::ApplyViewport(Graphics::IRenderingAPI& renderingAPI) {
+        ViewportInfo viewport = viewportManager.CalculateViewport();
+        renderingAPI.SetViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
 
     void View::PrepareForRendering() {

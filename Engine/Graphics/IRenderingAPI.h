@@ -22,6 +22,7 @@ namespace Engine {
                 virtual void GetContext() = 0;
 
                 virtual void SetViewport(int width, int height) = 0;
+                virtual void SetViewport(int x, int y, int width, int height) = 0;
                 virtual int GetWidth() = 0;
                 virtual int GetHeight() = 0;
 
