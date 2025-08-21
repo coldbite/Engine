@@ -110,6 +110,42 @@ namespace Engine {
 #endif
     }
 
+    void NativeWindow::SetIcon(const std::string& iconPath) {
+        properties.icon = iconPath;
+
+        if(!isCreated) {
+            return;
+        }
+
+        // Big Icon (Taskbar / Alt+Tab)
+        HICON hIconBig = (HICON) LoadImage(
+            nullptr,
+            iconPath.c_str(),
+            IMAGE_ICON,
+            GetSystemMetrics(SM_CXICON),
+            GetSystemMetrics(SM_CYICON),
+            LR_LOADFROMFILE
+        );
+
+        // Small Icon (Title)
+        HICON hIconSmall = (HICON) LoadImage(
+            nullptr,
+            iconPath.c_str(),
+            IMAGE_ICON,
+            GetSystemMetrics(SM_CXSMICON),
+            GetSystemMetrics(SM_CYSMICON),
+            LR_LOADFROMFILE
+        );
+
+        if(hIconBig) {
+            SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM) hIconBig);
+        }
+
+        if(hIconSmall) {
+            SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM) hIconSmall);
+        }
+    }
+
     void NativeWindow::SetTitle(const std::string& title) {
         properties.title = title;
 
@@ -152,22 +188,22 @@ namespace Engine {
 
     void NativeWindow::SetVSync(bool enabled) {
         properties.vsync = enabled;
-        
+
 #ifdef _WIN32
         if(!hglrc) {
             std::cout << "[NativeWindow] Warning: No OpenGL context for VSync" << std::endl;
             return;
         }
-        
+
         if(!vsyncSupported) {
             std::cout << "[NativeWindow] Warning: VSync not supported" << std::endl;
             return;
         }
-        
+
         if(currentVSyncState == enabled) {
             return; // Already in desired state
         }
-        
+
         if(wglSwapIntervalEXT) {
             BOOL result = wglSwapIntervalEXT(enabled ? 1 : 0);
             if(result) {
@@ -216,16 +252,16 @@ namespace Engine {
             }
 
             std::cout << "[NativeWindow] OpenGL context created successfully" << std::endl;
-            
+
             // Make context current to initialize VSync
             if(!wglMakeCurrent(hdc, hglrc)) {
                 std::cout << "[NativeWindow] Warning: Could not make context current for VSync init" << std::endl;
             }
-            
+
             // Initialize VSync extension
             wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
             vsyncSupported = (wglSwapIntervalEXT != nullptr);
-            
+
             if(vsyncSupported) {
                 std::cout << "[NativeWindow] VSync extension available" << std::endl;
                 // Apply VSync setting from properties
@@ -233,12 +269,12 @@ namespace Engine {
             } else {
                 std::cout << "[NativeWindow] Warning: VSync extension not available" << std::endl;
             }
-            
+
             // Now initialize our OpenGL wrapper
             // NOTE: We need to get a shared_ptr to 'this', but we can't use shared_from_this here
             // For now, we'll pass the current instance directly - this needs to be refactored
             auto OGL    = std::make_shared<Graphics::OpenGL::OpenGL>();
-            
+
             // HACK: Create a shared_ptr that doesn't delete the object when it goes out of scope
             // This is not ideal, but works for now until we refactor to proper shared_ptr management
             std::shared_ptr<NativeWindow> self(this, [](NativeWindow*){});
@@ -275,7 +311,19 @@ namespace Engine {
         windowClass.cbClsExtra      = 0;
         windowClass.cbWndExtra      = 0;
         windowClass.hInstance       = GetModuleHandle(nullptr);
-        windowClass.hIcon           = LoadIcon(nullptr, IDI_APPLICATION);
+
+        if(properties.icon.empty()) {
+            windowClass.hIcon           = LoadIcon(nullptr, IDI_APPLICATION);
+        } else {
+            windowClass.hIcon = (HICON) LoadImage(
+                nullptr,
+                properties.icon.c_str(),
+                IMAGE_ICON,
+                0, 0,
+                LR_LOADFROMFILE | LR_DEFAULTSIZE
+            );
+        }
+
         windowClass.hCursor         = LoadCursor(nullptr, IDC_ARROW);
         windowClass.hbrBackground   = (HBRUSH)GetStockObject(BLACK_BRUSH);
         windowClass.lpszMenuName    = nullptr;
@@ -390,7 +438,7 @@ namespace Engine {
             case WM_SIZE: {
                 int newWidth = LOWORD(lParam);
                 int newHeight = HIWORD(lParam);
-                
+
                 properties.width = newWidth;
                 properties.height = newHeight;
 

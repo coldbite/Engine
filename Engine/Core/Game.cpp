@@ -43,6 +43,14 @@ namespace Engine {
 
         windowProps.title = title;
 
+        std::string icon = "Assets/Logo.ico";
+
+        if(HasOption(EngineOption::GAME_ICON)) {
+            icon = GetOption(EngineOption::GAME_ICON, icon);
+        }
+
+        windowProps.icon = icon;
+
         if(HasOption(EngineOption::RESOLUTION_WIDTH) && HasOption(EngineOption::RESOLUTION_HEIGHT)) {
             windowProps.width   = GetOption(EngineOption::RESOLUTION_WIDTH, 800);
             windowProps.height  = GetOption(EngineOption::RESOLUTION_HEIGHT, 600);

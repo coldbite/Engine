@@ -11,7 +11,8 @@ void Masterball::OnInit() {
     AddOptions<MB>();
 
     /* Some Engine Settings */
-    SetOption<EngineOption, std::string>(EngineOption::GAME_TITLE, "Masterball (Beta)");
+    SetOption<EngineOption, std::string>(EngineOption::GAME_TITLE,  "Masterball (Beta)");
+    SetOption<EngineOption, std::string>(EngineOption::GAME_ICON,   "Assets/Logo.ico");
 
     /* Load Configuration */
     if(GetOption<MB, std::string>(MB::TYPE, "CLIENT") == "SERVER") {

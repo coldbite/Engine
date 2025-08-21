@@ -59,8 +59,22 @@ add_custom_target(copy_config ALL
     COMMENT "Copying Game.conf to build directory"
 )
 
-# Make Masterball depend on config copy
+# Always copy Engine/Assets and Game/Assets to build directory
+add_custom_target(copy_assets ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        "${CMAKE_CURRENT_BINARY_DIR}/Assets"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/Engine/Assets"
+        "${CMAKE_CURRENT_BINARY_DIR}/Assets"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/Game/Assets"
+        "${CMAKE_CURRENT_BINARY_DIR}/Assets"
+    COMMENT "Copying Assets to build directory"
+)
+
+# Make Masterball depend on config/assets copy
 add_dependencies(Masterball copy_config)
+add_dependencies(Masterball copy_assets)
 
 # Enable threading support
 find_package(Threads REQUIRED)

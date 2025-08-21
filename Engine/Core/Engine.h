@@ -29,7 +29,8 @@ namespace Engine {
         RESOLUTION_SCALE        = 2005,
         FRAMERATE_LIMIT_ENABLED = 3001,
         FRAMERATE_LIMIT_VALUE   = 3002,
-        GAME_TITLE              = 4001
+        GAME_TITLE              = 4001,
+        GAME_ICON               = 4002
     };
 
     enum class Renderer {

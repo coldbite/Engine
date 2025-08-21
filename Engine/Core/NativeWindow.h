@@ -11,6 +11,7 @@
 namespace Engine {
     struct WindowProperties {
         std::string title	= "Coldbite";
+        std::string icon	= "Assets/Logo.ico";
         int width		= 800;
         int height		= 600;
         bool resizable		= false;
@@ -40,6 +41,7 @@ namespace Engine {
         void SetPosition(int x, int y);
         void SetFullscreen(bool fullscreen);
         void SetVSync(bool enabled);
+        void SetIcon(const std::string& file);
 
         // Getters
         int GetWidth() const { return properties.width; }
@@ -79,7 +81,7 @@ namespace Engine {
         HDC hdc;
         HGLRC hglrc; // OpenGL context
         WNDCLASS windowClass;
-        
+
         // VSync support
         typedef BOOL (WINAPI *PFNWGLSWAPINTERVALEXTPROC)(int);
         PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
