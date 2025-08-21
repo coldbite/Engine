@@ -6,8 +6,8 @@ Engine::Graphics::Text text;
 
 Playing::Playing() : Engine::View("Playing") {
     SetBackground(color_background);
-    
-    // Use new font API instead of direct LoadFont
+    SetReferenceResolution(1280.0f, 720.0f);
+
     text.SetValue("Playing game...!");
     text.SetFont("Sansation");
     text.SetSize(22.0f);
@@ -23,14 +23,10 @@ void Playing::OnHide() {
 }
 
 void Playing::OnResize(int width, int height, int oldWidth, int oldHeight) {
-    // Resize text to maintain relative size
     text.UpdateFontSizeForWindow(height, 22, oldHeight);
 }
 
-void Playing::OnUpdate(float deltaTime) {
-    // Currently no internal updates needed for Playing view
-    // UpdateInternal(deltaTime) would be called here if we had animations or game logic
-}
+void Playing::OnUpdate(float deltaTime) {}
 
 void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
