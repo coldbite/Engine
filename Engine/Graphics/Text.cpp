@@ -38,6 +38,9 @@ namespace Engine {
                 }
                 s_initialized = true;
             }
+            
+            // Initialize animator with this text object
+            animator.AttachTo(this);
         }
 
         Text::~Text() {
@@ -409,32 +412,75 @@ namespace Engine {
                     }
                 }
                 
-                // Render characters
+                // Render characters with animation support
+                int charIndex = 0;
                 for(char c : renderedText) {
                     auto it = m_characters.find(c);
                     if(it == m_characters.end()) {
+                        charIndex++;
                         continue;
                     }
 
                     const Character& ch = it->second;
 
-                    float xpos = posX + ch.bearingX * scale;
-                    float ypos = textY + (maxBearingY - ch.bearingY) * scale;
-                    float w = ch.width * scale;
-                    float h = ch.height * scale;
+                    float baseXpos = posX + ch.bearingX * scale;
+                    float baseYpos = textY + (maxBearingY - ch.bearingY) * scale;
+                    float baseW = ch.width * scale;
+                    float baseH = ch.height * scale;
+                    
+                    // Initialize character rendering state
+                    CharacterRenderState renderState;
+                    renderState.x = baseXpos;
+                    renderState.y = baseYpos;
+                    renderState.width = baseW;
+                    renderState.height = baseH;
+                    renderState.color = m_textColor;
+                    renderState.visible = true;
+                    renderState.scale = 1.0f;
+                    renderState.rotation = 0.0f;
+                    
+                    // Apply animation effects to this character
+                    animator.ApplyEffectsToCharacter(context, c, charIndex, renderState);
 
-                    if (w > 0 && h > 0) {
+                    // Only render if character is visible and has size
+                    if (renderState.visible && renderState.width > 0 && renderState.height > 0) {
                         glBindTexture(GL_TEXTURE_2D, ch.textureID);
+                        
+                        // Apply character-specific color
+                        glColor4f(renderState.color.GetRed(), renderState.color.GetGreen(), 
+                                 renderState.color.GetBlue(), renderState.color.GetAlpha());
 
-                        glBegin(GL_QUADS);
-                            glTexCoord2f(0.0f, 1.0f); glVertex2f(xpos, ypos);
-                            glTexCoord2f(1.0f, 1.0f); glVertex2f(xpos + w, ypos);
-                            glTexCoord2f(1.0f, 0.0f); glVertex2f(xpos + w, ypos + h);
-                            glTexCoord2f(0.0f, 0.0f); glVertex2f(xpos, ypos + h);
-                        glEnd();
+                        // Handle rotation if needed
+                        if (renderState.rotation != 0.0f) {
+                            glPushMatrix();
+                            glTranslatef(renderState.x + renderState.width/2, renderState.y + renderState.height/2, 0);
+                            glRotatef(renderState.rotation, 0, 0, 1);
+                            glTranslatef(-renderState.width/2, -renderState.height/2, 0);
+                            
+                            glBegin(GL_QUADS);
+                                glTexCoord2f(0.0f, 1.0f); glVertex2f(0, 0);
+                                glTexCoord2f(1.0f, 1.0f); glVertex2f(renderState.width * renderState.scale, 0);
+                                glTexCoord2f(1.0f, 0.0f); glVertex2f(renderState.width * renderState.scale, renderState.height * renderState.scale);
+                                glTexCoord2f(0.0f, 0.0f); glVertex2f(0, renderState.height * renderState.scale);
+                            glEnd();
+                            
+                            glPopMatrix();
+                        } else {
+                            // Simple rendering without rotation
+                            float finalW = renderState.width * renderState.scale;
+                            float finalH = renderState.height * renderState.scale;
+                            
+                            glBegin(GL_QUADS);
+                                glTexCoord2f(0.0f, 1.0f); glVertex2f(renderState.x, renderState.y);
+                                glTexCoord2f(1.0f, 1.0f); glVertex2f(renderState.x + finalW, renderState.y);
+                                glTexCoord2f(1.0f, 0.0f); glVertex2f(renderState.x + finalW, renderState.y + finalH);
+                                glTexCoord2f(0.0f, 0.0f); glVertex2f(renderState.x, renderState.y + finalH);
+                            glEnd();
+                        }
                     }
 
                     posX += ch.advance * scale;
+                    charIndex++;
                 }
 
                 glBindTexture(GL_TEXTURE_2D, 0);
@@ -494,6 +540,11 @@ namespace Engine {
 
             // Use the position-based render method (which will apply scaling)
             Render(context, x, y);
+        }
+        
+        void Text::Update(float deltaTime) {
+            // Update all text animations
+            animator.Update(deltaTime);
         }
 
 

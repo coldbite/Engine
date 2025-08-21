@@ -28,6 +28,7 @@ class Loading : public Engine::View {
     private:
         Engine::Graphics::Text text_map;
         Engine::Graphics::Text text_mode;
+        Engine::Graphics::Text text_status;
         Engine::Graphics::HEX text_color       = Engine::Graphics::HEX("#FEFEFE");
         Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#333333");
 

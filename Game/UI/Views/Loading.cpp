@@ -1,5 +1,7 @@
 #include "Loading.h"
 #include "../../../Engine/Graphics/IRenderingAPI.h"
+#include "../../../Engine/Graphics/Effects/AllEffects.h"
+#include "Graphics/Effects/TypewriterEffect.h"
 #include <iostream>
 
 Loading::Loading() : Engine::View("Loading") {
@@ -23,6 +25,18 @@ Loading::Loading() : Engine::View("Loading") {
     text_mode.SetPadding(10.0f, 5.0f); // 10px horizontal, 5px vertical padding
     text_mode.SetSize(20.0f);
     text_mode.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
+
+
+    // In your text rendering code:
+    text_status.SetValue("Hello World!");
+    text_status.SetFont("Sansation");
+    text_status.SetColor(text_color); // Red text
+    text_status.SetBackground(Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f)); // Semi-transparent black background
+    text_status.SetPadding(10.0f, 5.0f); // 10px horizontal, 5px vertical padding
+    text_status.SetSize(20.0f);
+    text_status.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeIn(2.0f));
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateTypewriter(10.0f, true));
 }
 
 void Loading::OnShow() {
@@ -38,8 +52,7 @@ void Loading::OnResize(int width, int height, int oldWidth, int oldHeight) {
 }
 
 void Loading::OnUpdate(float deltaTime) {
-    // Currently no internal updates needed for Loading view
-    // UpdateInternal(deltaTime) would be called here if we had animations or game logic
+    text_status.Update(deltaTime);
     text_map.SetValue(this->mapName);
     text_mode.SetValue(this->gameMode);
 }
@@ -86,6 +99,8 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
     // Use View's Dynamic Resolution system for consistent scaling
     text_map.Render(context, GetScaledX(20.0f), GetScaledY(30.0f));
     text_mode.Render(context, GetScaledX(20.0f), GetScaledY(82.0f));
+
+    text_status.Render(context, Engine::Graphics::TextAlignment::CENTER); // Effects automatically applied
 
     context.End2D();
 }
