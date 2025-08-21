@@ -14,13 +14,8 @@ Playing::Playing() : Engine::View("Playing") {
     text.SetColor(text_color);
 }
 
-void Playing::OnShow() {
-    std::cout << "[Playing] View shown" << std::endl;
-}
-
-void Playing::OnHide() {
-    std::cout << "[Playing] View hidden" << std::endl;
-}
+void Playing::OnShow() {}
+void Playing::OnHide() {}
 
 void Playing::OnResize(int width, int height, int oldWidth, int oldHeight) {
     text.UpdateFontSizeForWindow(height, 22, oldHeight);
@@ -30,8 +25,6 @@ void Playing::OnUpdate(float deltaTime) {}
 
 void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
-    
-    // Use actual window dimensions for proper centering
     context.Begin2D(context.GetWidth(), context.GetHeight());
     text.Render(context, Engine::Graphics::TextAlignment::CENTER);
     context.End2D();

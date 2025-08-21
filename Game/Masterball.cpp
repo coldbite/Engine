@@ -105,12 +105,11 @@ void Masterball::OnInit() {
         }
     });
 
-    // Set up loaded callback
     map.OnLoaded([this]() {
-        //DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
+        DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
     });
 
-    // Received from Server
+    // @ToDo Received from Server
     std::string mapName = "Waterworld";
     loading->SetGameMode("Singleplayer");
 

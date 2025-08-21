@@ -5,13 +5,8 @@
 #include <chrono>
 #include <filesystem>
 
-Map::Map() : mapConfigLoaded(false) {
-    // Init
-}
-
-Map::~Map() {
-    // Clean-Up
-}
+Map::Map() : mapConfigLoaded(false) {}
+Map::~Map() {}
 
 void Map::OnLoaded(OnLoadedCallback callback) {
     onLoadedCallback = callback;
@@ -84,12 +79,10 @@ void Map::Load(const std::string& name, OnMapStartCallback onStart) {
 
         std::cout << "[Map] Finished loading: " << name << std::endl;
 
-        // Call loaded callback
         if(onLoadedCallback) {
             onLoadedCallback();
         }
     });
 
-    // Detach the thread so it can run independently
     loadingThread.detach();
 }
