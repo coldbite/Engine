@@ -34,6 +34,9 @@ void Loading::OnUpdateProgress(const std::string& message, int actual, int total
 void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
 
+    float w = static_cast<float>(context.GetWidth());
+    float h = static_cast<float>(context.GetHeight());
+
     // Set up 2D rendering for the entire view
     context.Begin2D(context.GetWidth(), context.GetHeight());
 
@@ -43,29 +46,21 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
         static auto texture = context.LoadTexture("../Game/" + file);
 
         // Draw blurred background image
-        context.DrawTextureBlurred(texture, 0.0f, 1.0f,
-                                 static_cast<float>(context.GetWidth()),
-                                 static_cast<float>(context.GetHeight()),
-                                 5.0f); // Blur radius
+        context.DrawTextureBlurred(texture, 0.0f, 1.0f, w, h, 5.0f); // Blur radius
 
         // Draw horizontal scanlines overlay (CRT-style effect)
         context.DrawHorizontalLines(0.0f, 0.0f,
-                                  static_cast<float>(context.GetWidth()),
-                                  static_cast<float>(context.GetHeight()),
+                                   w, h,
                                   3.0f,   // Line spacing (tight scanlines like CRT)
                                   4.0f,   // Line width (thin scanlines)
                                   Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.3f)); // Subtle but visible
 
         // Additional dark overlay to dim the entire image
-        context.DrawRect(0.0f, 0.0f,
-                       static_cast<float>(context.GetWidth()),
-                       static_cast<float>(context.GetHeight()),
-                       Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.2f)); // Dark overlay
+        context.DrawRect(0.0f, 0.0f, w, h, Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.2f)); // Dark overlay
 
         // Add film grain for vintage/retro effect
         context.DrawFilmGrain(0.0f, 0.0f,
-                            static_cast<float>(context.GetWidth()),
-                            static_cast<float>(context.GetHeight()),
+                             w, h,
                             0.15f,  // Grain intensity
                             123);   // Random seed
     }
