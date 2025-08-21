@@ -107,7 +107,7 @@ void Masterball::OnInit() {
 
     // Set up loaded callback
     map.OnLoaded([this]() {
-        DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
+        //DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
     });
 
     // Received from Server

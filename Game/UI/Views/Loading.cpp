@@ -1,6 +1,7 @@
 #include "Loading.h"
 #include "../../../Engine/Graphics/IRenderingAPI.h"
 #include "../../../Engine/Graphics/Effects/AllEffects.h"
+#include "Graphics/Effects/FadeEffect.h"
 #include "Graphics/Effects/TypewriterEffect.h"
 #include <iostream>
 
@@ -26,17 +27,14 @@ Loading::Loading() : Engine::View("Loading") {
     text_mode.SetSize(20.0f);
     text_mode.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
 
-
-    // In your text rendering code:
-    text_status.SetValue("Hello World!");
+    text_status.SetValue("Loading");
     text_status.SetFont("Sansation");
-    text_status.SetColor(text_color); // Red text
-    text_status.SetBackground(Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f)); // Semi-transparent black background
-    text_status.SetPadding(10.0f, 5.0f); // 10px horizontal, 5px vertical padding
+    text_status.SetColor(text_color);
     text_status.SetSize(20.0f);
+    text_status.SetMargin(0.0f, 30.0f, 20.0f, 0.0f);
     text_status.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
-    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeIn(2.0f));
-    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateTypewriter(10.0f, true));
+
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateAmbience(0.8f));
 }
 
 void Loading::OnShow() {
@@ -58,7 +56,9 @@ void Loading::OnUpdate(float deltaTime) {
 }
 
 void Loading::OnUpdateProgress(const std::string& message, int actual, int total, float percentage) {
-
+    text_status.SetValue(message);
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateSlideFromLeft(150.0f));
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeOut(5.0f));
 }
 
 void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
@@ -100,7 +100,7 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
     text_map.Render(context, GetScaledX(20.0f), GetScaledY(30.0f));
     text_mode.Render(context, GetScaledX(20.0f), GetScaledY(82.0f));
 
-    text_status.Render(context, Engine::Graphics::TextAlignment::CENTER); // Effects automatically applied
+    text_status.Render(context, Engine::Graphics::TextAlignment::BOTTOM_RIGHT); // Effects automatically applied
 
     context.End2D();
 }

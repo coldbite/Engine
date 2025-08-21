@@ -61,14 +61,17 @@ void Map::Load(const std::string& name, OnMapStartCallback onStart) {
     // Load asynchronously to avoid blocking the main thread
     std::thread loadingThread([this, name]() {
         // Simulate loading process with callbacks
-        const int totalSteps = 5;
         const std::vector<std::string> steps = {
-            "Loading terrain data...",
-            "Loading textures...",
-            "Loading objects...",
-            "Loading entities...",
-            "Finalizing map..."
+            "Loading terrain",
+            "Loading textures",
+            "Loading objects",
+            "Loading entities",
+            "Placing Balls",
+            "Placing Event-Boxes",
+            "Finalizing map"
         };
+
+        const int totalSteps = steps.size();
 
         for(int i = 0; i < totalSteps; ++i) {
             if(onLoadingCallback) {
@@ -76,7 +79,7 @@ void Map::Load(const std::string& name, OnMapStartCallback onStart) {
             }
 
             // Simulate loading time
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
         }
 
         std::cout << "[Map] Finished loading: " << name << std::endl;
