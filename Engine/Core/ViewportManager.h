@@ -1,26 +1,10 @@
 #pragma once
 
+#include "Enum/ScalingMode.h"
+#include "Enum/UpscalingTechnique.h"
 #include <string>
 
 namespace Engine {
-    
-    enum class ScalingMode {
-        STRETCH,    // Stretch to fill window (may distort)
-        LETTER,     // Letterboxing (black bars on top/bottom)
-        PILLAR,     // Pillarboxing (black bars on sides)
-        FIT,        // Fit entire content (letterbox or pillar automatically)
-        CROP,       // Crop content to fill window (may cut off content)
-        INTEGER     // Integer scaling (pixel-perfect)
-    };
-    
-    enum class UpscalingTechnique {
-        NEAREST,    // Nearest neighbor (pixelated)
-        LINEAR,     // Linear/Bilinear filtering
-        TAAU,       // Temporal Anti-Aliasing Upsample
-        DLSS,       // NVIDIA DLSS (if available)
-        FSR,        // AMD FSR (if available)
-        XeSS       // Intel XeSS (if available)
-    };
     
     struct ViewportInfo {
         int x, y;           // Viewport position
@@ -77,11 +61,8 @@ namespace Engine {
         float InverseTransformX(float screenX) const;
         float InverseTransformY(float screenY) const;
         
-        // Utility methods
-        static ScalingMode ParseScalingMode(const std::string& modeStr);
-        static UpscalingTechnique ParseUpscalingTechnique(const std::string& techniqueStr);
-        static std::string ScalingModeToString(ScalingMode mode);
-        static std::string UpscalingTechniqueToString(UpscalingTechnique technique);
+        // Utility methods - now using generic enum system
+        // Use Engine::ToString(mode) and Engine::FromString<ScalingMode>(str) instead
         
         // Load from config (call manually when needed)
         void LoadFromConfig();

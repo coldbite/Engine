@@ -5,6 +5,7 @@
 #include "Settings/Config.h"
 #include "Settings/Options.h"
 #include "CommandLine/Arguments.h"
+#include "Enum/Renderer.h"
 #include <memory>
 #include <stdexcept>
 #include <atomic>
@@ -33,14 +34,7 @@ namespace Engine {
         GAME_ICON               = 4002
     };
 
-    enum class Renderer {
-        OPENGL      = 0,
-        DIRECTX_9   = 1,
-        DIRECTX_10  = 2,
-        DIRECTX_11  = 3,
-        DIRECTX_12  = 4,
-        VULKAN      = 5
-    };
+    // Renderer enum now defined in Enum/Renderer.h
 
     class Engine {
     public:

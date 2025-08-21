@@ -19,7 +19,7 @@ namespace Engine {
         lastFrameTime   = std::chrono::high_resolution_clock::now();
         frameStartTime  = lastFrameTime;
         lastFPSUpdate   = lastFrameTime;
-        
+
         CheckRenderingAPI();
         InitializeFrameTiming();
 
@@ -28,18 +28,6 @@ namespace Engine {
 
         isInitialized = true;
         return true;
-    }
-
-    std::string ToString(Renderer r) {
-        switch (r) {
-            case Renderer::OPENGL:   return "OpenGL";
-            case Renderer::VULKAN:   return "Vulkan";
-            case Renderer::DIRECTX_9:return "DirectX 9";
-            case Renderer::DIRECTX_10:return "DirectX 10";
-            case Renderer::DIRECTX_11:return "DirectX 11";
-            case Renderer::DIRECTX_12:return "DirectX 12";
-            default: return "Unbekannt";
-        }
     }
 
     void Engine::CheckRenderingAPI() {
@@ -63,7 +51,7 @@ namespace Engine {
         std::cout << "AVAILABLE RENDERERS:" << std::endl;
 
         for (auto& api : available) {
-            std::cout << ToString(api) << std::endl;
+            std::cout << api << std::endl;
         }
 
         std::cout << "END" << std::endl;
@@ -77,11 +65,11 @@ namespace Engine {
 
         while(!shouldStop.load()) {
             frameStartTime = std::chrono::high_resolution_clock::now();
-            
+
             // Calculate delta time
             deltaTime = std::chrono::duration<float>(frameStartTime - lastFrameTime).count();
             lastFrameTime = frameStartTime;
-            
+
             // Always update and render - FPS limiting happens after rendering
             Update();
             FixedUpdate();
@@ -90,7 +78,7 @@ namespace Engine {
             if(fpsLimitEnabled) {
                 auto frameEndTime = std::chrono::high_resolution_clock::now();
                 auto frameDuration = std::chrono::duration<float>(frameEndTime - frameStartTime).count();
-                
+
                 if(frameDuration < targetFrameTime) {
                     float sleepTime = targetFrameTime - frameDuration;
                     std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
@@ -98,7 +86,7 @@ namespace Engine {
             } else {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             }
-            
+
             // Update FPS counter
             frameCount++;
             auto now = std::chrono::high_resolution_clock::now();
@@ -146,14 +134,14 @@ namespace Engine {
         if(HasOption(EngineOption::FRAMERATE_LIMIT_ENABLED)) {
             fpsLimitEnabled = GetOption(EngineOption::FRAMERATE_LIMIT_ENABLED, true);
         }
-        
+
         if(HasOption(EngineOption::FRAMERATE_LIMIT_VALUE)) {
             targetFPS = GetOption(EngineOption::FRAMERATE_LIMIT_VALUE, 60);
             if(targetFPS <= 0) targetFPS = 60;
             targetFrameTime = 1.0f / static_cast<float>(targetFPS);
         }
-        
-        std::cout << "[Engine] Frame timing initialized - FPS Limit: " 
+
+        std::cout << "[Engine] Frame timing initialized - FPS Limit: "
                   << (fpsLimitEnabled ? "ON (" + std::to_string(targetFPS) + " FPS)" : "OFF") << std::endl;
     }
 
@@ -171,7 +159,7 @@ namespace Engine {
             GetInstance().RegisterFont(name, pathToTtf);
             return;
         }
-        
+
         // This is the singleton instance
         m_fontRegistry[name] = pathToTtf;
     }
@@ -181,7 +169,7 @@ namespace Engine {
         if (this != &GetInstance()) {
             return GetInstance().GetFont(name);
         }
-        
+
         // This is the singleton instance
         auto it = m_fontRegistry.find(name);
         if (it != m_fontRegistry.end()) {

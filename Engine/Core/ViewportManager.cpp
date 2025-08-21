@@ -221,53 +221,6 @@ namespace Engine {
         return (float)windowWidth / (float)windowHeight;
     }
     
-    ScalingMode ViewportManager::ParseScalingMode(const std::string& modeStr) {
-        if (modeStr == "STRETCH") return ScalingMode::STRETCH;
-        if (modeStr == "LETTER") return ScalingMode::LETTER;
-        if (modeStr == "PILLAR") return ScalingMode::PILLAR;
-        if (modeStr == "FIT") return ScalingMode::FIT;
-        if (modeStr == "CROP") return ScalingMode::CROP;
-        if (modeStr == "INTEGER") return ScalingMode::INTEGER;
-        
-        std::cout << "[ViewportManager] Unknown scaling mode: " << modeStr << ", using FIT" << std::endl;
-        return ScalingMode::FIT;
-    }
-    
-    UpscalingTechnique ViewportManager::ParseUpscalingTechnique(const std::string& techniqueStr) {
-        if (techniqueStr == "NEAREST") return UpscalingTechnique::NEAREST;
-        if (techniqueStr == "LINEAR") return UpscalingTechnique::LINEAR;
-        if (techniqueStr == "TAAU") return UpscalingTechnique::TAAU;
-        if (techniqueStr == "DLSS") return UpscalingTechnique::DLSS;
-        if (techniqueStr == "FSR") return UpscalingTechnique::FSR;
-        if (techniqueStr == "XeSS") return UpscalingTechnique::XeSS;
-        
-        std::cout << "[ViewportManager] Unknown upscaling technique: " << techniqueStr << ", using LINEAR" << std::endl;
-        return UpscalingTechnique::LINEAR;
-    }
-    
-    std::string ViewportManager::ScalingModeToString(ScalingMode mode) {
-        switch(mode) {
-            case ScalingMode::STRETCH: return "STRETCH";
-            case ScalingMode::LETTER: return "LETTER";
-            case ScalingMode::PILLAR: return "PILLAR";
-            case ScalingMode::FIT: return "FIT";
-            case ScalingMode::CROP: return "CROP";
-            case ScalingMode::INTEGER: return "INTEGER";
-            default: return "FIT";
-        }
-    }
-    
-    std::string ViewportManager::UpscalingTechniqueToString(UpscalingTechnique technique) {
-        switch(technique) {
-            case UpscalingTechnique::NEAREST: return "NEAREST";
-            case UpscalingTechnique::LINEAR: return "LINEAR";
-            case UpscalingTechnique::TAAU: return "TAAU";
-            case UpscalingTechnique::DLSS: return "DLSS";
-            case UpscalingTechnique::FSR: return "FSR";
-            case UpscalingTechnique::XeSS: return "XeSS";
-            default: return "LINEAR";
-        }
-    }
     
     void ViewportManager::LoadFromConfig() {
         using namespace Engine::Settings;
@@ -279,16 +232,16 @@ namespace Engine {
         // Load scale factor
         globalScale = Config::GetFloat("Render.Resolution.Scale", 1.0f);
         
-        // Load scaling mode
+        // Load scaling mode using new enum system
         std::string modeStr = Config::GetString("Render.Resolution.Mode", "FIT");
-        scalingMode = ParseScalingMode(modeStr);
+        scalingMode = Engine::FromString<ScalingMode>(modeStr);
         
-        // Load upscaling technique
+        // Load upscaling technique using new enum system
         std::string techniqueStr = Config::GetString("Render.Resolution.Technique", "LINEAR");
-        upscalingTechnique = ParseUpscalingTechnique(techniqueStr);
+        upscalingTechnique = Engine::FromString<UpscalingTechnique>(techniqueStr);
         
         std::cout << "[ViewportManager] Loaded config - Resolution: " << referenceWidth << "x" << referenceHeight 
-                  << ", Scale: " << globalScale << ", Mode: " << ScalingModeToString(scalingMode) 
-                  << ", Technique: " << UpscalingTechniqueToString(upscalingTechnique) << std::endl;
+                  << ", Scale: " << globalScale << ", Mode: " << Engine::ToString(scalingMode) 
+                  << ", Technique: " << Engine::ToString(upscalingTechnique) << std::endl;
     }
 }
