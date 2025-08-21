@@ -4,7 +4,7 @@
 
 Loading::Loading() : Engine::View("Loading") {
     SetBackground(color_background);
-    
+
     // Set reference resolution for this view (1280x720 HD)
     SetReferenceResolution(1280.0f, 720.0f);
 
@@ -14,7 +14,7 @@ Loading::Loading() : Engine::View("Loading") {
     text_map.SetBackground(Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f)); // Semi-transparent black background
     text_map.SetPadding(10.0f, 5.0f); // 10px horizontal, 5px vertical padding
     text_map.SetSize(40.0f);
-    text_map.SetStyle(Engine::Graphics::FontStyle::BOLD);
+    text_map.SetStyle(Engine::Graphics::FontStyle::BOLD | Engine::Graphics::FontStyle::UPPERCASE);
 
     text_mode.SetValue(this->gameMode);
     text_mode.SetFont("Sansation");
@@ -85,7 +85,7 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
     /* Text Rendering with Dynamic Resolution */
     // Use View's Dynamic Resolution system for consistent scaling
     text_map.Render(context, GetScaledX(20.0f), GetScaledY(30.0f));
-    text_mode.Render(context, GetScaledX(20.0f), GetScaledY(90.0f));
+    text_mode.Render(context, GetScaledX(20.0f), GetScaledY(82.0f));
 
     context.End2D();
 }

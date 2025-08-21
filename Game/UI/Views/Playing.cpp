@@ -31,11 +31,8 @@ void Playing::OnUpdate(float deltaTime) {}
 void Playing::Render(Engine::Graphics::IRenderingAPI& context) {
     context.Clear(GetBackground());
     
-    // Apply viewport for correct aspect ratio scaling
-    ApplyViewport(context);
-    
-    // Use reference resolution for rendering
-    context.Begin2D(GetReferenceWidth(), GetReferenceHeight());
+    // Use actual window dimensions for proper centering
+    context.Begin2D(context.GetWidth(), context.GetHeight());
     text.Render(context, Engine::Graphics::TextAlignment::CENTER);
     context.End2D();
 }

@@ -28,6 +28,8 @@ namespace Engine {
             LOWERCASE   = 16
         };
 
+        DEFINE_ENUM_FLAG_OPERATORS(FontStyle)
+
         enum class HorizontalAlignment {
             LEFT,
             CENTER,
@@ -43,9 +45,9 @@ namespace Engine {
         struct TextAlignment {
             HorizontalAlignment horizontal;
             VerticalAlignment vertical;
-            
-            TextAlignment(HorizontalAlignment h = HorizontalAlignment::LEFT, 
-                         VerticalAlignment v = VerticalAlignment::TOP) 
+
+            TextAlignment(HorizontalAlignment h = HorizontalAlignment::LEFT,
+                         VerticalAlignment v = VerticalAlignment::TOP)
                 : horizontal(h), vertical(v) {}
 
             // Common alignment presets
@@ -94,7 +96,7 @@ namespace Engine {
 
             float GetTextWidth(const std::string& text, float scale = 1.0f) const;
             float GetTextHeight(float scale = 1.0f) const;
-            
+
             // Get actual rendered text dimensions (more accurate for UI layout)
             float GetActualTextHeight(const std::string& text, float scale = 1.0f) const;
 

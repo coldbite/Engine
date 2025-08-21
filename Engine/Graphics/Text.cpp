@@ -456,6 +456,7 @@ namespace Engine {
             float textHeight = GetTextHeight();
             float totalWidth = textWidth + m_paddingLeft + m_paddingRight + m_marginLeft + m_marginRight;
             float totalHeight = textHeight + m_paddingTop + m_paddingBottom + m_marginTop + m_marginBottom;
+            
 
             // Get current rendering context dimensions (which should be reference resolution after Begin2D)
             const float REFERENCE_WIDTH = static_cast<float>(context.GetWidth());
@@ -468,7 +469,7 @@ namespace Engine {
                     x = 0.0f;
                     break;
                 case HorizontalAlignment::CENTER:
-                    x = (REFERENCE_WIDTH - totalWidth) / 2.0f;
+                    x = (REFERENCE_WIDTH - textWidth) / 2.0f;  // Use textWidth, not totalWidth
                     break;
                 case HorizontalAlignment::RIGHT:
                     x = REFERENCE_WIDTH - totalWidth;
@@ -476,13 +477,15 @@ namespace Engine {
             }
 
             // Calculate Y position based on vertical alignment (in reference coordinates)
+            // Note: OpenGL uses glOrtho(0, width, height, 0, -1, 1) so Y=0 is TOP, Y=height is BOTTOM
             float y = 0.0f;
             switch (alignment.vertical) {
                 case VerticalAlignment::TOP:
                     y = 0.0f;
                     break;
                 case VerticalAlignment::CENTER:
-                    y = (REFERENCE_HEIGHT - totalHeight) / 2.0f;
+                    // For top-left origin coordinate system: center = (height / 2) - (textHeight / 2)
+                    y = (REFERENCE_HEIGHT / 2.0f) - (textHeight / 2.0f);
                     break;
                 case VerticalAlignment::BOTTOM:
                     y = REFERENCE_HEIGHT - totalHeight;

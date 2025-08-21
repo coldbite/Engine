@@ -52,6 +52,7 @@ namespace Engine {
         ViewportInfo viewport = viewportManager.CalculateViewport();
         renderingAPI.SetViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
+    
 
     void View::PrepareForRendering() {
         if(isActive && IsVisible()) {
