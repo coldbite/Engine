@@ -16,7 +16,7 @@ namespace Engine {
         class Button : public Text {
         public:
             Button();
-            ~Button();
+            virtual ~Button() = default;
 
             // Event callbacks
             void SetOnClick(std::function<void()> callback);

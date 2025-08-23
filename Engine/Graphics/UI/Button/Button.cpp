@@ -29,9 +29,6 @@ namespace Engine {
             // Colors are now initialized in the constructor initializer list
         }
 
-        Button::~Button() {
-        }
-
         void Button::SetOnClick(std::function<void()> callback) {
             m_onClickCallback = callback;
         }

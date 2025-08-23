@@ -7,7 +7,6 @@
 #include <windows.h>
 #include <GL/gl.h>
 #include <wingdi.h>
-#include <vector>
 #endif
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -105,14 +104,21 @@ namespace Engine {
 
                 currentWindow = window;
 
-                glGenerateMipmap_ptr = (PFNGLGENERATEMIPMAPPROC) wglGetProcAddress("glGenerateMipmap");
+                glGenerateMipmap_ptr = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(
+                    reinterpret_cast<void*>(wglGetProcAddress("glGenerateMipmap"))
+                );
 
                 if(!glGenerateMipmap_ptr) {
                     throw std::runtime_error("glGenerateMipmap konnte nicht geladen werden!");
                 }
 
-                glGenTextures_ptr = (PFNGLGENTEXTURESPROC) wglGetProcAddress("glGenTextures");
-                glGenerateMipmap_ptr = (PFNGLGENERATEMIPMAPPROC) wglGetProcAddress("glGenerateMipmap");
+                glGenTextures_ptr = reinterpret_cast<PFNGLGENTEXTURESPROC>(
+                    reinterpret_cast<void*>(wglGetProcAddress("glGenTextures"))
+                );
+
+                glGenerateMipmap_ptr = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(
+                    reinterpret_cast<void*>(wglGetProcAddress("glGenerateMipmap"))
+                );
 
                 if(!glGenTextures_ptr || !glGenerateMipmap_ptr) {
                     throw std::runtime_error("Konnte OpenGL-Funktionen nicht laden!");
@@ -241,6 +247,10 @@ namespace Engine {
             }
 
             void OpenGL::PaintText(const std::string& text, float x, float y, IColor* color) {
+                (void) text;
+                (void) x;
+                (void) y;
+
                 if(!initialized) {
                     std::cout << "[DEBUG] PaintText returning early - not initialized" << std::endl;
                     return;
@@ -395,7 +405,7 @@ namespace Engine {
                 glBegin(GL_LINES);
 
                 // Calculate the diagonal distance to cover entire area
-                float maxDistance = width + height;
+                //float maxDistance = width + height;
 
                 // Draw lines at regular intervals
                 for(float offset = -height; offset < width + height; offset += lineSpacing) {
@@ -684,16 +694,16 @@ namespace Engine {
                     // Shadow area bounds
                     float shadowX = x + shadowOffsetX;
                     float shadowY = y + shadowOffsetY;
-                    float shadowLeft = shadowX - shadowRadius;
-                    float shadowTop = shadowY - shadowRadius;
-                    float shadowRight = shadowX + width + shadowRadius;
-                    float shadowBottom = shadowY + height + shadowRadius;
+                   // float shadowLeft = shadowX - shadowRadius;
+                    //float shadowTop = shadowY - shadowRadius;
+                    //float shadowRight = shadowX + width + shadowRadius;
+                    //float shadowBottom = shadowY + height + shadowRadius;
                     
                     // Box borders for distance calculation
-                    float boxLeft = shadowX;
-                    float boxTop = shadowY;
-                    float boxRight = shadowX + width;
-                    float boxBottom = shadowY + height;
+                    //float boxLeft = shadowX;
+                    //float boxTop = shadowY;
+                    //float boxRight = shadowX + width;
+                    //float boxBottom = shadowY + height;
                     
                     // Optimized approach: Draw 4 shadow strips around the box with gradients
                     glBegin(GL_QUADS);

@@ -19,6 +19,9 @@ namespace Engine {
             }
 
             void PulseEffect::ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) {
+                (void) charIndex;
+                (void) time;
+
                 if (!HasStarted()) return;
                 
                 float effectTime = GetEffectTime();

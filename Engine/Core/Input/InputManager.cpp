@@ -32,7 +32,7 @@ namespace Engine {
             auto it = keyBindings.find(key);
             if (it != keyBindings.end()) {
                 auto& bindings = it->second;
-                size_t sizeBefore = bindings.size();
+                //size_t sizeBefore = bindings.size();
                 
                 bindings.erase(
                     std::remove_if(bindings.begin(), bindings.end(),

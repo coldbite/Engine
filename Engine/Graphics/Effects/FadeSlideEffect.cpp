@@ -15,6 +15,8 @@ namespace Engine {
             }
 
             void FadeSlideEffect::ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) {
+                (void) charIndex;
+
                 // Calculate progress for the entire text block (no character delay)
                 float progress = (duration > 0.0f) ? std::min(time / duration, 1.0f) : 1.0f;
 

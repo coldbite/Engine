@@ -266,7 +266,10 @@ namespace Engine {
             }
 
             // Initialize VSync extension
-            wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+            wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(
+                reinterpret_cast<void*>(wglGetProcAddress("wglSwapIntervalEXT"))
+            );
+
             vsyncSupported = (wglSwapIntervalEXT != nullptr);
 
             if(vsyncSupported) {

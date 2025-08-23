@@ -65,9 +65,16 @@ namespace Engine {
                 CleanupCharacters();
             }
 
-            if (FT_New_Face(s_library, fontPath.c_str(), 0, &m_face)) {
+            if(FT_New_Face(s_library, fontPath.c_str(), 0, &m_face)) {
                 std::cerr << "Failed to load font: " << fontPath << std::endl;
-                return false;
+                std::cerr << "Using Arial for default" << std::endl;
+
+                m_fontPath = "C:/Windows/Fonts/Arial.TTF";
+
+                if(!FT_New_Face(s_library, m_fontPath.c_str(), 0, &m_face)) {
+                    std::cerr << "Can't using Arial as default font!" << std::endl;
+                   return false;
+                }
             }
 
             m_fontSize = fontSize;

@@ -12,11 +12,11 @@
     #include <GL/wglext.h>
 
     typedef void (APIENTRYP PFNGLGENERATEMIPMAPPROC) (GLenum target);
-    static PFNGLGENERATEMIPMAPPROC glGenerateMipmap_ptr = nullptr;
+    [[maybe_unused]] static PFNGLGENERATEMIPMAPPROC glGenerateMipmap_ptr = nullptr;
     #define glGenerateMipmap glGenerateMipmap_ptr
 
     typedef void (APIENTRYP PFNGLGENTEXTURESPROC)(GLsizei n, GLuint* textures);
-    static PFNGLGENTEXTURESPROC glGenTextures_ptr = nullptr;
+    [[maybe_unused]] static PFNGLGENTEXTURESPROC glGenTextures_ptr = nullptr;
     #define glGenTextures glGenTextures_ptr
 #endif
 
