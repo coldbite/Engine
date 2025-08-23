@@ -45,6 +45,7 @@ namespace Engine {
         const std::string& GetCurrentView() const { return currentView; }
         ViewPtr GetView(const std::string& name);
         ViewPtr GetCurrentViewPtr();
+        bool HasView(const std::string& name) const;
 
         // Update all active views
         void UpdateViews(float deltaTime);

@@ -92,9 +92,11 @@ void Masterball::OnInit() {
     /* Register Fonts */
     RegisterFont("Sansation", "../Game/Assets/Fonts/Sansation-Regular.ttf");
 
+    shutdown = std::make_shared<::Shutdown>();
     loading = std::make_shared<Loading>();
     playing = std::make_shared<Playing>();
 
+    GetViewManager().RegisterView("Shutdown", shutdown);
     GetViewManager().RegisterView("Loading", loading);
     GetViewManager().RegisterView("Playing", playing);
 

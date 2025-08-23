@@ -5,6 +5,7 @@
 #include "Settings/Options.h"
 #include <memory>
 #include <atomic>
+#include <chrono>
 
 namespace Engine {
     namespace Graphics {
@@ -67,5 +68,7 @@ namespace Engine {
         std::shared_ptr<Graphics::IRenderingAPI> renderingAPI;
         bool isInitialized;
         std::atomic<bool> shouldStop{false};
+        std::atomic<bool> isShuttingDown{false};
+        std::chrono::steady_clock::time_point shutdownStartTime;
     };
 }

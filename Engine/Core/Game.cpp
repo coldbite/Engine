@@ -159,10 +159,23 @@ namespace Engine {
     }
 
     void Game::Exit() {
-        std::cout << "[Game] Window close requested - shutting down..." << std::endl;
-        RequestStop();
-        Engine::RequestStop();
-        std::cout << "[Game] Stop requests sent" << std::endl;
+        if (isShuttingDown.load()) {
+            return; // Already shutting down
+        }
+        
+        std::cout << "[Game] Exit requested - starting graceful shutdown..." << std::endl;
+        isShuttingDown = true;
+        shutdownStartTime = std::chrono::steady_clock::now();
+        
+        // Show shutdown view if available
+        if (viewManager && viewManager->HasView("Shutdown")) {
+            std::cout << "[Game] Showing shutdown view..." << std::endl;
+            viewManager->ShowView("Shutdown");
+        } else {
+            // No shutdown view, stop immediately
+            RequestStop();
+            Engine::RequestStop();
+        }
     }
 
     void Game::Run() {
@@ -198,6 +211,19 @@ namespace Engine {
                 Input::GetInput().Update();
             }
 
+            // Check if we should stop after showing shutdown view
+            if (isShuttingDown.load()) {
+                auto now = std::chrono::steady_clock::now();
+                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - shutdownStartTime);
+                
+                // Stop after 2 seconds of showing shutdown view
+                if (elapsed.count() >= 5000) {
+                    std::cout << "[Game] Shutdown view shown for 5 seconds, stopping now..." << std::endl;
+                    RequestStop();
+                    Engine::RequestStop();
+                }
+            }
+
             // Render in main thread (OpenGL requirement)
             if(viewManager && mainWindow && mainWindow->IsValid() && renderingAPI) {
                 viewManager->RenderViews(*renderingAPI);
@@ -207,6 +233,7 @@ namespace Engine {
             std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~60 FPS
         }
 
+        // Main loop has exited
         std::cout << "[Game] Main loop exited" << std::endl;
 
         // Wait for threads to finish after stop is requested
@@ -251,13 +278,13 @@ namespace Engine {
         );
 
         SubscribeToEvent<RenderEvent>(
-            [this](const IEvent& /*event*/) {
+            [](const IEvent& /*event*/) {
                 // Rendering is now handled directly in main loop via viewManager->RenderViews()
             }
         );
 
         SubscribeToEvent<UpdateEvent>(
-            [this, &viewManager = this->viewManager](const IEvent& event) {
+            [&viewManager = this->viewManager](const IEvent& event) {
                 const UpdateEvent& updateEvent = static_cast<const UpdateEvent&>(event);
                 viewManager->UpdateViews(updateEvent.GetDeltaTime());
             }
@@ -271,7 +298,7 @@ namespace Engine {
         );
 
         SubscribeToEvent<ViewChangeEvent>(
-            [this, &viewManager = this->viewManager](const IEvent& event) {
+            [&viewManager = this->viewManager](const IEvent& event) {
                 const ViewChangeEvent& viewEvent = static_cast<const ViewChangeEvent&>(event);
                 viewManager->OnViewChangeEvent(viewEvent);
             }

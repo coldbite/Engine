@@ -32,12 +32,14 @@ Overlay::Overlay() : Engine::View("Overlay"), currentContent("") {
     gameMenu.OnKey([this](const std::string& key) {
         std::cout << "CLICKED BUTTON: " << key;
 
-        if(key == "resume") {
+        if(key == "resume" || key == "quit") {
             std::shared_ptr<View> v = GetViewManager()->GetView("Playing");
             Playing* playing        = dynamic_cast<Playing*>(v.get());
             playing->ToggleOverlay();
-        } else if(key == "quit") {
-            GetViewManager()->GetGame()->Exit();
+
+            if(key == "quit") {
+                GetViewManager()->GetGame()->Exit();
+            }
         } else {
             ShowContent(key);
         }

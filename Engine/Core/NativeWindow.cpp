@@ -437,6 +437,11 @@ namespace Engine {
         auto it = windowMap.find(hwnd);
 
         if(it != windowMap.end()) {
+            // Handle WM_CLOSE specially - don't call DefWindowProc for it
+            if(uMsg == WM_CLOSE) {
+                it->second->HandleWindowMessage(uMsg, wParam, lParam);
+                return 0; // Don't close the window immediately
+            }
             it->second->HandleWindowMessage(uMsg, wParam, lParam);
         }
 

@@ -89,6 +89,10 @@ namespace Engine {
         return GetView(currentView);
     }
 
+    bool ViewManager::HasView(const std::string& name) const {
+        return views.find(name) != views.end();
+    }
+
     void ViewManager::UpdateViews(float deltaTime) {
         // Update transition state
         if(isTransitioning) {
