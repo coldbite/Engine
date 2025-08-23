@@ -5,7 +5,7 @@ namespace Engine {
     namespace Graphics {
         class RGBA : public IColor {
             public:
-                RGBA(float red, float green, float blue, float alpha);
+                RGBA(int red, int green, int blue, int alpha = 100);
                 virtual ~RGBA();
 
                 float GetRed() const override;

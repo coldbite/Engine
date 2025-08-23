@@ -38,10 +38,10 @@ namespace Engine {
 
                 // Multiply with existing color for ambience effect
                 renderState.color = new RGBA(
-                    renderState.color->GetRed() * ambienceR,
-                    renderState.color->GetGreen() * ambienceG,
-                    renderState.color->GetBlue() * ambienceB,
-                    renderState.color->GetAlpha()
+                    renderState.color->GetRed() * ambienceR * 255,
+                    renderState.color->GetGreen() * ambienceG * 255,
+                    renderState.color->GetBlue() * ambienceB * 255,
+                    renderState.color->GetAlpha() * 100
                 );
             }
         }

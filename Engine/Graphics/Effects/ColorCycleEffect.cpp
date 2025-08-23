@@ -38,10 +38,10 @@ namespace Engine {
                 IColor* color2 = colors[nextIndex];
 
                 renderState.color = new RGBA(
-                    color1->GetRed() + (color2->GetRed() - color1->GetRed()) * t,
-                    color1->GetGreen() + (color2->GetGreen() - color1->GetGreen()) * t,
-                    color1->GetBlue() + (color2->GetBlue() - color1->GetBlue()) * t,
-                    renderState.color->GetAlpha() // Preserve original alpha
+                    (color1->GetRed() + (color2->GetRed() - color1->GetRed()) * t) * 255,
+                    (color1->GetGreen() + (color2->GetGreen() - color1->GetGreen()) * t) * 255,
+                    (color1->GetBlue() + (color2->GetBlue() - color1->GetBlue()) * t) * 255,
+                    renderState.color->GetAlpha() * 100 // Preserve original alpha
                 );
             }
         }

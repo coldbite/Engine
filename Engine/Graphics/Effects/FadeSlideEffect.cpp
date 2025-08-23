@@ -29,10 +29,10 @@ namespace Engine {
                     alpha = progress; // Start invisible, end visible
                 }
 
-                renderState.color = new RGBA(renderState.color->GetRed(),
-                                       renderState.color->GetGreen(),
-                                       renderState.color->GetBlue(),
-                                       renderState.color->GetAlpha() * alpha);
+                renderState.color = new RGBA(renderState.color->GetRed() * 255,
+                                       renderState.color->GetGreen() * 255,
+                                       renderState.color->GetBlue() * 255,
+                                       renderState.color->GetAlpha() * alpha * 100);
 
                 // Apply slide to the right for entire text block
                 // All characters move together as one unit

@@ -10,7 +10,7 @@ Loading::Loading() : Engine::View("Loading") {
     text_map.SetValue(this->mapName);
     text_map.SetFont("Sansation");
     text_map.SetColor(text_color);
-    text_map.SetBackground(new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f));
+    text_map.SetBackground(new Engine::Graphics::RGBA(0, 0, 0, 40));
     text_map.SetPadding(10.0f, 5.0f);
     text_map.SetSize(40.0f);
     text_map.SetStyle(Engine::Graphics::FontStyle::BOLD | Engine::Graphics::FontStyle::UPPERCASE);
@@ -19,7 +19,7 @@ Loading::Loading() : Engine::View("Loading") {
     text_mode.SetValue(this->gameMode);
     text_mode.SetFont("Sansation");
     text_mode.SetColor(text_color);
-    text_mode.SetBackground(new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f));
+    text_mode.SetBackground(new Engine::Graphics::RGBA(0, 0, 0, 40));
     text_mode.SetPadding(10.0f, 5.0f);
     text_mode.SetSize(20.0f);
     text_mode.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
@@ -29,15 +29,17 @@ Loading::Loading() : Engine::View("Loading") {
     text_status.SetFont("Sansation");
     text_status.SetColor(text_color);
     text_status.SetSize(20.0f);
-    text_status.SetMargin(0.0f, 30.0f + 22.0f + 10.0f, 20.0f, 0.0f);
+    text_status.SetMargin(0.0f, 30.0f + 18.0f + 10.0f, 20.0f, 0.0f);
     text_status.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
+    //text_status.SetShadow(10.0f, new Engine::Graphics::RGBA(188, 228, 255, 50), 0.0f, 0.0f);
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateAmbience(0.8f));
 
     /* Box: Loader */
-    box.SetSize(22, 22);
-    box.SetMargin(0.0f, 30.0f, 22.0f, 0.0f);
+    box.SetSize(18, 18);
+    box.SetMargin(0.0f, 30.0f, 24.0f, 0.0f);
+    box.SetShadow(10.0f, new Engine::Graphics::RGBA(188, 228, 255, 50), 0.0f, 0.0f);
     box.SetColor(text_color);
-    box.SetPulse(true);
+    box.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateBlink(1.5f));
 }
 
 void Loading::OnShow() {}
@@ -64,6 +66,8 @@ void Loading::OnUpdateProgress(const std::string& message, int actual, int total
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeIn(0.2f));
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateSlideFromLeft(100.0f, 0.3f));
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeOut(5.0f));
+
+    box.GetAnimator().AddEffect(std::make_unique<Engine::Graphics::Effects::TravelEffect>(0.8f, 180.0f, 4.2f));
 }
 
 void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
@@ -80,8 +84,8 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
         static auto texture = context.LoadTexture("../Game/" + file);
 
         context.DrawTextureBlurred(texture, 0.0f, 1.0f, w, h, 5.0f);
-        context.DrawHorizontalLines(0.0f, 0.0f, w, h, 3.0f, 4.0f, new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.3f));
-        context.DrawRect(0.0f, 0.0f, w, h, new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.2f));
+        context.DrawHorizontalLines(0.0f, 0.0f, w, h, 3.0f, 4.0f, new Engine::Graphics::RGBA(0, 0, 0, 30));
+        context.DrawRect(0.0f, 0.0f, w, h, new Engine::Graphics::RGBA(0, 0, 0, 20));
         context.DrawFilmGrain(0.0f, 0.0f, w, h, 0.15f, 123);
     }
 

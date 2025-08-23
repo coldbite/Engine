@@ -59,11 +59,7 @@ void Map::Load(const std::string& name, OnMapStartCallback onStart) {
         const std::vector<std::string> steps = {
             "Loading terrain",
             "Loading textures",
-            "Loading objects",
-            "Loading entities",
-            "Placing Balls",
-            "Placing Event-Boxes",
-            "Finalizing map"
+            "Loading objects"
         };
 
         const int totalSteps = steps.size();

@@ -21,10 +21,10 @@ namespace Engine {
                 float alpha = (duration > 0.0f) ? std::min(time / duration, 1.0f) : 1.0f;
 
                 // Apply alpha to character color
-                renderState.color = new RGBA(renderState.color->GetRed(),
-                                       renderState.color->GetGreen(),
-                                       renderState.color->GetBlue(),
-                                       renderState.color->GetAlpha() * alpha);
+                renderState.color = new RGBA(renderState.color->GetRed() * 255,
+                                       renderState.color->GetGreen() * 255,
+                                       renderState.color->GetBlue() * 255,
+                                       renderState.color->GetAlpha() * alpha * 100);
             }
 
             void FadeOutEffect::Apply(Text& text, IRenderingAPI& context, float time, int charIndex) {
@@ -42,10 +42,10 @@ namespace Engine {
                 float alpha = (duration > 0.0f) ? std::max(1.0f - (time / duration), 0.0f) : 0.0f;
 
                 // Apply alpha to character color
-                renderState.color = new RGBA(renderState.color->GetRed(),
-                                       renderState.color->GetGreen(),
-                                       renderState.color->GetBlue(),
-                                       renderState.color->GetAlpha() * alpha);
+                renderState.color = new RGBA(renderState.color->GetRed() * 255,
+                                       renderState.color->GetGreen() * 255,
+                                       renderState.color->GetBlue() * 255,
+                                       renderState.color->GetAlpha() * alpha * 100);
             }
         }
     }

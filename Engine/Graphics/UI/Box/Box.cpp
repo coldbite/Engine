@@ -1,5 +1,6 @@
 #include "Box.h"
 #include "../../IRenderingAPI.h"
+#include "../Effect.h"
 #include <cmath>
 
 namespace Engine {
@@ -16,16 +17,15 @@ namespace Engine {
         const Alignment Alignment::BOTTOM_RIGHT(HorizontalAlignment::RIGHT, VerticalAlignment::BOTTOM);
 
         Box::Box(float width, float height) : width(width), height(height),
-            color(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
-            borderColor(new RGBA(0.0f, 0.0f, 0.0f, 1.0f)),
+            color(new RGBA(255, 255, 255, 100)),
+            borderColor(new RGBA(0, 0, 0, 100)),
             borderWidth(0.0f), m_marginTop(0.0f), m_marginRight(0.0f), m_marginBottom(0.0f),
-            m_marginLeft(0.0f), pulseEnabled(false), pulseTime(0.0f) {
+            m_marginLeft(0.0f), shadowRadius(0.0f), shadowColor(new RGBA(0, 0, 0, 50)),
+            shadowOffsetX(2.0f), shadowOffsetY(2.0f) {
         }
 
         void Box::Update(float deltaTime) {
-            if (pulseEnabled) {
-                pulseTime += deltaTime;
-            }
+            animator.Update(deltaTime);
         }
 
         void Box::SetColor(IColor* c) {
@@ -34,6 +34,13 @@ namespace Engine {
 
         void Box::SetBorderColor(IColor* c) {
             borderColor = c;
+        }
+
+        void Box::SetShadow(float radius, IColor* color, float offsetX, float offsetY) {
+            shadowRadius = radius;
+            shadowColor = color;
+            shadowOffsetX = offsetX;
+            shadowOffsetY = offsetY;
         }
 
         void Box::SetMargin(float x, float y) {
@@ -55,19 +62,45 @@ namespace Engine {
             float currentHeight = height;
             IColor* currentColor = color;
 
-            // Apply pulsing effect
-            if (pulseEnabled) {
-                float scale = 0.9f + 0.2f * (std::sin(pulseTime * 15.0f) + 0.5f) * 0.5f;
+            // Apply animator effects by using the animator's ApplyEffectsToCharacter method
+            CharacterRenderState fakeState;
+            fakeState.x = 0.0f;  // Start at origin for slide effects
+            fakeState.y = 0.0f;  // Start at origin for slide effects
+            fakeState.scale = 1.0f;
+            fakeState.color = currentColor;
+            
+            // Use the animator to apply effects (it handles the internal effects vector)
+            animator.ApplyEffectsToCharacter(context, ' ', 0, fakeState);
+            
+            // Apply position offsets from effects to render position
+            renderX += fakeState.x;
+            renderY += fakeState.y;
+            currentColor = fakeState.color;
+            
+            // Apply scale effect
+            if (fakeState.scale != 1.0f) {
                 float centerX = renderX + width * 0.5f;
                 float centerY = renderY + height * 0.5f;
-                currentWidth = width * scale;
-                currentHeight = height * scale;
+                currentWidth = width * fakeState.scale;
+                currentHeight = height * fakeState.scale;
                 renderX = centerX - currentWidth * 0.5f;
                 renderY = centerY - currentHeight * 0.5f;
             }
 
-            // Render the box
-            context.DrawRect(renderX, renderY, currentWidth, currentHeight, currentColor);
+            // Use OpenGL-optimized shadow rendering
+            if (shadowRadius > 0.0f) {
+                // Create shadow color with animation alpha applied
+                float shadowAlphaMultiplier = currentColor->GetAlpha();
+                IColor* animatedShadowColor = new RGBA(shadowColor->GetRed() * 255, shadowColor->GetGreen() * 255, 
+                                                      shadowColor->GetBlue() * 255, shadowColor->GetAlpha() * shadowAlphaMultiplier * 100);
+                
+                // Render box with shadow using OpenGL blend functions
+                context.DrawRectWithShadow(renderX, renderY, currentWidth, currentHeight, currentColor, 
+                                          shadowRadius, animatedShadowColor, shadowOffsetX, shadowOffsetY);
+            } else {
+                // Render the box without shadow
+                context.DrawRect(renderX, renderY, currentWidth, currentHeight, currentColor);
+            }
 
             // Render border if specified
             if (borderWidth > 0.0f) {

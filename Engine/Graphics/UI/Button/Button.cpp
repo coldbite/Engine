@@ -15,16 +15,16 @@ namespace Engine {
               m_onHoverEndCallback(nullptr),
               m_onPressCallback(nullptr),
               m_onReleaseCallback(nullptr),
-              m_normalTextColor(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
-              m_hoverTextColor(new RGBA(0.78f, 0.78f, 1.0f, 1.0f)),
-              m_pressedTextColor(new RGBA(0.59f, 0.59f, 0.78f, 1.0f)),
-              m_disabledTextColor(new RGBA(0.5f, 0.5f, 0.5f, 1.0f)),
-              m_normalBackgroundColor(new RGBA(0.0f, 0.0f, 0.0f, 0.0f)),
-              m_hoverBackgroundColor(new RGBA(0.196f, 0.196f, 0.196f, 0.39f)),
-              m_pressedBackgroundColor(new RGBA(0.39f, 0.39f, 0.39f, 0.59f)),
-              m_disabledBackgroundColor(new RGBA(0.118f, 0.118f, 0.118f, 0.196f)),
-              m_originalTextColor(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
-              m_originalBackgroundColor(new RGBA(0.0f, 0.0f, 0.0f, 0.0f))
+              m_normalTextColor(new RGBA(255, 255, 255, 100)),
+              m_hoverTextColor(new RGBA(199, 199, 255, 100)),
+              m_pressedTextColor(new RGBA(150, 150, 199, 100)),
+              m_disabledTextColor(new RGBA(127, 127, 127, 100)),
+              m_normalBackgroundColor(new RGBA(0, 0, 0, 0)),
+              m_hoverBackgroundColor(new RGBA(50, 50, 50, 39)),
+              m_pressedBackgroundColor(new RGBA(99, 99, 99, 59)),
+              m_disabledBackgroundColor(new RGBA(30, 30, 30, 20)),
+              m_originalTextColor(new RGBA(255, 255, 255, 100)),
+              m_originalBackgroundColor(new RGBA(0, 0, 0, 0))
         {
             // Colors are now initialized in the constructor initializer list
         }

@@ -34,7 +34,7 @@ Playing::Playing() : Engine::View("Playing") {
             if (!gameOverlay) {
                 gameOverlay = std::make_shared<Overlay>();
 
-                gameOverlay->SetBackground(new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.7f));
+                gameOverlay->SetBackground(new Engine::Graphics::RGBA(0, 0, 0, 70));
                 gameOverlay->SetActive(true);
                 gameOverlay->SetVisible(true);
             } else {

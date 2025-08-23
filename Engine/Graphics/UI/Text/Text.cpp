@@ -25,8 +25,8 @@ namespace Engine {
         int Text::s_instanceCount = 0;
 
         Text::Text() : m_face(nullptr), m_fontSize(14), m_texturesGenerated(false),
-                       m_text(""), m_fontName(""), m_textColor(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
-                       m_backgroundColor(new RGBA(0.0f, 0.0f, 0.0f, 1.0f)),
+                       m_text(""), m_fontName(""), m_textColor(new RGBA(255, 255, 255, 100)),
+                       m_backgroundColor(new RGBA(0, 0, 0, 100)),
                        m_paddingTop(0.0f), m_paddingRight(0.0f), m_paddingBottom(0.0f), m_paddingLeft(0.0f),
                        m_marginTop(0.0f), m_marginRight(0.0f), m_marginBottom(0.0f), m_marginLeft(0.0f),
                        m_size(14.0f), m_style(FontStyle::NORMAL), m_hasBackground(false) {
@@ -331,6 +331,7 @@ namespace Engine {
 
             float renderX = x + m_marginLeft;
             float renderY = y + m_marginTop;
+            
 
             // Render background if needed
             if (m_hasBackground) {

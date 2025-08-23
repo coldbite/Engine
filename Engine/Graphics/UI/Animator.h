@@ -21,7 +21,7 @@ namespace Engine {
 
             CharacterRenderState()
                 : x(0), y(0), width(0), height(0),
-                  color(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
+                  color(new RGBA(255, 255, 255, 100)),
                   visible(true), scale(1.0f), rotation(0.0f) {}
         };
 

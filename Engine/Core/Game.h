@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Engine.h"
 #include "ViewManager.h"
 #include "NativeWindow.h"

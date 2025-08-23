@@ -171,7 +171,7 @@ namespace Engine {
 
             // Virtual method implementations
             void OpenGL::Clear() {
-                Clear(new RGBA(0.0f, 0.0f, 0.0f, 1.0f));
+                Clear(new RGBA(0, 0, 0, 100));
             }
 
             void OpenGL::Clear(IColor* color) {
@@ -648,6 +648,183 @@ namespace Engine {
 
                 glEnd();
                 glDisable(GL_BLEND);
+            }
+
+            // Helper function for clamping
+            float clamp(float value, float min, float max) {
+                if (value < min) return min;
+                if (value > max) return max;
+                return value;
+            }
+            
+            // Helper function for mixing colors
+            void mixColor(float& outR, float& outG, float& outB, float& outA,
+                         float defaultR, float defaultG, float defaultB, float defaultA,
+                         float borderR, float borderG, float borderB, float borderA,
+                         float scale) {
+                float clampedScale = clamp(scale, 0.0f, 1.0f);
+                outR = defaultR + (borderR - defaultR) * clampedScale;
+                outG = defaultG + (borderG - defaultG) * clampedScale;
+                outB = defaultB + (borderB - defaultB) * clampedScale;
+                outA = defaultA + (borderA - defaultA) * clampedScale;
+            }
+            
+            void OpenGL::DrawRectWithShadow(float x, float y, float width, float height, IColor* color, 
+                                           float shadowRadius, IColor* shadowColor, float shadowOffsetX, float shadowOffsetY) {
+                if(!initialized) {
+                    std::cout << "[OpenGL] DrawRectWithShadow called but OpenGL not initialized!" << std::endl;
+                    return;
+                }
+                
+                // Draw proper distance-based shadow
+                if (shadowRadius > 0.0f) {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    
+                    // Shadow area bounds
+                    float shadowX = x + shadowOffsetX;
+                    float shadowY = y + shadowOffsetY;
+                    float shadowLeft = shadowX - shadowRadius;
+                    float shadowTop = shadowY - shadowRadius;
+                    float shadowRight = shadowX + width + shadowRadius;
+                    float shadowBottom = shadowY + height + shadowRadius;
+                    
+                    // Box borders for distance calculation
+                    float boxLeft = shadowX;
+                    float boxTop = shadowY;
+                    float boxRight = shadowX + width;
+                    float boxBottom = shadowY + height;
+                    
+                    // Optimized approach: Draw 4 shadow strips around the box with gradients
+                    glBegin(GL_QUADS);
+                    
+                    // Left shadow strip (only middle part, not corners)
+                    for (int i = 0; i < (int)shadowRadius; i++) {
+                        float distance = (float)(i + 1);
+                        float alpha = shadowColor->GetAlpha() * (1.0f - (distance / shadowRadius)) * 0.5f;
+                        if (alpha <= 0.01f) break;
+                        
+                        glColor4f(shadowColor->GetRed(), shadowColor->GetGreen(), shadowColor->GetBlue(), alpha);
+                        float x1 = shadowX - distance;
+                        float x2 = shadowX - distance + 1.0f;
+                        
+                        // Avoid corners - start/end with some margin
+                        glVertex2f(x1, shadowY);
+                        glVertex2f(x2, shadowY);
+                        glVertex2f(x2, shadowY + height);
+                        glVertex2f(x1, shadowY + height);
+                    }
+                    
+                    // Right shadow strip (only middle part, not corners)
+                    for (int i = 0; i < (int)shadowRadius; i++) {
+                        float distance = (float)(i + 1);
+                        float alpha = shadowColor->GetAlpha() * (1.0f - (distance / shadowRadius)) * 0.5f;
+                        if (alpha <= 0.01f) break;
+                        
+                        glColor4f(shadowColor->GetRed(), shadowColor->GetGreen(), shadowColor->GetBlue(), alpha);
+                        float x1 = shadowX + width + distance - 1.0f;
+                        float x2 = shadowX + width + distance;
+                        
+                        glVertex2f(x1, shadowY);
+                        glVertex2f(x2, shadowY);
+                        glVertex2f(x2, shadowY + height);
+                        glVertex2f(x1, shadowY + height);
+                    }
+                    
+                    // Top shadow strip (only middle part, not corners)
+                    for (int i = 0; i < (int)shadowRadius; i++) {
+                        float distance = (float)(i + 1);
+                        float alpha = shadowColor->GetAlpha() * (1.0f - (distance / shadowRadius)) * 0.5f;
+                        if (alpha <= 0.01f) break;
+                        
+                        glColor4f(shadowColor->GetRed(), shadowColor->GetGreen(), shadowColor->GetBlue(), alpha);
+                        float y1 = shadowY - distance;
+                        float y2 = shadowY - distance + 1.0f;
+                        
+                        // Only the middle part, corners are handled separately
+                        glVertex2f(shadowX, y1);
+                        glVertex2f(shadowX + width, y1);
+                        glVertex2f(shadowX + width, y2);
+                        glVertex2f(shadowX, y2);
+                    }
+                    
+                    // Bottom shadow strip (only middle part, not corners)
+                    for (int i = 0; i < (int)shadowRadius; i++) {
+                        float distance = (float)(i + 1);
+                        float alpha = shadowColor->GetAlpha() * (1.0f - (distance / shadowRadius)) * 0.5f;
+                        if (alpha <= 0.01f) break;
+                        
+                        glColor4f(shadowColor->GetRed(), shadowColor->GetGreen(), shadowColor->GetBlue(), alpha);
+                        float y1 = shadowY + height + distance - 1.0f;
+                        float y2 = shadowY + height + distance;
+                        
+                        // Only the middle part, corners are handled separately
+                        glVertex2f(shadowX, y1);
+                        glVertex2f(shadowX + width, y1);
+                        glVertex2f(shadowX + width, y2);
+                        glVertex2f(shadowX, y2);
+                    }
+                    
+                    // Fill corner areas with proper gradients - extend to connect with strips
+                    int steps = (int)shadowRadius;
+                    for (int x = 0; x <= steps; x++) { // Include edge case
+                        for (int y = 0; y <= steps; y++) { // Include edge case
+                            float distX = (float)x;
+                            float distY = (float)y;
+                            
+                            // Skip the area that's already covered by strips (inside the box)
+                            if (x == 0 && y == 0) continue;
+                            
+                            float cornerDist = std::sqrt(distX * distX + distY * distY);
+                            
+                            if (cornerDist > shadowRadius) continue;
+                            
+                            // Use radial distance but reduce alpha slightly to match strips better
+                            float alpha = shadowColor->GetAlpha() * (1.0f - (cornerDist / shadowRadius)) * 0.4f;
+                            if (alpha <= 0.01f) continue;
+                            
+                            glColor4f(shadowColor->GetRed(), shadowColor->GetGreen(), shadowColor->GetBlue(), alpha);
+                            
+                            // Top-left corner - extend to meet strips
+                            if (x > 0 || y > 0) { // Don't draw the center point
+                                glVertex2f(shadowX - distX - 1.0f, shadowY - distY - 1.0f);
+                                glVertex2f(shadowX - distX, shadowY - distY - 1.0f);
+                                glVertex2f(shadowX - distX, shadowY - distY);
+                                glVertex2f(shadowX - distX - 1.0f, shadowY - distY);
+                            }
+                            
+                            // Top-right corner
+                            if (x > 0 || y > 0) {
+                                glVertex2f(shadowX + width + distX, shadowY - distY - 1.0f);
+                                glVertex2f(shadowX + width + distX + 1.0f, shadowY - distY - 1.0f);
+                                glVertex2f(shadowX + width + distX + 1.0f, shadowY - distY);
+                                glVertex2f(shadowX + width + distX, shadowY - distY);
+                            }
+                            
+                            // Bottom-left corner
+                            if (x > 0 || y > 0) {
+                                glVertex2f(shadowX - distX - 1.0f, shadowY + height + distY);
+                                glVertex2f(shadowX - distX, shadowY + height + distY);
+                                glVertex2f(shadowX - distX, shadowY + height + distY + 1.0f);
+                                glVertex2f(shadowX - distX - 1.0f, shadowY + height + distY + 1.0f);
+                            }
+                            
+                            // Bottom-right corner
+                            if (x > 0 || y > 0) {
+                                glVertex2f(shadowX + width + distX, shadowY + height + distY);
+                                glVertex2f(shadowX + width + distX + 1.0f, shadowY + height + distY);
+                                glVertex2f(shadowX + width + distX + 1.0f, shadowY + height + distY + 1.0f);
+                                glVertex2f(shadowX + width + distX, shadowY + height + distY + 1.0f);
+                            }
+                        }
+                    }
+                    
+                    glEnd();
+                    glDisable(GL_BLEND);
+                }
+                
+                // Draw the main rectangle on top
+                DrawRect(x, y, width, height, color);
             }
         }
     }

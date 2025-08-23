@@ -2,12 +2,7 @@
 
 #include "../Alignment.h"
 #include "../../RGBA.h"
-
-namespace Engine {
-    namespace Graphics {
-        class Animator;
-    }
-}
+#include "../Animator.h"
 
 namespace Engine {
     namespace Graphics {
@@ -56,12 +51,12 @@ namespace Engine {
             void SetColor(IColor* color);
             void SetBorderColor(IColor* color);
             void SetBorderWidth(float width) { this->borderWidth = width; }
+            void SetShadow(float radius, IColor* color, float offsetX = 2.0f, float offsetY = 2.0f);
 
             float GetBorderWidth() const { return borderWidth; }
 
-            // Animation - Simple effects without full Animator for now
-            void SetPulse(bool enable) { pulseEnabled = enable; }
-            bool IsPulseEnabled() const { return pulseEnabled; }
+            // Animation system  
+            TextAnimator& GetAnimator() { return animator; }
 
         private:
             float width, height;
@@ -69,9 +64,13 @@ namespace Engine {
             IColor* borderColor;
             float borderWidth;
             float m_marginTop, m_marginRight, m_marginBottom, m_marginLeft;
-
-            bool pulseEnabled;
-            float pulseTime;
+            
+            // Shadow properties
+            float shadowRadius;
+            IColor* shadowColor;
+            float shadowOffsetX, shadowOffsetY;
+            
+            TextAnimator animator;
         };
     }
 }

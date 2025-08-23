@@ -7,7 +7,6 @@ namespace Engine {
     template<typename E>
     struct EnumStringMap;
 
-    // SFINAE helper to detect if EnumStringMap is specialized for a type
     template<typename E, typename = void>
     struct has_enum_string_map : std::false_type {};
 
@@ -25,7 +24,6 @@ namespace Engine {
     }
 }
 
-// Global stream operator - only for Engine enums that have EnumStringMap specialization
 template<typename E>
 std::enable_if_t<std::is_enum_v<E> && Engine::has_enum_string_map<E>::value, std::ostream&>
 operator<<(std::ostream& os, E value) {

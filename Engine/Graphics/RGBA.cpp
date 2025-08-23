@@ -1,7 +1,7 @@
 #include "RGBA.h"
 using namespace Engine::Graphics;
 
-RGBA::RGBA(float red, float green, float blue, float alpha) : red(red), green(green), blue(blue), alpha(alpha) {
+RGBA::RGBA(int red, int green, int blue, int alpha) : red(red / 255.0f), green(green / 255.0f), blue(blue / 255.0f), alpha(alpha / 100.0f) {
     /* Do Nothing */
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "../../../Engine/Core/View.h"
 #include "../../../Engine/Graphics/UI/Text/Text.h"
+#include "../../../Engine/Graphics/UI/Button/Button.h"
 
 namespace Engine {
     namespace Graphics {
@@ -22,6 +23,7 @@ class Overlay : public Engine::View {
 
     private:
         Engine::Graphics::Text overlayText;
+        Engine::Graphics::Button buttonResume;
         Engine::Graphics::IColor* text_color        = new Engine::Graphics::HEX("#FFFFFF");
-        Engine::Graphics::IColor* color_background  = new Engine::Graphics::RGBA(1.0f, 0.0f, 0.0f, 0.3f);
+        Engine::Graphics::IColor* color_background  = new Engine::Graphics::RGBA(255, 0, 0, 80);
 };

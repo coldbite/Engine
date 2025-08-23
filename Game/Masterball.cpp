@@ -1,6 +1,5 @@
 #include "Masterball.h"
 #include "Event.h"
-#include "../Engine/Core/Settings/Config.h"
 
 using Engine::Config;
 using Engine::EngineOption;
@@ -106,7 +105,8 @@ void Masterball::OnInit() {
     });
 
     map.OnLoaded([this]() {
-        //DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
+        // send to Server: Ready for Playing-Queue
+        DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
     });
 
     // @ToDo Received from Server

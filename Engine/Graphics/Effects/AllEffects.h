@@ -10,6 +10,12 @@
 #include "SlideEffect.h"
 #include "FadeSlideEffect.h"
 #include "AmbienceEffect.h"
+#include "PulseEffect.h"
+#include "BlinkEffect.h"
+#include "PendulumEffect.h"
+#include "ScanEffect.h"
+#include "MoveEffect.h"
+#include "TravelEffect.h"
 
 namespace Engine {
     namespace Graphics {
@@ -71,6 +77,26 @@ namespace Engine {
             
             inline std::unique_ptr<AmbienceEffect> CreateAmbience(float frequency = 0.5f) {
                 return std::make_unique<AmbienceEffect>(-1.0f, frequency, true);
+            }
+            
+            inline std::unique_ptr<PulseEffect> CreatePulse(float minScale = 0.9f, float maxScale = 1.1f, float frequency = 1.0f) {
+                return std::make_unique<PulseEffect>(-1.0f, minScale, maxScale, frequency, true);
+            }
+            
+            inline std::unique_ptr<BlinkEffect> CreateBlink(float frequency = 2.0f) {
+                return std::make_unique<BlinkEffect>(-1.0f, frequency, true);
+            }
+            
+            inline std::unique_ptr<PendulumEffect> CreatePendulum(float distance = 100.0f, float frequency = 0.25f) {
+                return std::make_unique<PendulumEffect>(-1.0f, distance, frequency, true);
+            }
+            
+            inline std::unique_ptr<ScanEffect> CreateScan(float scanWidth = 200.0f, float frequency = 0.5f) {
+                return std::make_unique<ScanEffect>(-1.0f, scanWidth, frequency, true);
+            }
+            
+            inline std::unique_ptr<TravelEffect> CreateTravel(float distance = 180.0f, float duration = 3.0f) {
+                return std::make_unique<TravelEffect>(duration, distance);
             }
         }
     }
