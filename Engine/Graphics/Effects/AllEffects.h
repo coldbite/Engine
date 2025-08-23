@@ -44,19 +44,19 @@ namespace Engine {
                 return std::make_unique<ColorCycleEffect>(-1.0f, frequency, true, delay);
             }
             
-            inline std::unique_ptr<SlideEffect> CreateSlideFromLeft(float distance = 100.0f, float duration = 2.0f, float delay = 0.1f) {
+            inline std::unique_ptr<SlideEffect> CreateSlideFromLeft(float distance = 100.0f, float duration = 2.0f, float delay = 0.0f) {
                 return std::make_unique<SlideEffect>(duration, SlideDirection::LEFT, distance, delay);
             }
             
-            inline std::unique_ptr<SlideEffect> CreateSlideFromRight(float distance = 100.0f, float duration = 2.0f, float delay = 0.1f) {
+            inline std::unique_ptr<SlideEffect> CreateSlideFromRight(float distance = 100.0f, float duration = 2.0f, float delay = 0.0f) {
                 return std::make_unique<SlideEffect>(duration, SlideDirection::RIGHT, distance, delay);
             }
             
-            inline std::unique_ptr<SlideEffect> CreateSlideFromTop(float distance = 100.0f, float duration = 2.0f, float delay = 0.1f) {
+            inline std::unique_ptr<SlideEffect> CreateSlideFromTop(float distance = 100.0f, float duration = 2.0f, float delay = 0.0f) {
                 return std::make_unique<SlideEffect>(duration, SlideDirection::TOP, distance, delay);
             }
             
-            inline std::unique_ptr<SlideEffect> CreateSlideFromBottom(float distance = 100.0f, float duration = 2.0f, float delay = 0.1f) {
+            inline std::unique_ptr<SlideEffect> CreateSlideFromBottom(float distance = 100.0f, float duration = 2.0f, float delay = 0.0f) {
                 return std::make_unique<SlideEffect>(duration, SlideDirection::BOTTOM, distance, delay);
             }
             

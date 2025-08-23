@@ -1,6 +1,5 @@
 #include "View.h"
 #include "../Graphics/IRenderingAPI.h"
-#include <iostream>
 
 namespace Engine {
     View::View(const std::string& name) :
@@ -22,6 +21,8 @@ namespace Engine {
             OnShow();
         } else {
             SetVisible(false);
+            // DON'T clear key bindings - the isActive check in callbacks handles this
+            // ClearKeyBindings(); // This was causing all callbacks to be deleted!
             OnHide();
         }
     }
@@ -53,6 +54,29 @@ namespace Engine {
         renderingAPI.SetViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
     
+
+    void View::OnKey(Input::KEY key, std::function<void()> callback) {
+        OnKey(key, Input::KeyAction::PRESS, callback);
+    }
+
+    void View::OnKey(Input::KEY key, Input::KeyAction action, std::function<void()> callback) {
+        // Bind keys immediately - they will only trigger when view is active
+        Input::GetInput().BindKey(key, action, [this, callback](Input::KEY, Input::KeyAction) {
+            // Only execute callback if this view is currently active
+            if (this->isActive) {
+                callback();
+            }
+        });
+        activeKeyBindings.push_back({key, action});
+    }
+
+    void View::ClearKeyBindings() {
+        // Remove all key bindings for this view
+        for (const auto& binding : activeKeyBindings) {
+            Input::GetInput().UnbindKey(binding.first, binding.second);
+        }
+        activeKeyBindings.clear();
+    }
 
     void View::PrepareForRendering() {
         if(isActive && IsVisible()) {

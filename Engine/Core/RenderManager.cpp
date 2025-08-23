@@ -36,7 +36,7 @@ namespace Engine {
             return;
         }
 
-        const RenderEvent& renderEvent = static_cast<const RenderEvent&>(event);
+        (void)event;
         RenderFrame();
     }
 
@@ -45,14 +45,16 @@ namespace Engine {
             return;
         }
 
-        const UpdateEvent& updateEvent = static_cast<const UpdateEvent&>(event);
+        (void)event;
     }
 
     void RenderManager::OnInitEvent(const IEvent& event) {
+        (void)event;
         Initialize();
     }
 
     void RenderManager::OnShutdownEvent(const IEvent& event) {
+        (void)event;
         Shutdown();
     }
 
@@ -62,7 +64,7 @@ namespace Engine {
         // Prepare all renderables for rendering (without actual API calls yet)
         PrepareRenderables();
 
-        std::thread::id threadId = std::this_thread::get_id();
+        (void)std::this_thread::get_id(); // Used for debugging
         /*std::cout << "[RenderManager] Frame " << frameCount
                   << " - Rendering " << renderables.size() << " objects with " << GetAPIName(api)
                   << " API (Thread: " << threadId << ")" << std::endl;*/

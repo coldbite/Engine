@@ -1,7 +1,10 @@
 #pragma once
 #include "../../../Engine/Core/View.h"
-#include "../../../Engine/Graphics/Text.h"
+#include "../../../Engine/Graphics/UI/Text/Text.h"
 #include "../../../Engine/Graphics/RGBA.h"
+
+// Forward declaration
+class Overlay;
 
 namespace Engine {
     namespace Graphics {
@@ -22,7 +25,17 @@ class Playing : public Engine::View {
         void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;
 
     private:
-        Engine::Graphics::Text text;
+        Engine::Graphics::Text playingText;
         Engine::Graphics::HEX text_color       = Engine::Graphics::HEX("#444444");
         Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#AAAAAA");
+        
+        void ToggleOverlay();
+        
+        // Keep reference to overlay to avoid recreation
+        std::shared_ptr<Overlay> gameOverlay;
+        bool overlayVisible = false;
+        
+        // Debounce system to prevent rapid toggling
+        static constexpr float TOGGLE_DEBOUNCE_TIME = 0.3f; // 300ms
+        float lastToggleTime = 0.0f;
 };

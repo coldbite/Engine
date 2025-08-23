@@ -6,6 +6,9 @@
 #include <unordered_map>
 #include <memory>
 
+// Forward declaration
+class Overlay;
+
 namespace Engine {
     namespace Graphics {
         class IRenderingAPI;
@@ -24,6 +27,12 @@ namespace Engine {
         void ShowView(const std::string& name);
         void HideView(const std::string& name);
         void HideAllViews();
+        
+        // Overlay system
+        void ShowOverlay(const std::string& name, ViewPtr overlay);
+        void HideOverlay(const std::string& name);
+        void HideAllOverlays();
+        bool HasActiveOverlay() const;
 
         // Current view management
         const std::string& GetCurrentView() const { return currentView; }
@@ -49,6 +58,9 @@ namespace Engine {
         std::string currentView;
         std::shared_ptr<NativeWindow> renderWindow;
         std::shared_ptr<Graphics::IRenderingAPI> renderingAPI;
+        
+        // Overlay system
+        std::unordered_map<std::string, ViewPtr> overlays;
         
         // Transition state
         bool isTransitioning = false;

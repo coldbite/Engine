@@ -1,7 +1,7 @@
 #include "ScaleEffect.h"
-#include "../Text.h"
+#include "../UI/Text/Text.h"
 #include "../IRenderingAPI.h"
-#include "../TextAnimator.h"
+#include "../UI/Animator.h"
 
 namespace Engine {
     namespace Graphics {
@@ -13,20 +13,20 @@ namespace Engine {
                 (void)time;
                 (void)charIndex;
             }
-            
+
             void ScaleEffect::ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) {
                 // Calculate scale with character delay
                 float charTime = time - (charIndex * charDelay);
-                
+
                 // Don't animate characters that haven't started yet
                 if (charTime < 0.0f) {
                     return;
                 }
-                
+
                 // Create scale oscillation using sine wave
                 float scaleOffset = (std::sin(charTime * frequency) + 1.0f) * 0.5f; // Normalize to 0-1
                 float scale = minScale + (maxScale - minScale) * scaleOffset;
-                
+
                 // Apply scale to character
                 renderState.scale *= scale;
             }

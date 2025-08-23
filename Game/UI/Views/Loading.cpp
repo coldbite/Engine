@@ -49,6 +49,7 @@ void Loading::OnUpdate(float deltaTime) {
 
 void Loading::OnUpdateProgress(const std::string& message, int actual, int total, float percentage) {
     text_status.SetValue(message);
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeIn(0.3f));
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateSlideFromLeft(150.0f));
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeOut(5.0f));
 }

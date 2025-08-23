@@ -1,6 +1,7 @@
 #include "ViewManager.h"
 #include "../Graphics/OpenGL/OpenGL.h"
 #include "../Graphics/IRenderingAPI.h"
+#include "../../Game/UI/Views/Overlay.h"
 #include <iostream>
 #include <algorithm>
 
@@ -16,6 +17,9 @@ namespace Engine {
         }
 
         views[name] = view;
+        
+        // Set ViewManager reference
+        view->SetViewManager(this);
 
         // Initialize view with current window dimensions if available
         if(renderWindow) {
@@ -94,6 +98,13 @@ namespace Engine {
         for(auto& [name, view] : views) {
             if(view && view->IsActive()) {
                 view->OnUpdate(deltaTime);
+            }
+        }
+        
+        // Update overlays
+        for(auto& [name, overlay] : overlays) {
+            if(overlay && overlay->IsActive()) {
+                overlay->OnUpdate(deltaTime);
             }
         }
     }
@@ -246,17 +257,65 @@ namespace Engine {
             }
         } else {
             // Normal rendering: render all active views
-            const auto& props = renderWindow->GetProperties();
-            // std::cout << "[ViewManager] Normal rendering - Window properties: " << props.width << "x" << props.height << std::endl;
+            (void)renderWindow->GetProperties(); // For debugging
             for(auto& [name, view] : views) {
                 if(view && view->IsActive() && view->IsVisible()) {
                     view->Render(api);
+                }
+            }
+            
+            // Render overlays on top
+            for(auto& [name, overlay] : overlays) {
+                if(overlay && overlay->IsActive() && overlay->IsVisible()) {
+                    overlay->Render(api);
                 }
             }
         }
 
         // Present the frame
         api.SwapBuffers();
+    }
+
+    void ViewManager::ShowOverlay(const std::string& name, ViewPtr overlay) {
+        if(overlay) {
+            overlays[name] = overlay;
+            overlay->SetActive(true);
+            overlay->SetViewManager(this);
+            
+            // Set window dimensions if available
+            if(renderWindow) {
+                const auto& props = renderWindow->GetProperties();
+                overlay->SetWindowDimensions(props.width, props.height);
+            }
+        }
+    }
+
+    void ViewManager::HideOverlay(const std::string& name) {
+        auto it = overlays.find(name);
+        if(it != overlays.end() && it->second) {
+            it->second->SetActive(false);
+            // DON'T clear key bindings - let the isActive check handle it
+            overlays.erase(it);
+        }
+    }
+
+    void ViewManager::HideAllOverlays() {
+        for(auto& [name, overlay] : overlays) {
+            if(overlay) {
+                overlay->SetActive(false);
+                // DON'T clear key bindings - let the isActive check handle it
+            }
+        }
+        overlays.clear();
+    }
+
+    bool ViewManager::HasActiveOverlay() const {
+        for(const auto& [name, overlay] : overlays) {
+            if(overlay && overlay->IsActive() && overlay->IsVisible()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void ViewManager::UpdateViewDimensions(int width, int height) {
@@ -272,6 +331,13 @@ namespace Engine {
         for(auto& [name, view] : views) {
             if(view) {
                 view->SetWindowDimensions(width, height);
+            }
+        }
+        
+        // Update overlay dimensions too
+        for(auto& [name, overlay] : overlays) {
+            if(overlay) {
+                overlay->SetWindowDimensions(width, height);
             }
         }
     }

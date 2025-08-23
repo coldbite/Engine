@@ -1,24 +1,24 @@
 #pragma once
 
-#include "../TextEffect.h"
+#include "../UI/Effect.h"
 
 namespace Engine {
     namespace Graphics {
         namespace Effects {
             class FadeInEffect : public TextEffect {
             public:
-                FadeInEffect(float duration = 1.0f)
-                    : TextEffect(duration, 1.0f, false) {}
-                
+                FadeInEffect(float duration = 1.0f, float startDelay = 0.0f)
+                    : TextEffect(duration, 1.0f, false, startDelay) {}
+
                 void Apply(Text& text, IRenderingAPI& context, float time, int charIndex) override;
                 void ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) override;
             };
-            
+
             class FadeOutEffect : public TextEffect {
             public:
-                FadeOutEffect(float duration = 1.0f)
-                    : TextEffect(duration, 1.0f, false) {}
-                
+                FadeOutEffect(float duration = 1.0f, float startDelay = 0.0f)
+                    : TextEffect(duration, 1.0f, false, startDelay) {}
+
                 void Apply(Text& text, IRenderingAPI& context, float time, int charIndex) override;
                 void ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) override;
             };

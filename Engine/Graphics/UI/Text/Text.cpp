@@ -1,6 +1,6 @@
 #include "Text.h"
-#include "IRenderingAPI.h"
-#include "IColor.h"
+#include "../../IRenderingAPI.h"
+#include "../../IColor.h"
 #include "../Core/Engine.h"
 #include <iostream>
 #include <stdexcept>
@@ -25,7 +25,7 @@ namespace Engine {
         int Text::s_instanceCount = 0;
 
         Text::Text() : m_face(nullptr), m_fontSize(14), m_texturesGenerated(false),
-                       m_text(""), m_fontName(""), m_textColor(1.0f, 1.0f, 1.0f, 1.0f), 
+                       m_text(""), m_fontName(""), m_textColor(1.0f, 1.0f, 1.0f, 1.0f),
                        m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
                        m_paddingTop(0.0f), m_paddingRight(0.0f), m_paddingBottom(0.0f), m_paddingLeft(0.0f),
                        m_marginTop(0.0f), m_marginRight(0.0f), m_marginBottom(0.0f), m_marginLeft(0.0f),
@@ -38,7 +38,7 @@ namespace Engine {
                 }
                 s_initialized = true;
             }
-            
+
             // Initialize animator with this text object
             animator.AttachTo(this);
         }
@@ -215,18 +215,18 @@ namespace Engine {
 
             int maxBearingY = 0;
             int minBearingY = 0;
-            
+
             // Find the actual top and bottom bounds of the text
             for (char c : text) {
                 auto it = m_characters.find(c);
                 if (it != m_characters.end()) {
                     const Character& ch = it->second;
-                    
+
                     // Top of character (bearingY is distance from baseline to top)
                     if (ch.bearingY > maxBearingY) {
                         maxBearingY = ch.bearingY;
                     }
-                    
+
                     // Bottom of character (height - bearingY gives distance from baseline to bottom)
                     int bottomY = static_cast<int>(ch.height) - ch.bearingY;
                     if (bottomY > minBearingY) {
@@ -234,7 +234,7 @@ namespace Engine {
                     }
                 }
             }
-            
+
             // Total height is distance from top to bottom
             return static_cast<float>(maxBearingY + minBearingY) * scale;
         }
@@ -321,7 +321,7 @@ namespace Engine {
             if (m_text.empty()) {
                 return;
             }
-            
+
             if (!m_face) {
                 return;
             }
@@ -339,10 +339,10 @@ namespace Engine {
                     GenerateCharacterTextures();
                     m_texturesGenerated = true;
                 }
-                
+
                 float textWidth = GetTextWidth(renderedText);
                 float textHeight = GetTextHeight(); // Use font size based height
-                
+
                 // Find the actual leftmost position of the text (considering bearingX)
                 float minBearingX = 0;
                 if (!m_characters.empty() && !renderedText.empty()) {
@@ -352,7 +352,7 @@ namespace Engine {
                         minBearingX = static_cast<float>(it->second.bearingX);
                     }
                 }
-                
+
                 float actualTextX = renderX + m_paddingLeft + minBearingX;
                 float bgX = actualTextX - m_paddingLeft;
                 float bgY = renderY - m_paddingTop;
@@ -364,24 +364,24 @@ namespace Engine {
                 glDisable(GL_TEXTURE_2D);
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                
-                glColor4f(m_backgroundColor.GetRed(), m_backgroundColor.GetGreen(), 
+
+                glColor4f(m_backgroundColor.GetRed(), m_backgroundColor.GetGreen(),
                          m_backgroundColor.GetBlue(), m_backgroundColor.GetAlpha());
-                
+
                 glBegin(GL_QUADS);
                     glVertex2f(bgX, bgY);
                     glVertex2f(bgX + bgWidth, bgY);
                     glVertex2f(bgX + bgWidth, bgY + bgHeight);
                     glVertex2f(bgX, bgY + bgHeight);
                 glEnd();
-                
+
                 glDisable(GL_BLEND);
             }
 
             // Render text with padding offset
             float textX = renderX + m_paddingLeft;
             float textY = renderY + m_paddingTop;
-            
+
             // Inline text rendering (replaces RenderText call)
             if(!m_texturesGenerated && m_face) {
                 GenerateCharacterTextures();
@@ -399,7 +399,7 @@ namespace Engine {
 
                 float scale = 1.0f; // Direct 1:1 pixel mapping
                 float posX = textX;
-                
+
                 // Calculate maxBearingY for baseline alignment
                 float maxBearingY = 0;
                 for(char c : renderedText) {
@@ -411,7 +411,7 @@ namespace Engine {
                         }
                     }
                 }
-                
+
                 // Render characters with animation support
                 int charIndex = 0;
                 for(char c : renderedText) {
@@ -427,7 +427,7 @@ namespace Engine {
                     float baseYpos = textY + (maxBearingY - ch.bearingY) * scale;
                     float baseW = ch.width * scale;
                     float baseH = ch.height * scale;
-                    
+
                     // Initialize character rendering state
                     CharacterRenderState renderState;
                     renderState.x = baseXpos;
@@ -438,16 +438,16 @@ namespace Engine {
                     renderState.visible = true;
                     renderState.scale = 1.0f;
                     renderState.rotation = 0.0f;
-                    
+
                     // Apply animation effects to this character
                     animator.ApplyEffectsToCharacter(context, c, charIndex, renderState);
 
                     // Only render if character is visible and has size
                     if (renderState.visible && renderState.width > 0 && renderState.height > 0) {
                         glBindTexture(GL_TEXTURE_2D, ch.textureID);
-                        
+
                         // Apply character-specific color
-                        glColor4f(renderState.color.GetRed(), renderState.color.GetGreen(), 
+                        glColor4f(renderState.color.GetRed(), renderState.color.GetGreen(),
                                  renderState.color.GetBlue(), renderState.color.GetAlpha());
 
                         // Handle rotation if needed
@@ -456,20 +456,20 @@ namespace Engine {
                             glTranslatef(renderState.x + renderState.width/2, renderState.y + renderState.height/2, 0);
                             glRotatef(renderState.rotation, 0, 0, 1);
                             glTranslatef(-renderState.width/2, -renderState.height/2, 0);
-                            
+
                             glBegin(GL_QUADS);
                                 glTexCoord2f(0.0f, 1.0f); glVertex2f(0, 0);
                                 glTexCoord2f(1.0f, 1.0f); glVertex2f(renderState.width * renderState.scale, 0);
                                 glTexCoord2f(1.0f, 0.0f); glVertex2f(renderState.width * renderState.scale, renderState.height * renderState.scale);
                                 glTexCoord2f(0.0f, 0.0f); glVertex2f(0, renderState.height * renderState.scale);
                             glEnd();
-                            
+
                             glPopMatrix();
                         } else {
                             // Simple rendering without rotation
                             float finalW = renderState.width * renderState.scale;
                             float finalH = renderState.height * renderState.scale;
-                            
+
                             glBegin(GL_QUADS);
                                 glTexCoord2f(0.0f, 1.0f); glVertex2f(renderState.x, renderState.y);
                                 glTexCoord2f(1.0f, 1.0f); glVertex2f(renderState.x + finalW, renderState.y);
@@ -502,7 +502,7 @@ namespace Engine {
             float textHeight = GetTextHeight();
             float totalWidth = textWidth + m_paddingLeft + m_paddingRight + m_marginLeft + m_marginRight;
             float totalHeight = textHeight + m_paddingTop + m_paddingBottom + m_marginTop + m_marginBottom;
-            
+
 
             // Get current rendering context dimensions (which should be reference resolution after Begin2D)
             const float REFERENCE_WIDTH = static_cast<float>(context.GetWidth());
@@ -541,7 +541,7 @@ namespace Engine {
             // Use the position-based render method (which will apply scaling)
             Render(context, x, y);
         }
-        
+
         void Text::Update(float deltaTime) {
             // Update all text animations
             animator.Update(deltaTime);
@@ -551,7 +551,7 @@ namespace Engine {
         void Text::LoadFontByName(const std::string& fontName) {
             Engine& engine = Engine::GetInstance();
             std::string fontPath = engine.GetFont(fontName);
-            
+
             if (!fontPath.empty()) {
                 LoadFont(fontPath, static_cast<unsigned int>(m_size));
             } else {
@@ -561,7 +561,7 @@ namespace Engine {
 
         std::string Text::ApplyTextTransformation(const std::string& text) const {
             std::string transformedText = text;
-            
+
             // Apply UPPERCASE transformation if style contains UPPERCASE
             if (static_cast<int>(m_style) & static_cast<int>(FontStyle::UPPERCASE)) {
                 std::transform(transformedText.begin(), transformedText.end(), transformedText.begin(), ::toupper);
@@ -570,7 +570,7 @@ namespace Engine {
             else if (static_cast<int>(m_style) & static_cast<int>(FontStyle::LOWERCASE)) {
                 std::transform(transformedText.begin(), transformedText.end(), transformedText.begin(), ::tolower);
             }
-            
+
             return transformedText;
         }
     }

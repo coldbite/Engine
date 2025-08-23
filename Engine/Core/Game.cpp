@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Input/InputManager.h"
 #include "Exceptions/CoreException.h"
 #include "../Graphics/OpenGL/OpenGL.h"
 #include <iostream>
@@ -95,6 +96,11 @@ namespace Engine {
             return false;
         }
 
+        // Connect InputManager with NativeWindow
+        mainWindow->SetKeyCallback([](int key, int action) {
+            Input::GetInput().OnKeyEvent(key, action);
+        });
+
         std::string renderer = "OpenGL";
 
         if(HasOption(EngineOption::RENDERER)) {
@@ -171,6 +177,9 @@ namespace Engine {
             // Process window events in main thread
             if(mainWindow && mainWindow->IsValid()) {
                 mainWindow->PollEvents();
+                
+                // Update InputManager to handle key state changes
+                Input::GetInput().Update();
             }
 
             // Render in main thread (OpenGL requirement)

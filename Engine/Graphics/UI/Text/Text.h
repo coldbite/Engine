@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IColor.h"
-#include "RGBA.h"
-#include "TextAnimator.h"
+#include "../../IColor.h"
+#include "../../RGBA.h"
+#include "../Animator.h"
 #include <string>
 #include <memory>
 #include <map>
@@ -86,11 +86,11 @@ namespace Engine {
             void SetMargin(float top, float right, float bottom, float left);
             void SetSize(float size);
             void SetStyle(FontStyle style);
-            void Render(IRenderingAPI& context, float x, float y);
-            void Render(IRenderingAPI& context, const TextAlignment& alignment);
-            
+            virtual void Render(IRenderingAPI& context, float x, float y);
+            virtual void Render(IRenderingAPI& context, const TextAlignment& alignment);
+
             // Animation system
-            void Update(float deltaTime);
+            virtual void Update(float deltaTime);
             TextAnimator& GetAnimator() { return animator; }
 
             // Legacy methods (keep for compatibility)
@@ -135,7 +135,7 @@ namespace Engine {
             float m_size;
             FontStyle m_style;
             bool m_hasBackground;
-            
+
             // Animation system
             TextAnimator animator;
         };

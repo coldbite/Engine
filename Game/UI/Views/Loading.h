@@ -1,6 +1,6 @@
 #pragma once
 #include "../../../Engine/Core/View.h"
-#include "../../../Engine/Graphics/Text.h"
+#include "../../../Engine/Graphics/UI/Text/Text.h"
 #include "../../../Engine/Graphics/RGBA.h"
 
 namespace Engine {

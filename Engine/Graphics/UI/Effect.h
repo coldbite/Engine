@@ -12,8 +12,8 @@ namespace Engine {
         // Base class for all text effects
         class TextEffect {
         public:
-            TextEffect(float duration = 1.0f, float intensity = 1.0f, bool loop = false)
-                : duration(duration), intensity(intensity), loop(loop), currentTime(0.0f) {}
+            TextEffect(float duration = 1.0f, float intensity = 1.0f, bool loop = false, float startDelay = 0.0f)
+                : duration(duration), intensity(intensity), loop(loop), startDelay(startDelay), currentTime(0.0f) {}
             
             virtual ~TextEffect() = default;
             
@@ -24,27 +24,38 @@ namespace Engine {
             virtual void Apply(Text& text, IRenderingAPI& context, float time, int charIndex) = 0;
             
             // Apply the effect to a single character's render state
-            virtual void ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) {}
+            virtual void ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) {
+                (void)renderState; (void)charIndex; (void)time;
+            }
             
             // Check if effect is finished
-            bool IsFinished() const { return !loop && currentTime >= duration; }
+            bool IsFinished() const { return !loop && currentTime >= (duration + startDelay); }
+            
+            // Check if effect has started (after delay)
+            bool HasStarted() const { return currentTime >= startDelay; }
+            
+            // Get the effective time for the effect (accounting for delay)
+            float GetEffectTime() const { return HasStarted() ? (currentTime - startDelay) : 0.0f; }
             
             // Effect properties
             float GetDuration() const { return duration; }
             float GetIntensity() const { return intensity; }
             float GetCurrentTime() const { return currentTime; }
+            float GetStartDelay() const { return startDelay; }
             bool IsLooping() const { return loop; }
             
             // Setters
             void SetDuration(float d) { duration = d; }
             void SetIntensity(float i) { intensity = i; }
             void SetLoop(bool l) { loop = l; }
+            void SetStartDelay(float delay) { startDelay = delay; }
             void Reset() { currentTime = 0.0f; }
             
         protected:
             float duration;     // Effect duration in seconds (-1 for infinite)
             float intensity;    // Effect intensity multiplier
             bool loop;          // Whether effect should loop
+            float startDelay;   // Delay before effect starts in seconds
             float currentTime;  // Current time in effect
         };
         

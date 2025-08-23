@@ -74,7 +74,7 @@ void Map::Load(const std::string& name, OnMapStartCallback onStart) {
             }
 
             // Simulate loading time
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         }
 
         std::cout << "[Map] Finished loading: " << name << std::endl;

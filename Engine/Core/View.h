@@ -3,6 +3,7 @@
 #include "Renderable.h"
 #include "Event.h"
 #include "ViewportManager.h"
+#include "Input/InputManager.h"
 #include "../Graphics/IColor.h"
 #include "../Graphics/RGB.h"
 #include "../Graphics/RGBA.h"
@@ -15,6 +16,9 @@ namespace Engine {
         class IRenderingAPI;
     }
 
+    // Forward declaration
+    class ViewManager;
+    
     class View : public Renderable {
     public:
         View(const std::string& name = "View");
@@ -71,6 +75,15 @@ namespace Engine {
         // Apply viewport to rendering API
         void ApplyViewport(Graphics::IRenderingAPI& renderingAPI);
 
+        // Input handling
+        void OnKey(Input::KEY key, std::function<void()> callback);
+        void OnKey(Input::KEY key, Input::KeyAction action, std::function<void()> callback);
+        void ClearKeyBindings();
+        
+        // ViewManager access
+        void SetViewManager(ViewManager* manager) { viewManager = manager; }
+        ViewManager* GetViewManager() const { return viewManager; }
+
         // View lifecycle methods
         virtual void OnShow() {}
         virtual void OnHide() {}
@@ -92,6 +105,12 @@ namespace Engine {
         
         // Viewport and scaling system
         ViewportManager viewportManager;
+
+        // Input key bindings (stored per view instance)
+        std::vector<std::pair<Input::KEY, Input::KeyAction>> activeKeyBindings;
+        
+        // ViewManager reference
+        ViewManager* viewManager = nullptr;
 
         // Helper for subclasses
         virtual void UpdateInternal(float /*deltaTime*/) {}

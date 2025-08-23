@@ -1,7 +1,7 @@
 #include "WaveEffect.h"
-#include "../Text.h"
+#include "../UI/Text/Text.h"
 #include "../IRenderingAPI.h"
-#include "../TextAnimator.h"
+#include "../UI/Animator.h"
 
 namespace Engine {
     namespace Graphics {
@@ -13,12 +13,12 @@ namespace Engine {
                 (void)time;
                 (void)charIndex;
             }
-            
+
             void WaveEffect::ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) {
                 // Wave calculation: sin(time * frequency + charIndex * phase) * amplitude
                 float phase = 0.3f; // Phase offset between characters
                 float waveOffset = std::sin((time * frequency) + (charIndex * phase)) * intensity;
-                
+
                 // Apply vertical offset to create wave motion
                 renderState.y += waveOffset;
             }

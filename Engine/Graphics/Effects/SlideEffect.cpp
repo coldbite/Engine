@@ -1,7 +1,7 @@
 #include "SlideEffect.h"
-#include "../Text.h"
+#include "../UI/Text/Text.h"
 #include "../IRenderingAPI.h"
-#include "../TextAnimator.h"
+#include "../UI/Animator.h"
 
 namespace Engine {
     namespace Graphics {
@@ -13,11 +13,11 @@ namespace Engine {
                 (void)time;
                 (void)charIndex;
             }
-            
+
             void SlideEffect::ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) {
                 // Calculate slide progress with character delay
                 float charTime = time - (charIndex * charDelay);
-                
+
                 // Don't animate characters that haven't started yet
                 if (charTime < 0.0f) {
                     // Character hasn't started animating - keep it at start position
@@ -37,16 +37,16 @@ namespace Engine {
                     }
                     return;
                 }
-                
+
                 // Calculate slide progress (0 = start position, 1 = final position)
                 float progress = (duration > 0.0f) ? std::min(charTime / duration, 1.0f) : 1.0f;
-                
+
                 // Apply easing for smooth animation
                 progress = EaseOutCubic(progress);
-                
+
                 // Calculate offset based on remaining distance to slide
                 float offset = slideDistance * (1.0f - progress);
-                
+
                 // Apply offset based on direction
                 switch (direction) {
                     case SlideDirection::LEFT:
