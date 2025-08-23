@@ -1,6 +1,8 @@
 #include "Engine.h"
 #include "Exceptions/CoreException.h"
 #include "../Graphics/OpenGL/OpenGL.h"
+#include "../Graphics/Vulkan/Vulkan.h"
+#include "../Graphics/IRenderingAPI.h"
 #include <iostream>
 #include <thread>
 
@@ -31,27 +33,31 @@ namespace Engine {
     }
 
     void Engine::CheckRenderingAPI() {
-        std::vector<Renderer> available;
-        std::cout << "TEST" << std::endl;
+        for(const auto& [renderer, name] : EnumStringMap<Renderer>::values) {
+            {
+                Graphics::IRenderingAPI* api = nullptr;
 
-        // @ToDo iterate over Rednerer::<NAME>
-        {
-            std::cout << "Check OpenGL" << std::endl;
-            auto opengl = std::make_unique<Graphics::OpenGL::OpenGL>();
+                switch(renderer) {
+                    case Renderer::OPENGL: {
+                        api = new Graphics::OpenGL::OpenGL();
+                    }
+                    case Renderer::VULKAN: {
+                        api = new Graphics::Vulkan::Vulkan();
+                    }
+                }
 
-            if(opengl->Available()) {
-                std::cout << "OpenGL = YES" << std::endl;
-                available.push_back(Renderer::OPENGL);
-            } else {
-                std::cout << "OpenGL = NO" << std::endl;
+                if(api != nullptr) {
+                    if(api->Available()) {
+                        availableRenderers.push_back(renderer);
+                    }
+                }
             }
-            std::cout << "OpenGL Version = " << opengl->GetVersion() << std::endl;
         }
 
         std::cout << "AVAILABLE RENDERERS:" << std::endl;
 
-        for (auto& api : available) {
-            std::cout << api << std::endl;
+        for(auto& api : availableRenderers) {
+            std::cout << "\t- " << api << std::endl;
         }
 
         std::cout << "END" << std::endl;

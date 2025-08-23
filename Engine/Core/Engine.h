@@ -87,6 +87,7 @@ namespace Engine {
         int GetCurrentFPS() const;
         bool IsFPSLimitEnabled() const { return fpsLimitEnabled; }
         int GetTargetFPS() const { return targetFPS; }
+        std::vector<Renderer> GetAvailableRenderers() { return availableRenderers; }
 
         // Font management
         void RegisterFont(const std::string& name, const std::string& pathToTtf);
@@ -117,6 +118,9 @@ namespace Engine {
         mutable int currentFPS = 0;
         mutable std::chrono::high_resolution_clock::time_point lastFPSUpdate;
         mutable int frameCount = 0;
+
+        // Renderers
+        std::vector<Renderer> availableRenderers;
 
         // Font registry
         std::map<std::string, std::string> m_fontRegistry;
