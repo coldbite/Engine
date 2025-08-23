@@ -3,7 +3,7 @@
 namespace Engine {
     namespace Graphics {
 
-        Button::Button() 
+        Button::Button()
             : Text(),
               m_state(ButtonState::NORMAL),
               m_enabled(true),
@@ -15,16 +15,16 @@ namespace Engine {
               m_onHoverEndCallback(nullptr),
               m_onPressCallback(nullptr),
               m_onReleaseCallback(nullptr),
-              m_normalTextColor(1.0f, 1.0f, 1.0f, 1.0f),
-              m_hoverTextColor(0.78f, 0.78f, 1.0f, 1.0f),
-              m_pressedTextColor(0.59f, 0.59f, 0.78f, 1.0f),
-              m_disabledTextColor(0.5f, 0.5f, 0.5f, 1.0f),
-              m_normalBackgroundColor(0.0f, 0.0f, 0.0f, 0.0f),
-              m_hoverBackgroundColor(0.196f, 0.196f, 0.196f, 0.39f),
-              m_pressedBackgroundColor(0.39f, 0.39f, 0.39f, 0.59f),
-              m_disabledBackgroundColor(0.118f, 0.118f, 0.118f, 0.196f),
-              m_originalTextColor(1.0f, 1.0f, 1.0f, 1.0f),
-              m_originalBackgroundColor(0.0f, 0.0f, 0.0f, 0.0f)
+              m_normalTextColor(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
+              m_hoverTextColor(new RGBA(0.78f, 0.78f, 1.0f, 1.0f)),
+              m_pressedTextColor(new RGBA(0.59f, 0.59f, 0.78f, 1.0f)),
+              m_disabledTextColor(new RGBA(0.5f, 0.5f, 0.5f, 1.0f)),
+              m_normalBackgroundColor(new RGBA(0.0f, 0.0f, 0.0f, 0.0f)),
+              m_hoverBackgroundColor(new RGBA(0.196f, 0.196f, 0.196f, 0.39f)),
+              m_pressedBackgroundColor(new RGBA(0.39f, 0.39f, 0.39f, 0.59f)),
+              m_disabledBackgroundColor(new RGBA(0.118f, 0.118f, 0.118f, 0.196f)),
+              m_originalTextColor(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
+              m_originalBackgroundColor(new RGBA(0.0f, 0.0f, 0.0f, 0.0f))
         {
             // Colors are now initialized in the constructor initializer list
         }
@@ -68,36 +68,36 @@ namespace Engine {
             }
         }
 
-        void Button::SetNormalColor(const IColor& color) {
-            m_normalTextColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Button::SetNormalColor(IColor* color) {
+            m_normalTextColor = color;
         }
 
-        void Button::SetHoverColor(const IColor& color) {
-            m_hoverTextColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Button::SetHoverColor(IColor* color) {
+            m_hoverTextColor = color;
         }
 
-        void Button::SetPressedColor(const IColor& color) {
-            m_pressedTextColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Button::SetPressedColor(IColor* color) {
+            m_pressedTextColor = color;
         }
 
-        void Button::SetDisabledColor(const IColor& color) {
-            m_disabledTextColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Button::SetDisabledColor(IColor* color) {
+            m_disabledTextColor = color;
         }
 
-        void Button::SetNormalBackgroundColor(const IColor& color) {
-            m_normalBackgroundColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Button::SetNormalBackgroundColor(IColor* color) {
+            m_normalBackgroundColor = color;
         }
 
-        void Button::SetHoverBackgroundColor(const IColor& color) {
-            m_hoverBackgroundColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Button::SetHoverBackgroundColor(IColor* color) {
+            m_hoverBackgroundColor = color;
         }
 
-        void Button::SetPressedBackgroundColor(const IColor& color) {
-            m_pressedBackgroundColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Button::SetPressedBackgroundColor(IColor* color) {
+            m_pressedBackgroundColor = color;
         }
 
-        void Button::SetDisabledBackgroundColor(const IColor& color) {
-            m_disabledBackgroundColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Button::SetDisabledBackgroundColor(IColor* color) {
+            m_disabledBackgroundColor = color;
         }
 
         void Button::OnMouseMove(float x, float y) {
@@ -169,7 +169,7 @@ namespace Engine {
         }
 
         bool Button::IsPointInside(float x, float y) const {
-            return (x >= m_x && x <= m_x + m_width && 
+            return (x >= m_x && x <= m_x + m_width &&
                     y >= m_y && y <= m_y + m_height);
         }
 

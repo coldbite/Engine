@@ -1,9 +1,6 @@
 #include "Loading.h"
 #include "../../../Engine/Graphics/IRenderingAPI.h"
 #include "../../../Engine/Graphics/Effects/AllEffects.h"
-#include "Graphics/Effects/FadeEffect.h"
-#include "Graphics/Effects/TypewriterEffect.h"
-#include <iostream>
 
 Loading::Loading() : Engine::View("Loading") {
     SetBackground(color_background);
@@ -13,7 +10,7 @@ Loading::Loading() : Engine::View("Loading") {
     text_map.SetValue(this->mapName);
     text_map.SetFont("Sansation");
     text_map.SetColor(text_color);
-    text_map.SetBackground(Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f));
+    text_map.SetBackground(new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f));
     text_map.SetPadding(10.0f, 5.0f);
     text_map.SetSize(40.0f);
     text_map.SetStyle(Engine::Graphics::FontStyle::BOLD | Engine::Graphics::FontStyle::UPPERCASE);
@@ -22,7 +19,7 @@ Loading::Loading() : Engine::View("Loading") {
     text_mode.SetValue(this->gameMode);
     text_mode.SetFont("Sansation");
     text_mode.SetColor(text_color);
-    text_mode.SetBackground(Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f));
+    text_mode.SetBackground(new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.4f));
     text_mode.SetPadding(10.0f, 5.0f);
     text_mode.SetSize(20.0f);
     text_mode.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
@@ -32,25 +29,40 @@ Loading::Loading() : Engine::View("Loading") {
     text_status.SetFont("Sansation");
     text_status.SetColor(text_color);
     text_status.SetSize(20.0f);
-    text_status.SetMargin(0.0f, 30.0f, 20.0f, 0.0f);
+    text_status.SetMargin(0.0f, 30.0f + 22.0f + 10.0f, 20.0f, 0.0f);
     text_status.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateAmbience(0.8f));
+
+    /* Box: Loader */
+    box.SetSize(22, 22);
+    box.SetMargin(0.0f, 30.0f, 22.0f, 0.0f);
+    box.SetColor(text_color);
+    box.SetPulse(true);
 }
 
 void Loading::OnShow() {}
 void Loading::OnHide() {}
-void Loading::OnResize(int width, int height, int oldWidth, int oldHeight) {}
+void Loading::OnResize(int width, int height, int oldWidth, int oldHeight) {
+    (void) width; (void) height; (void) oldWidth; (void) oldHeight;
+}
 
 void Loading::OnUpdate(float deltaTime) {
     text_status.Update(deltaTime);
+    box.Update(deltaTime);
     text_map.SetValue(this->mapName);
     text_mode.SetValue(this->gameMode);
 }
 
 void Loading::OnUpdateProgress(const std::string& message, int actual, int total, float percentage) {
+    (void) message;
+    (void) actual;
+    (void) total;
+    (void) percentage;
     text_status.SetValue(message);
-    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeIn(0.3f));
-    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateSlideFromLeft(150.0f));
+    text_status.GetAnimator().ClearEffects();
+
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeIn(0.2f));
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateSlideFromLeft(100.0f, 0.3f));
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeOut(5.0f));
 }
 
@@ -68,14 +80,16 @@ void Loading::Render(Engine::Graphics::IRenderingAPI& context) {
         static auto texture = context.LoadTexture("../Game/" + file);
 
         context.DrawTextureBlurred(texture, 0.0f, 1.0f, w, h, 5.0f);
-        context.DrawHorizontalLines(0.0f, 0.0f, w, h, 3.0f, 4.0f, Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.3f));
-        context.DrawRect(0.0f, 0.0f, w, h, Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.2f));
+        context.DrawHorizontalLines(0.0f, 0.0f, w, h, 3.0f, 4.0f, new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.3f));
+        context.DrawRect(0.0f, 0.0f, w, h, new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.2f));
         context.DrawFilmGrain(0.0f, 0.0f, w, h, 0.15f, 123);
     }
 
     text_map.Render(context, GetScaledX(20.0f), GetScaledY(30.0f));
     text_mode.Render(context, GetScaledX(20.0f), GetScaledY(82.0f));
     text_status.Render(context, Engine::Graphics::TextAlignment::BOTTOM_RIGHT);
+
+    box.Render(context, Engine::Graphics::Alignment::BOTTOM_RIGHT);
 
     context.End2D();
 }

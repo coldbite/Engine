@@ -1,6 +1,8 @@
 #pragma once
-
 #include "EnumStringMap.h"
+#include <array>
+#include <string_view>
+#include <utility>
 
 namespace Engine {
     enum class Renderer {
@@ -22,7 +24,7 @@ namespace Engine {
             {Renderer::DIRECTX_11, "DirectX 11"},
             {Renderer::DIRECTX_12, "DirectX 12"}
         }};
-        
+
         static std::string_view ToString(Renderer value);
         static Renderer FromString(std::string_view str);
     };

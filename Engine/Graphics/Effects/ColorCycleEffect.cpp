@@ -34,17 +34,15 @@ namespace Engine {
 
                 // Interpolate between colors for smooth transition
                 float t = colorIndex - std::floor(colorIndex);
-                const RGBA& color1 = colors[baseIndex];
-                const RGBA& color2 = colors[nextIndex];
+                IColor* color1 = colors[baseIndex];
+                IColor* color2 = colors[nextIndex];
 
-                RGBA interpolatedColor(
-                    color1.GetRed() + (color2.GetRed() - color1.GetRed()) * t,
-                    color1.GetGreen() + (color2.GetGreen() - color1.GetGreen()) * t,
-                    color1.GetBlue() + (color2.GetBlue() - color1.GetBlue()) * t,
-                    renderState.color.GetAlpha() // Preserve original alpha
+                renderState.color = new RGBA(
+                    color1->GetRed() + (color2->GetRed() - color1->GetRed()) * t,
+                    color1->GetGreen() + (color2->GetGreen() - color1->GetGreen()) * t,
+                    color1->GetBlue() + (color2->GetBlue() - color1->GetBlue()) * t,
+                    renderState.color->GetAlpha() // Preserve original alpha
                 );
-
-                renderState.color = interpolatedColor;
             }
         }
     }

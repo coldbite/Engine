@@ -2,6 +2,7 @@
 
 #include "../../IColor.h"
 #include "../../RGBA.h"
+#include "../Alignment.h"
 #include "../Animator.h"
 #include <string>
 #include <memory>
@@ -30,18 +31,6 @@ namespace Engine {
         };
 
         DEFINE_ENUM_FLAG_OPERATORS(FontStyle)
-
-        enum class HorizontalAlignment {
-            LEFT,
-            CENTER,
-            RIGHT
-        };
-
-        enum class VerticalAlignment {
-            TOP,
-            CENTER,
-            BOTTOM
-        };
 
         struct TextAlignment {
             HorizontalAlignment horizontal;
@@ -78,8 +67,8 @@ namespace Engine {
             // New API methods
             void SetValue(const std::string& text);
             void SetFont(const std::string& fontName);
-            void SetColor(const IColor& color);
-            void SetBackground(const IColor& color);
+            void SetColor(IColor* color);
+            void SetBackground(IColor* color);
             void SetPadding(float x, float y);
             void SetPadding(float top, float right, float bottom, float left);
             void SetMargin(float x, float y);
@@ -128,8 +117,8 @@ namespace Engine {
             // New text properties
             std::string m_text;
             std::string m_fontName;
-            RGBA m_textColor;
-            RGBA m_backgroundColor;
+            IColor* m_textColor;
+            IColor* m_backgroundColor;
             float m_paddingTop, m_paddingRight, m_paddingBottom, m_paddingLeft;
             float m_marginTop, m_marginRight, m_marginBottom, m_marginLeft;
             float m_size;

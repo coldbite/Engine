@@ -15,6 +15,8 @@ namespace Engine {
             }
 
             void AmbienceEffect::ApplyToCharacter(CharacterRenderState& renderState, int charIndex, float time) {
+                (void) charIndex;
+
                 if (colors.empty()) {
                     return;
                 }
@@ -26,20 +28,20 @@ namespace Engine {
 
                 // Interpolate between colors for smooth transition
                 float t = colorIndex - std::floor(colorIndex);
-                const RGBA& color1 = colors[baseIndex];
-                const RGBA& color2 = colors[nextIndex];
+                IColor* color1 = colors[baseIndex];
+                IColor* color2 = colors[nextIndex];
 
                 // Apply subtle ambience color multiplication
-                float ambienceR = color1.GetRed() + (color2.GetRed() - color1.GetRed()) * t;
-                float ambienceG = color1.GetGreen() + (color2.GetGreen() - color1.GetGreen()) * t;
-                float ambienceB = color1.GetBlue() + (color2.GetBlue() - color1.GetBlue()) * t;
+                float ambienceR = color1->GetRed() + (color2->GetRed() - color1->GetRed()) * t;
+                float ambienceG = color1->GetGreen() + (color2->GetGreen() - color1->GetGreen()) * t;
+                float ambienceB = color1->GetBlue() + (color2->GetBlue() - color1->GetBlue()) * t;
 
                 // Multiply with existing color for ambience effect
-                renderState.color = RGBA(
-                    renderState.color.GetRed() * ambienceR,
-                    renderState.color.GetGreen() * ambienceG,
-                    renderState.color.GetBlue() * ambienceB,
-                    renderState.color.GetAlpha()
+                renderState.color = new RGBA(
+                    renderState.color->GetRed() * ambienceR,
+                    renderState.color->GetGreen() * ambienceG,
+                    renderState.color->GetBlue() * ambienceB,
+                    renderState.color->GetAlpha()
                 );
             }
         }

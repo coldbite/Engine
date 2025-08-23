@@ -1,6 +1,8 @@
 #pragma once
-
 #include "EnumStringMap.h"
+#include <array>
+#include <string_view>
+#include <utility>
 
 namespace Engine {
     enum class ScalingMode {
@@ -22,7 +24,7 @@ namespace Engine {
             {ScalingMode::CROP, "CROP"},
             {ScalingMode::INTEGER, "INTEGER"}
         }};
-        
+
         static std::string_view ToString(ScalingMode value);
         static ScalingMode FromString(std::string_view str);
     };

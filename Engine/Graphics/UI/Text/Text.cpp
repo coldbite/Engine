@@ -25,8 +25,8 @@ namespace Engine {
         int Text::s_instanceCount = 0;
 
         Text::Text() : m_face(nullptr), m_fontSize(14), m_texturesGenerated(false),
-                       m_text(""), m_fontName(""), m_textColor(1.0f, 1.0f, 1.0f, 1.0f),
-                       m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
+                       m_text(""), m_fontName(""), m_textColor(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
+                       m_backgroundColor(new RGBA(0.0f, 0.0f, 0.0f, 1.0f)),
                        m_paddingTop(0.0f), m_paddingRight(0.0f), m_paddingBottom(0.0f), m_paddingLeft(0.0f),
                        m_marginTop(0.0f), m_marginRight(0.0f), m_marginBottom(0.0f), m_marginLeft(0.0f),
                        m_size(14.0f), m_style(FontStyle::NORMAL), m_hasBackground(false) {
@@ -273,12 +273,12 @@ namespace Engine {
             LoadFontByName(fontName);
         }
 
-        void Text::SetColor(const IColor& color) {
-            m_textColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Text::SetColor(IColor* color) {
+            m_textColor = color;
         }
 
-        void Text::SetBackground(const IColor& color) {
-            m_backgroundColor = RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+        void Text::SetBackground(IColor* color) {
+            m_backgroundColor = color;
             m_hasBackground = true;
         }
 
@@ -365,8 +365,8 @@ namespace Engine {
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                glColor4f(m_backgroundColor.GetRed(), m_backgroundColor.GetGreen(),
-                         m_backgroundColor.GetBlue(), m_backgroundColor.GetAlpha());
+                glColor4f(m_backgroundColor->GetRed(), m_backgroundColor->GetGreen(),
+                         m_backgroundColor->GetBlue(), m_backgroundColor->GetAlpha());
 
                 glBegin(GL_QUADS);
                     glVertex2f(bgX, bgY);
@@ -395,7 +395,7 @@ namespace Engine {
                 glEnable(GL_TEXTURE_2D);
 
                 // Set color
-                glColor4f(m_textColor.GetRed(), m_textColor.GetGreen(), m_textColor.GetBlue(), m_textColor.GetAlpha());
+                glColor4f(m_textColor->GetRed(), m_textColor->GetGreen(), m_textColor->GetBlue(), m_textColor->GetAlpha());
 
                 float scale = 1.0f; // Direct 1:1 pixel mapping
                 float posX = textX;
@@ -447,8 +447,8 @@ namespace Engine {
                         glBindTexture(GL_TEXTURE_2D, ch.textureID);
 
                         // Apply character-specific color
-                        glColor4f(renderState.color.GetRed(), renderState.color.GetGreen(),
-                                 renderState.color.GetBlue(), renderState.color.GetAlpha());
+                        glColor4f(renderState.color->GetRed(), renderState.color->GetGreen(),
+                                 renderState.color->GetBlue(), renderState.color->GetAlpha());
 
                         // Handle rotation if needed
                         if (renderState.rotation != 0.0f) {

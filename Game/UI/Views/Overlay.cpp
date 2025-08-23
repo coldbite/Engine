@@ -9,17 +9,21 @@ Overlay::Overlay() : Engine::View("Overlay") {
     overlayText.SetFont("Sansation");
     overlayText.SetSize(22.0f);
     overlayText.SetColor(text_color);
-    overlayText.SetBackground(Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.3f));
+    overlayText.SetBackground(new Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, 0.3f));
 }
 
 void Overlay::OnShow() {}
 void Overlay::OnHide() {}
 
 void Overlay::OnResize(int width, int height, int oldWidth, int oldHeight) {
+    (void) width;
+    (void) oldWidth;
     overlayText.UpdateFontSizeForWindow(height, 22, oldHeight);
 }
 
-void Overlay::OnUpdate(float deltaTime) {}
+void Overlay::OnUpdate(float deltaTime) {
+    (void) deltaTime;
+}
 
 
 void Overlay::Render(Engine::Graphics::IRenderingAPI& context) {

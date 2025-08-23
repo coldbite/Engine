@@ -22,6 +22,6 @@ class Overlay : public Engine::View {
 
     private:
         Engine::Graphics::Text overlayText;
-        Engine::Graphics::HEX text_color        = Engine::Graphics::HEX("#FFFFFF");
-        Engine::Graphics::RGBA color_background = Engine::Graphics::RGBA(1.0f, 0.0f, 0.0f, 0.3f);
+        Engine::Graphics::IColor* text_color        = new Engine::Graphics::HEX("#FFFFFF");
+        Engine::Graphics::IColor* color_background  = new Engine::Graphics::RGBA(1.0f, 0.0f, 0.0f, 0.3f);
 };

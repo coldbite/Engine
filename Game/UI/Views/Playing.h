@@ -26,15 +26,15 @@ class Playing : public Engine::View {
 
     private:
         Engine::Graphics::Text playingText;
-        Engine::Graphics::HEX text_color       = Engine::Graphics::HEX("#444444");
-        Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#AAAAAA");
-        
+        Engine::Graphics::IColor* text_color       = new Engine::Graphics::HEX("#444444");
+        Engine::Graphics::IColor* color_background = new Engine::Graphics::HEX("#AAAAAA");
+
         void ToggleOverlay();
-        
+
         // Keep reference to overlay to avoid recreation
         std::shared_ptr<Overlay> gameOverlay;
         bool overlayVisible = false;
-        
+
         // Debounce system to prevent rapid toggling
         static constexpr float TOGGLE_DEBOUNCE_TIME = 0.3f; // 300ms
         float lastToggleTime = 0.0f;

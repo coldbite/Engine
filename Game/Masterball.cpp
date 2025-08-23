@@ -106,7 +106,7 @@ void Masterball::OnInit() {
     });
 
     map.OnLoaded([this]() {
-        DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
+        //DispatchEvent(ViewChangeEvent("Playing", ::Engine::Transition::FADE));
     });
 
     // @ToDo Received from Server

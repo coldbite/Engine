@@ -5,7 +5,7 @@
 
 namespace Engine {
     namespace Graphics {
-        
+
         enum class ButtonState {
             NORMAL,
             HOVERED,
@@ -28,21 +28,21 @@ namespace Engine {
             // Button state management
             void SetState(ButtonState state);
             ButtonState GetState() const { return m_state; }
-            
+
             // Enable/disable button
             void SetEnabled(bool enabled);
             bool IsEnabled() const { return m_enabled; }
 
             // Button appearance for different states
-            void SetNormalColor(const IColor& color);
-            void SetHoverColor(const IColor& color);
-            void SetPressedColor(const IColor& color);
-            void SetDisabledColor(const IColor& color);
+            void SetNormalColor(IColor* color);
+            void SetHoverColor(IColor* color);
+            void SetPressedColor(IColor* color);
+            void SetDisabledColor(IColor* color);
 
-            void SetNormalBackgroundColor(const IColor& color);
-            void SetHoverBackgroundColor(const IColor& color);
-            void SetPressedBackgroundColor(const IColor& color);
-            void SetDisabledBackgroundColor(const IColor& color);
+            void SetNormalBackgroundColor(IColor* color);
+            void SetHoverBackgroundColor(IColor* color);
+            void SetPressedBackgroundColor(IColor* color);
+            void SetDisabledBackgroundColor(IColor* color);
 
             // Mouse interaction (to be called from input system)
             void OnMouseMove(float x, float y);
@@ -87,19 +87,19 @@ namespace Engine {
             std::function<void()> m_onReleaseCallback;
 
             // State-specific colors
-            RGBA m_normalTextColor;
-            RGBA m_hoverTextColor;
-            RGBA m_pressedTextColor;
-            RGBA m_disabledTextColor;
+            IColor* m_normalTextColor;
+            IColor* m_hoverTextColor;
+            IColor* m_pressedTextColor;
+            IColor* m_disabledTextColor;
 
-            RGBA m_normalBackgroundColor;
-            RGBA m_hoverBackgroundColor;
-            RGBA m_pressedBackgroundColor;
-            RGBA m_disabledBackgroundColor;
+            IColor* m_normalBackgroundColor;
+            IColor* m_hoverBackgroundColor;
+            IColor* m_pressedBackgroundColor;
+            IColor* m_disabledBackgroundColor;
 
             // Store original colors
-            RGBA m_originalTextColor;
-            RGBA m_originalBackgroundColor;
+            IColor* m_originalTextColor;
+            IColor* m_originalBackgroundColor;
         };
     }
 }

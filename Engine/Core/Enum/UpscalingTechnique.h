@@ -1,6 +1,8 @@
 #pragma once
-
 #include "EnumStringMap.h"
+#include <array>
+#include <string_view>
+#include <utility>
 
 namespace Engine {
     enum class UpscalingTechnique {
@@ -22,7 +24,7 @@ namespace Engine {
             {UpscalingTechnique::FSR, "FSR"},
             {UpscalingTechnique::XeSS, "XeSS"}
         }};
-        
+
         static std::string_view ToString(UpscalingTechnique value);
         static UpscalingTechnique FromString(std::string_view str);
     };

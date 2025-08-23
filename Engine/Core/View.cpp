@@ -5,7 +5,7 @@ namespace Engine {
     View::View(const std::string& name) :
         Renderable(name),
         isActive(false),
-        backgroundColor(Graphics::RGBA(0.0f, 0.0f, 0.0f, 1.0f)) {
+        backgroundColor(new Graphics::RGBA(0.0f, 0.0f, 0.0f, 1.0f)) {
         /* Do Nothing */
     }
 
@@ -27,8 +27,8 @@ namespace Engine {
         }
     }
 
-    void View::SetBackground(const Graphics::IColor& color) {
-        backgroundColor = Graphics::RGBA(color.GetRed(), color.GetGreen(), color.GetBlue(), color.GetAlpha());
+    void View::SetBackground(Graphics::IColor* color) {
+        backgroundColor = color;
     }
 
     void View::SetBackgroundImage(const std::string& file) {
@@ -41,19 +41,19 @@ namespace Engine {
             int oldHeight = windowHeight;
             windowWidth = width;
             windowHeight = height;
-            
+
             // Update viewport manager with new window dimensions
             viewportManager.SetWindowDimensions(width, height);
-            
+
             OnResize(width, height, oldWidth, oldHeight);
         }
     }
-    
+
     void View::ApplyViewport(Graphics::IRenderingAPI& renderingAPI) {
         ViewportInfo viewport = viewportManager.CalculateViewport();
         renderingAPI.SetViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
-    
+
 
     void View::OnKey(Input::KEY key, std::function<void()> callback) {
         OnKey(key, Input::KeyAction::PRESS, callback);

@@ -18,7 +18,7 @@ namespace Engine {
 
     // Forward declaration
     class ViewManager;
-    
+
     class View : public Renderable {
     public:
         View(const std::string& name = "View");
@@ -28,8 +28,8 @@ namespace Engine {
         void SetActive(bool active);
 
         // Background color
-        void SetBackground(const Graphics::IColor& color);
-        const Graphics::IColor& GetBackground() const { return backgroundColor; }
+        void SetBackground(Graphics::IColor* color);
+        Graphics::IColor* GetBackground() { return backgroundColor; }
 
         // Background Image
         void SetBackgroundImage(const std::string& name);
@@ -41,37 +41,37 @@ namespace Engine {
         // Viewport and scaling system
         ViewportManager& GetViewportManager() { return viewportManager; }
         const ViewportManager& GetViewportManager() const { return viewportManager; }
-        
+
         // Legacy methods for backward compatibility - now use ViewportManager
-        void SetReferenceResolution(float width, float height) { 
+        void SetReferenceResolution(float width, float height) {
             viewportManager.SetReferenceResolution((int)width, (int)height);
         }
-        
+
         // Scaling factors
         float GetScaleX() const { return viewportManager.GetScaleX(); }
         float GetScaleY() const { return viewportManager.GetScaleY(); }
-        
+
         // Uniform scaling (maintains aspect ratio)
         float GetUniformScale() const { return viewportManager.GetUniformScale(); }
-        
+
         // Coordinate transformation methods
         float GetScaledX(float baseX) const { return viewportManager.TransformX(baseX); }
         float GetScaledY(float baseY) const { return viewportManager.TransformY(baseY); }
-        
+
         // Aspect-ratio preserving positioning (with letterboxing/pillarboxing)
         float GetCenteredX(float baseX) const { return viewportManager.TransformX(baseX); }
         float GetCenteredY(float baseY) const { return viewportManager.TransformY(baseY); }
-        
+
         // Size scaling
-        float GetScaledSize(float baseSize) const { 
+        float GetScaledSize(float baseSize) const {
             ViewportInfo viewport = viewportManager.CalculateViewport();
-            return baseSize * std::min(viewport.scaleX, viewport.scaleY); 
+            return baseSize * std::min(viewport.scaleX, viewport.scaleY);
         }
-        
+
         // Reference resolution getters
         float GetReferenceWidth() const { return (float)viewportManager.GetReferenceWidth(); }
         float GetReferenceHeight() const { return (float)viewportManager.GetReferenceHeight(); }
-        
+
         // Apply viewport to rendering API
         void ApplyViewport(Graphics::IRenderingAPI& renderingAPI);
 
@@ -79,7 +79,7 @@ namespace Engine {
         void OnKey(Input::KEY key, std::function<void()> callback);
         void OnKey(Input::KEY key, Input::KeyAction action, std::function<void()> callback);
         void ClearKeyBindings();
-        
+
         // ViewManager access
         void SetViewManager(ViewManager* manager) { viewManager = manager; }
         ViewManager* GetViewManager() const { return viewManager; }
@@ -98,17 +98,17 @@ namespace Engine {
 
     protected:
         bool isActive;
-        Graphics::RGBA backgroundColor;
+        Graphics::IColor* backgroundColor;
         std::string backgroundImage;
         int windowWidth = 800;
         int windowHeight = 600;
-        
+
         // Viewport and scaling system
         ViewportManager viewportManager;
 
         // Input key bindings (stored per view instance)
         std::vector<std::pair<Input::KEY, Input::KeyAction>> activeKeyBindings;
-        
+
         // ViewManager reference
         ViewManager* viewManager = nullptr;
 

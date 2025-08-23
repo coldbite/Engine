@@ -1,7 +1,5 @@
 #pragma once
-
 #include <string_view>
-#include <array>
 #include <iostream>
 #include <type_traits>
 
@@ -12,7 +10,7 @@ namespace Engine {
     // SFINAE helper to detect if EnumStringMap is specialized for a type
     template<typename E, typename = void>
     struct has_enum_string_map : std::false_type {};
-    
+
     template<typename E>
     struct has_enum_string_map<E, std::void_t<decltype(EnumStringMap<E>::values)>> : std::true_type {};
 

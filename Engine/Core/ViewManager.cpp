@@ -17,7 +17,7 @@ namespace Engine {
         }
 
         views[name] = view;
-        
+
         // Set ViewManager reference
         view->SetViewManager(this);
 
@@ -100,7 +100,7 @@ namespace Engine {
                 view->OnUpdate(deltaTime);
             }
         }
-        
+
         // Update overlays
         for(auto& [name, overlay] : overlays) {
             if(overlay && overlay->IsActive()) {
@@ -229,7 +229,7 @@ namespace Engine {
                 const auto& props = renderWindow->GetProperties();
                 // std::cout << "[ViewManager] Window properties: " << props.width << "x" << props.height << std::endl;
                 api.Begin2D(props.width, props.height);
-                api.DrawRect(0, 0, props.width, props.height, ::Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, overlayAlpha));
+                api.DrawRect(0, 0, props.width, props.height, new ::Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, overlayAlpha));
                 api.End2D();
             } else {
                 // Second half: fade in new view
@@ -252,7 +252,7 @@ namespace Engine {
                 const auto& props = renderWindow->GetProperties();
                 // std::cout << "[ViewManager] Window properties: " << props.width << "x" << props.height << std::endl;
                 api.Begin2D(props.width, props.height);
-                api.DrawRect(0, 0, props.width, props.height, ::Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, overlayAlpha));
+                api.DrawRect(0, 0, props.width, props.height, new ::Engine::Graphics::RGBA(0.0f, 0.0f, 0.0f, overlayAlpha));
                 api.End2D();
             }
         } else {
@@ -263,7 +263,7 @@ namespace Engine {
                     view->Render(api);
                 }
             }
-            
+
             // Render overlays on top
             for(auto& [name, overlay] : overlays) {
                 if(overlay && overlay->IsActive() && overlay->IsVisible()) {
@@ -281,7 +281,7 @@ namespace Engine {
             overlays[name] = overlay;
             overlay->SetActive(true);
             overlay->SetViewManager(this);
-            
+
             // Set window dimensions if available
             if(renderWindow) {
                 const auto& props = renderWindow->GetProperties();
@@ -333,7 +333,7 @@ namespace Engine {
                 view->SetWindowDimensions(width, height);
             }
         }
-        
+
         // Update overlay dimensions too
         for(auto& [name, overlay] : overlays) {
             if(overlay) {

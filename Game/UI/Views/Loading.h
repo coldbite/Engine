@@ -1,7 +1,7 @@
 #pragma once
 #include "../../../Engine/Core/View.h"
 #include "../../../Engine/Graphics/UI/Text/Text.h"
-#include "../../../Engine/Graphics/RGBA.h"
+#include "../../../Engine/Graphics/UI/Box/Box.h"
 
 namespace Engine {
     namespace Graphics {
@@ -29,8 +29,9 @@ class Loading : public Engine::View {
         Engine::Graphics::Text text_map;
         Engine::Graphics::Text text_mode;
         Engine::Graphics::Text text_status;
-        Engine::Graphics::HEX text_color       = Engine::Graphics::HEX("#FEFEFE");
-        Engine::Graphics::HEX color_background = Engine::Graphics::HEX("#333333");
+        Engine::Graphics::Box box;
+        Engine::Graphics::IColor* text_color       = new Engine::Graphics::HEX("#FEFEFE");
+        Engine::Graphics::IColor* color_background = new Engine::Graphics::HEX("#333333");
 
         std::string mapName     = "MAP";
         std::string gameMode    = "MODE";

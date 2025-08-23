@@ -14,14 +14,14 @@ namespace Engine {
         struct CharacterRenderState {
             float x, y;              // Position
             float width, height;     // Dimensions
-            RGBA color;              // Color
+            IColor* color;              // Color
             bool visible;            // Visibility flag
             float scale;             // Scale multiplier
             float rotation;          // Rotation in degrees
 
             CharacterRenderState()
                 : x(0), y(0), width(0), height(0),
-                  color(1.0f, 1.0f, 1.0f, 1.0f),
+                  color(new RGBA(1.0f, 1.0f, 1.0f, 1.0f)),
                   visible(true), scale(1.0f), rotation(0.0f) {}
         };
 
