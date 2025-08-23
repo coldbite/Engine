@@ -18,8 +18,6 @@ class Shutdown : public Engine::View {
         void OnUpdate(float deltaTime) override;
         void OnResize(int width, int height, int oldWidth, int oldHeight) override;
 
-        void OnUpdateProgress(const std::string& message, int actual, int total, float percentage);
-
     protected:
         void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;
 

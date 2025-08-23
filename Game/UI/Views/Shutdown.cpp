@@ -15,6 +15,9 @@ Shutdown::Shutdown() : Engine::View("Shutdown") {
     text_status.SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
     //text_status.SetShadow(10.0f, new Engine::Graphics::RGBA(188, 228, 255, 50), 0.0f, 0.0f);
     text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateAmbience(0.8f));
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeIn(0.2f));
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateSlideFromLeft(100.0f, 0.3f));
+    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeOut(5.0f));
 
     /* Box: Loader */
     box.SetSize(18, 18);
@@ -22,6 +25,7 @@ Shutdown::Shutdown() : Engine::View("Shutdown") {
     box.SetShadow(10.0f, new Engine::Graphics::RGBA(188, 228, 255, 50), 0.0f, 0.0f);
     box.SetColor(text_color);
     box.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateBlink(1.5f));
+    box.GetAnimator().AddEffect(std::make_unique<Engine::Graphics::Effects::TravelEffect>(0.8f, 180.0f, 4.2f));
 }
 
 void Shutdown::OnShow() {}
@@ -33,21 +37,6 @@ void Shutdown::OnResize(int width, int height, int oldWidth, int oldHeight) {
 void Shutdown::OnUpdate(float deltaTime) {
     text_status.Update(deltaTime);
     box.Update(deltaTime);
-}
-
-void Shutdown::OnUpdateProgress(const std::string& message, int actual, int total, float percentage) {
-    (void) message;
-    (void) actual;
-    (void) total;
-    (void) percentage;
-    text_status.SetValue(message);
-    text_status.GetAnimator().ClearEffects();
-
-    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeIn(0.2f));
-    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateSlideFromLeft(100.0f, 0.3f));
-    text_status.GetAnimator().AddEffect(Engine::Graphics::Effects::CreateFadeOut(5.0f));
-
-    box.GetAnimator().AddEffect(std::make_unique<Engine::Graphics::Effects::TravelEffect>(0.8f, 180.0f, 4.2f));
 }
 
 void Shutdown::Render(Engine::Graphics::IRenderingAPI& context) {
