@@ -1,10 +1,17 @@
 #pragma once
 
+#include "Engine.h"
 #include "View.h"
 #include "Event.h"
 #include "NativeWindow.h"
 #include <unordered_map>
 #include <memory>
+
+// Forward declarations
+namespace Engine {
+    class Engine;
+    class Game;
+}
 
 // Forward declaration
 class Overlay;
@@ -16,7 +23,7 @@ namespace Engine {
 
     class ViewManager {
     public:
-        ViewManager();
+        ViewManager(Game* game = nullptr);
         ~ViewManager() = default;
 
         // View registration and management
@@ -52,6 +59,12 @@ namespace Engine {
         
         // Window dimension updates
         void UpdateViewDimensions(int width, int height);
+        
+        // Engine access
+        Engine& GetEngine() const;
+        
+        // Game access
+        Game* GetGame() const { return gameInstance; }
 
     private:
         std::unordered_map<std::string, ViewPtr> views;
@@ -68,6 +81,9 @@ namespace Engine {
         Transition currentTransition = Transition::FADE;
         std::string transitionTargetView;
         std::string transitionSourceView;
+        
+        // Game instance
+        Game* gameInstance = nullptr;
 
         void TransitionTo(const std::string& newView, Transition transition = Transition::FADE);
         void UpdateTransition(float deltaTime);

@@ -17,6 +17,7 @@ namespace Engine {
         virtual ~Game();
 
         bool Initialize();
+        void Exit();
         void Run();
         void Shutdown();
 

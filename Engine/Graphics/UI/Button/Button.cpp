@@ -1,4 +1,5 @@
 #include "Button.h"
+#include "../../IRenderingAPI.h"
 
 namespace Engine {
     namespace Graphics {
@@ -172,7 +173,43 @@ namespace Engine {
 
         void Button::Render(IRenderingAPI& context, float x, float y) {
             UpdateAppearanceForState();
-            Text::Render(context, x, y);
+            
+            // Draw button background using full button bounds instead of just text bounds
+            IColor* currentBgColor = nullptr;
+            switch (m_state) {
+                case ButtonState::NORMAL:
+                    currentBgColor = m_normalBackgroundColor;
+                    break;
+                case ButtonState::HOVERED:
+                    currentBgColor = m_hoverBackgroundColor;
+                    break;
+                case ButtonState::PRESSED:
+                    currentBgColor = m_pressedBackgroundColor;
+                    break;
+                case ButtonState::DISABLED:
+                    currentBgColor = m_disabledBackgroundColor;
+                    break;
+            }
+            
+            if (currentBgColor && currentBgColor->GetAlpha() > 0) {
+                context.DrawRect(m_x, m_y, m_width, m_height, currentBgColor);
+                
+                // Temporarily disable text background to prevent overlapping transparency
+                SetBackgroundEnabled(false);
+            }
+            
+            // Center the text within the button bounds
+            Padding p = GetPadding();
+            float textX = m_x + p.left;
+            float textY = m_y + p.top + (m_height - p.top - p.bottom - GetTextHeight()) / 2.0f;
+            
+            // Render text centered
+            Text::Render(context, textX, textY);
+            
+            // Re-enable text background if we disabled it
+            if (currentBgColor && currentBgColor->GetAlpha() > 0) {
+                SetBackgroundEnabled(true);
+            }
         }
 
         void Button::Render(IRenderingAPI& context, const TextAlignment& alignment) {

@@ -1,6 +1,8 @@
 #include "Overlay.h"
 #include "../../../Engine/Graphics/IRenderingAPI.h"
 #include "../../../Engine/Core/ViewManager.h"
+#include "../../../Engine/Core/Game.h"
+#include "Playing.h"
 
 Overlay::Overlay() : Engine::View("Overlay"), currentContent("") {
     SetBackground(color_background);
@@ -9,7 +11,7 @@ Overlay::Overlay() : Engine::View("Overlay"), currentContent("") {
     overlayText.SetValue("GAME MENU");
     overlayText.SetFont("Sansation");
     overlayText.SetColor(text_color);
-    overlayText.SetBackground(new Engine::Graphics::RGBA(0, 0, 0, 40));
+    overlayText.SetBackground(new Engine::Graphics::RGBA(0, 0, 0, 30));
     overlayText.SetPadding(10.0f, 5.0f);
     overlayText.SetMargin(30.0f, 0.0f, 0.0f, 60.0f);
     overlayText.SetSize(40.0f);
@@ -17,20 +19,25 @@ Overlay::Overlay() : Engine::View("Overlay"), currentContent("") {
 
     // Setup menu buttons
     gameMenu.AddButton("Resume", "resume");
+    gameMenu.AddSpace(40);
     gameMenu.AddButton("Score", "score");
     gameMenu.AddButton("Assignments", "assignments");
     gameMenu.AddButton("Server Info", "serverinfo");
     gameMenu.AddButton("Options", "options");
+    gameMenu.AddSpace(40);
     gameMenu.AddButton("Quit", "quit");
+    gameMenu.AddSpace(40);
 
     // Setup menu callback
     gameMenu.OnKey([this](const std::string& key) {
         std::cout << "CLICKED BUTTON: " << key;
 
-        if (key == "resume") {
-            CloseOverlay();
-        } else if (key == "quit") {
-            // TODO: Implement game shutdown
+        if(key == "resume") {
+            std::shared_ptr<View> v = GetViewManager()->GetView("Playing");
+            Playing* playing        = dynamic_cast<Playing*>(v.get());
+            playing->ToggleOverlay();
+        } else if(key == "quit") {
+            GetViewManager()->GetGame()->Exit();
         } else {
             ShowContent(key);
         }
@@ -48,6 +55,18 @@ void Overlay::OnResize(int width, int height, int oldWidth, int oldHeight) {
 
 void Overlay::OnUpdate(float deltaTime) {
     gameMenu.Update(deltaTime);
+}
+
+void Overlay::OnMouseMove(float x, float y) {
+    gameMenu.OnMouseMove(x, y);
+}
+
+void Overlay::OnMouseDown(float x, float y) {
+    gameMenu.OnMouseDown(x, y);
+}
+
+void Overlay::OnMouseUp(float x, float y) {
+    gameMenu.OnMouseUp(x, y);
 }
 
 
@@ -74,7 +93,7 @@ void Overlay::Render(Engine::Graphics::IRenderingAPI& context) {
 
         // Draw blue content background
         context.DrawRect(contentX, contentY, contentWidth, contentHeight,
-                        new Engine::Graphics::RGBA(0, 0, 128, 150));
+                        new Engine::Graphics::RGBA(0, 0, 128, 60));
 
         // TODO: Render actual content views here based on currentContent
     }
@@ -85,10 +104,5 @@ void Overlay::Render(Engine::Graphics::IRenderingAPI& context) {
 void Overlay::ShowContent(const std::string& contentType) {
     currentContent = contentType;
     // Content will be rendered in the blue area
-}
-
-void Overlay::CloseOverlay() {
-    // Hide overlay - delegate to ViewManager
-    //Engine::ViewManager::GetInstance().HideView("Overlay");
 }
 

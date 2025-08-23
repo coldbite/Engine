@@ -1,11 +1,13 @@
 #include "Menu.h"
 #include "../../IRenderingAPI.h"
+#include <iostream>
+#include <ostream>
 
 namespace Engine {
     namespace Graphics {
 
-        Menu::Menu() : backgroundColor(new RGBA(128, 128, 0, 200)), // Olive/Yellow background
-                       buttonSpacing(5.0f), buttonHeight(40.0f), keyCallback(nullptr) {
+        Menu::Menu() : backgroundColor(new RGBA(0, 0, 0, 0)), // Olive/Yellow background
+                       buttonSpacing(2.0f), keyCallback(nullptr) {
         }
 
         Menu::~Menu() {
@@ -13,32 +15,58 @@ namespace Engine {
         }
 
         void Menu::Update(float deltaTime) {
-            for (Button* button : buttons) {
-                if (button) {
-                    button->Update(deltaTime);
+            for(const MenuItem& item : menuItems) {
+                if(item.type == MenuItem::BUTTON && item.button) {
+                    item.button->Update(deltaTime);
                 }
             }
         }
 
         void Menu::Render(IRenderingAPI& context, float x, float y, float width, float height) {
-            // Calculate total height needed for all buttons with equal spacing
-            float totalButtonHeight = buttons.size() * buttonHeight + (buttons.size() + 1) * buttonSpacing;
+            size_t item_count = menuItems.size();
+            float totalHeight = 0.0f;
 
-            // Draw background (yellow area) from BOTTOM_LEFT upwards
-            float backgroundHeight = totalButtonHeight;
-            float backgroundY = y + height - backgroundHeight;
+            if(item_count == 0) {
+                return;
+            }
 
-            context.DrawRect(x, backgroundY, width, backgroundHeight, backgroundColor);
+            // Hintergrundhöhe berechnen
+            for(const MenuItem& item : menuItems) {
+                if(item.type == MenuItem::BUTTON && item.button) {
+                    float btnHeight = item.button->GetTextHeight();
+                    Padding p = item.button->GetPadding();
+                    btnHeight += p.top + p.bottom;
+                    totalHeight += btnHeight;
+                } else if(item.type == MenuItem::SPACE) {
+                    totalHeight += item.spaceHeight;
+                }
+            }
 
-            // Render buttons from bottom to top with equal spacing
-            float currentY = y + height - buttonHeight - buttonSpacing; // Start from bottom with equal padding
+            // Add spacing between items
+            if(item_count > 1) {
+                totalHeight += (item_count - 1) * buttonSpacing;
+            }
 
-            for (size_t i = 0; i < buttons.size(); i++) {
-                Button* button = buttons[i];
-                if (button) {
-                    button->SetBounds(x, currentY, width, buttonHeight); // Full width, no margin
-                    button->Render(context, x, currentY);
-                    currentY -= (buttonHeight + buttonSpacing); // Move up for next button
+            float backgroundY = y + height - totalHeight;
+
+            // Hintergrund zeichnen
+            context.DrawRect(x, backgroundY, width, totalHeight, backgroundColor);
+
+            // Items rendern (von oben nach unten)
+            float currentY = backgroundY;
+
+            for(const MenuItem& item : menuItems) {
+                if(item.type == MenuItem::BUTTON && item.button) {
+                    float btnHeight = item.button->GetTextHeight();
+                    Padding p = item.button->GetPadding();
+                    btnHeight += p.top + p.bottom;
+
+                    item.button->SetBounds(x, currentY, width, btnHeight);
+                    item.button->Render(context, x, currentY);
+                    
+                    currentY += btnHeight + buttonSpacing;
+                } else if(item.type == MenuItem::SPACE) {
+                    currentY += item.spaceHeight + buttonSpacing;
                 }
             }
         }
@@ -49,24 +77,33 @@ namespace Engine {
             button->SetFont("Sansation");
             button->SetSize(20.0f);
             button->SetNormalColor(new RGBA(255, 255, 255, 100));
-            button->SetNormalBackgroundColor(new RGBA(255, 0, 0, 200));
-            button->SetPadding(0.0f, 0.0f);
+            button->SetNormalBackgroundColor(new RGBA(0, 0, 0, 40));
+            button->SetHoverBackgroundColor(new RGBA(0, 0, 0, 20));
+            button->SetPadding(5.0f, 5.0f);
             button->SetMargin(0.0f, 0.0f);
-            button->SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
+            //button->SetStyle(Engine::Graphics::FontStyle::UPPERCASE);
 
             // Set click handler to trigger key callback
             button->SetOnClick([this, key]() {
                 TriggerKey(key);
+                std::cout << "ONCLICK: " + key << std::endl;
             });
 
-            buttons.push_back(button);
+            menuItems.push_back(MenuItem(button));
+        }
+
+        void Menu::AddSpace(int height) {
+            menuItems.push_back(MenuItem(height));
         }
 
         void Menu::ClearButtons() {
-            for (Button* button : buttons) {
-                delete button;
+            for(const MenuItem& item : menuItems) {
+                if(item.type == MenuItem::BUTTON && item.button) {
+                    delete item.button;
+                }
             }
-            buttons.clear();
+
+            menuItems.clear();
         }
 
         void Menu::OnKey(std::function<void(const std::string&)> callback) {
@@ -81,8 +118,32 @@ namespace Engine {
             buttonSpacing = spacing;
         }
 
+        void Menu::OnMouseMove(float x, float y) {
+            for(const MenuItem& item : menuItems) {
+                if(item.type == MenuItem::BUTTON && item.button) {
+                    item.button->OnMouseMove(x, y);
+                }
+            }
+        }
+
+        void Menu::OnMouseDown(float x, float y) {
+            for(const MenuItem& item : menuItems) {
+                if(item.type == MenuItem::BUTTON && item.button) {
+                    item.button->OnMouseDown(x, y);
+                }
+            }
+        }
+
+        void Menu::OnMouseUp(float x, float y) {
+            for(const MenuItem& item : menuItems) {
+                if(item.type == MenuItem::BUTTON && item.button) {
+                    item.button->OnMouseUp(x, y);
+                }
+            }
+        }
+
         void Menu::TriggerKey(const std::string& key) {
-            if (keyCallback) {
+            if(keyCallback) {
                 keyCallback(key);
             }
         }

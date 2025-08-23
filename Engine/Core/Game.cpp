@@ -13,7 +13,7 @@
 
 namespace Engine {
     Game::Game() : Engine(), isInitialized(false) {
-        viewManager     = std::make_unique<ViewManager>();
+        viewManager     = std::make_unique<ViewManager>(this);
         mainWindow      = std::make_shared<NativeWindow>();
     }
 
@@ -100,6 +100,18 @@ namespace Engine {
         mainWindow->SetKeyCallback([](int key, int action) {
             Input::GetInput().OnKeyEvent(key, action);
         });
+        
+        mainWindow->SetMouseButtonCallback([](int button, int action, float x, float y) {
+            Input::GetInput().OnMouseButtonEvent(button, action, x, y);
+        });
+        
+        mainWindow->SetMouseMoveCallback([](float x, float y) {
+            Input::GetInput().OnMouseMoveEvent(x, y);
+        });
+        
+        mainWindow->SetMouseScrollCallback([](float deltaX, float deltaY) {
+            Input::GetInput().OnMouseScrollEvent(deltaX, deltaY);
+        });
 
         std::string renderer = "OpenGL";
 
@@ -132,10 +144,7 @@ namespace Engine {
 
         // Set up window close callback to shutdown the game
         mainWindow->SetCloseCallback([this]() {
-            std::cout << "[Game] Window close requested - shutting down..." << std::endl;
-            RequestStop();
-            Engine::RequestStop();
-            std::cout << "[Game] Stop requests sent" << std::endl;
+            Exit();
         });
 
         // Ensure VSync is applied after context setup
@@ -147,6 +156,13 @@ namespace Engine {
         mainWindow->Show();
         isInitialized = true;
         return true;
+    }
+
+    void Game::Exit() {
+        std::cout << "[Game] Window close requested - shutting down..." << std::endl;
+        RequestStop();
+        Engine::RequestStop();
+        std::cout << "[Game] Stop requests sent" << std::endl;
     }
 
     void Game::Run() {

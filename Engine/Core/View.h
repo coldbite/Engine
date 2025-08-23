@@ -11,6 +11,11 @@
 #include <memory>
 #include <algorithm>
 
+// Forward declarations
+namespace Engine {
+    class Engine;
+}
+
 namespace Engine {
     namespace Graphics {
         class IRenderingAPI;
@@ -79,10 +84,20 @@ namespace Engine {
         void OnKey(Input::KEY key, std::function<void()> callback);
         void OnKey(Input::KEY key, Input::KeyAction action, std::function<void()> callback);
         void ClearKeyBindings();
+        
+        // Mouse input handling
+        void OnMouseButton(Input::MouseButton button, std::function<void(float, float)> callback);
+        void OnMouseButton(Input::MouseButton button, Input::MouseAction action, std::function<void(float, float)> callback);
+        void OnMouseMove(std::function<void(float, float, float, float)> callback);
+        void OnMouseScroll(std::function<void(float, float)> callback);
+        void ClearMouseBindings();
 
         // ViewManager access
         void SetViewManager(ViewManager* manager) { viewManager = manager; }
         ViewManager* GetViewManager() const { return viewManager; }
+        
+        // Engine access
+        Engine& GetEngine() const;
 
         // View lifecycle methods
         virtual void OnShow() {}
@@ -108,6 +123,9 @@ namespace Engine {
 
         // Input key bindings (stored per view instance)
         std::vector<std::pair<Input::KEY, Input::KeyAction>> activeKeyBindings;
+        
+        // Mouse bindings (stored per view instance)
+        std::vector<std::pair<Input::MouseButton, Input::MouseAction>> activeMouseButtonBindings;
 
         // ViewManager reference
         ViewManager* viewManager = nullptr;

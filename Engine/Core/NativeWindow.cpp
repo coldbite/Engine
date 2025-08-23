@@ -468,6 +468,58 @@ namespace Engine {
                     keyCallback(static_cast<int>(wParam), action);
                 }
             break;
+            
+            case WM_LBUTTONDOWN:
+            case WM_LBUTTONUP:
+                if(mouseButtonCallback) {
+                    float x = static_cast<float>(LOWORD(lParam));
+                    float y = static_cast<float>(HIWORD(lParam));
+                    int action = (uMsg == WM_LBUTTONDOWN) ? WM_LBUTTONDOWN : WM_LBUTTONUP;
+                    mouseButtonCallback(0, action, x, y); // 0 = left button
+                }
+            break;
+            
+            case WM_RBUTTONDOWN:
+            case WM_RBUTTONUP:
+                if(mouseButtonCallback) {
+                    float x = static_cast<float>(LOWORD(lParam));
+                    float y = static_cast<float>(HIWORD(lParam));
+                    int action = (uMsg == WM_RBUTTONDOWN) ? WM_RBUTTONDOWN : WM_RBUTTONUP;
+                    mouseButtonCallback(1, action, x, y); // 1 = right button
+                }
+            break;
+            
+            case WM_MBUTTONDOWN:
+            case WM_MBUTTONUP:
+                if(mouseButtonCallback) {
+                    float x = static_cast<float>(LOWORD(lParam));
+                    float y = static_cast<float>(HIWORD(lParam));
+                    int action = (uMsg == WM_MBUTTONDOWN) ? WM_MBUTTONDOWN : WM_MBUTTONUP;
+                    mouseButtonCallback(2, action, x, y); // 2 = middle button
+                }
+            break;
+            
+            case WM_MOUSEMOVE:
+                if(mouseMoveCallback) {
+                    float x = static_cast<float>(LOWORD(lParam));
+                    float y = static_cast<float>(HIWORD(lParam));
+                    mouseMoveCallback(x, y);
+                }
+            break;
+            
+            case WM_MOUSEWHEEL:
+                if(mouseScrollCallback) {
+                    float delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;
+                    mouseScrollCallback(0.0f, delta); // Vertical scroll
+                }
+            break;
+            
+            case WM_MOUSEHWHEEL:
+                if(mouseScrollCallback) {
+                    float delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;
+                    mouseScrollCallback(delta, 0.0f); // Horizontal scroll
+                }
+            break;
         }
     }
 #endif

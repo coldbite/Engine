@@ -1,4 +1,5 @@
 #include "ViewManager.h"
+#include "Engine.h"
 #include "../Graphics/OpenGL/OpenGL.h"
 #include "../Graphics/IRenderingAPI.h"
 #include "../../Game/UI/Views/Overlay.h"
@@ -6,7 +7,7 @@
 #include <algorithm>
 
 namespace Engine {
-    ViewManager::ViewManager() : currentView("") {
+    ViewManager::ViewManager(Game* game) : currentView(""), gameInstance(game) {
         /* Do Nothing */
     }
 
@@ -340,5 +341,9 @@ namespace Engine {
                 overlay->SetWindowDimensions(width, height);
             }
         }
+    }
+
+    Engine& ViewManager::GetEngine() const {
+        return Engine::GetInstance();
     }
 }

@@ -56,10 +56,16 @@ namespace Engine {
         using ResizeCallback = std::function<void(int width, int height)>;
         using CloseCallback = std::function<void()>;
         using KeyCallback = std::function<void(int key, int action)>;
+        using MouseButtonCallback = std::function<void(int button, int action, float x, float y)>;
+        using MouseMoveCallback = std::function<void(float x, float y)>;
+        using MouseScrollCallback = std::function<void(float deltaX, float deltaY)>;
 
         void SetResizeCallback(ResizeCallback callback) { resizeCallback = callback; }
         void SetCloseCallback(CloseCallback callback) { closeCallback = callback; }
         void SetKeyCallback(KeyCallback callback) { keyCallback = callback; }
+        void SetMouseButtonCallback(MouseButtonCallback callback) { mouseButtonCallback = callback; }
+        void SetMouseMoveCallback(MouseMoveCallback callback) { mouseMoveCallback = callback; }
+        void SetMouseScrollCallback(MouseScrollCallback callback) { mouseScrollCallback = callback; }
 
         // Platform-specific getters
 #ifdef _WIN32
@@ -93,6 +99,9 @@ namespace Engine {
         ResizeCallback resizeCallback;
         CloseCallback closeCallback;
         KeyCallback keyCallback;
+        MouseButtonCallback mouseButtonCallback;
+        MouseMoveCallback mouseMoveCallback;
+        MouseScrollCallback mouseScrollCallback;
 
         // Platform-specific implementation
         bool CreatePlatformWindow();

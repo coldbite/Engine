@@ -289,6 +289,10 @@ namespace Engine {
             m_hasBackground = true;
         }
 
+        void Text::SetBackgroundEnabled(bool enabled) {
+            m_hasBackground = enabled;
+        }
+
         void Text::SetPadding(float x, float y) {
             m_paddingLeft = m_paddingRight = x;
             m_paddingTop = m_paddingBottom = y;

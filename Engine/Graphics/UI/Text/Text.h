@@ -21,6 +21,13 @@ namespace Engine {
     namespace Graphics {
         class IRenderingAPI;
 
+        struct Padding {
+            float left;
+            float right;
+            float top;
+            float bottom;
+        };
+
         enum class FontStyle {
             NORMAL      = 0,
             ITALIC      = 1,
@@ -69,6 +76,7 @@ namespace Engine {
             void SetFont(const std::string& fontName);
             void SetColor(IColor* color);
             void SetBackground(IColor* color);
+            void SetBackgroundEnabled(bool enabled);
             void SetPadding(float x, float y);
             void SetPadding(float top, float right, float bottom, float left);
             void SetMargin(float x, float y);
@@ -90,6 +98,9 @@ namespace Engine {
 
             float GetTextWidth(const std::string& text, float scale = 1.0f) const;
             float GetTextHeight(float scale = 1.0f) const;
+            Padding GetPadding() const {
+                return { m_paddingLeft, m_paddingRight, m_paddingTop, m_paddingBottom };
+            }
 
             // Get actual rendered text dimensions (more accurate for UI layout)
             float GetActualTextHeight(const std::string& text, float scale = 1.0f) const;

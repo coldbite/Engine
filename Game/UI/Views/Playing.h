@@ -1,9 +1,7 @@
 #pragma once
 #include "../../../Engine/Core/View.h"
 #include "../../../Engine/Graphics/UI/Text/Text.h"
-#include "../../../Engine/Graphics/RGBA.h"
 
-// Forward declaration
 class Overlay;
 
 namespace Engine {
@@ -21,15 +19,15 @@ class Playing : public Engine::View {
         void OnUpdate(float deltaTime) override;
         void OnResize(int width, int height, int oldWidth, int oldHeight) override;
 
+        void ToggleOverlay();
+
     protected:
         void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;
 
     private:
-        Engine::Graphics::Text playingText;
         Engine::Graphics::IColor* text_color       = new Engine::Graphics::HEX("#444444");
         Engine::Graphics::IColor* color_background = new Engine::Graphics::HEX("#AAAAAA");
 
-        void ToggleOverlay();
 
         // Keep reference to overlay to avoid recreation
         std::shared_ptr<Overlay> gameOverlay;

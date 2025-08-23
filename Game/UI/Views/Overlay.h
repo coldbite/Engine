@@ -18,6 +18,11 @@ class Overlay : public Engine::View {
         void OnHide() override;
         void OnUpdate(float deltaTime) override;
         void OnResize(int width, int height, int oldWidth, int oldHeight) override;
+        
+        // Mouse event handling
+        void OnMouseMove(float x, float y);
+        void OnMouseDown(float x, float y);
+        void OnMouseUp(float x, float y);
 
     protected:
         void Render(Engine::Graphics::IRenderingAPI& renderingAPI) override;

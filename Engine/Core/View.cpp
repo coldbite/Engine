@@ -1,4 +1,5 @@
 #include "View.h"
+#include "Engine.h"
 #include "../Graphics/IRenderingAPI.h"
 
 namespace Engine {
@@ -78,10 +79,61 @@ namespace Engine {
         activeKeyBindings.clear();
     }
 
+    void View::OnMouseButton(Input::MouseButton button, std::function<void(float, float)> callback) {
+        OnMouseButton(button, Input::MouseAction::PRESS, callback);
+    }
+
+    void View::OnMouseButton(Input::MouseButton button, Input::MouseAction action, std::function<void(float, float)> callback) {
+        // Bind mouse buttons immediately - they will only trigger when view is active
+        Input::GetInput().BindMouseButton(button, action, [this, callback](Input::MouseButton, Input::MouseAction, float x, float y) {
+            // Only execute callback if this view is currently active
+            if (this->isActive) {
+                callback(x, y);
+            }
+        });
+        activeMouseButtonBindings.push_back({button, action});
+    }
+
+    void View::OnMouseMove(std::function<void(float, float, float, float)> callback) {
+        // Bind mouse move - will only trigger when view is active
+        Input::GetInput().BindMouseMove([this, callback](float x, float y, float deltaX, float deltaY) {
+            // Only execute callback if this view is currently active
+            if (this->isActive) {
+                callback(x, y, deltaX, deltaY);
+            }
+        });
+    }
+
+    void View::OnMouseScroll(std::function<void(float, float)> callback) {
+        // Bind mouse scroll - will only trigger when view is active
+        Input::GetInput().BindMouseScroll([this, callback](float deltaX, float deltaY) {
+            // Only execute callback if this view is currently active
+            if (this->isActive) {
+                callback(deltaX, deltaY);
+            }
+        });
+    }
+
+    void View::ClearMouseBindings() {
+        // Remove all mouse button bindings for this view
+        for (const auto& binding : activeMouseButtonBindings) {
+            Input::GetInput().UnbindMouseButton(binding.first);
+        }
+        activeMouseButtonBindings.clear();
+        
+        // Clear mouse move and scroll bindings
+        Input::GetInput().UnbindMouseMove();
+        Input::GetInput().UnbindMouseScroll();
+    }
+
     void View::PrepareForRendering() {
         if(isActive && IsVisible()) {
             RenderInternal();
             // Note: Render(IRenderingAPI&) is called by ViewManager, not here
         }
+    }
+
+    Engine& View::GetEngine() const {
+        return Engine::GetInstance();
     }
 }
