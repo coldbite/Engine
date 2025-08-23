@@ -10,14 +10,6 @@
     #include <gl/gl.h>
     #include <GL/glext.h>
     #include <GL/wglext.h>
-
-    typedef void (APIENTRYP PFNGLGENERATEMIPMAPPROC) (GLenum target);
-    [[maybe_unused]] static PFNGLGENERATEMIPMAPPROC glGenerateMipmap_ptr = nullptr;
-    #define glGenerateMipmap glGenerateMipmap_ptr
-
-    typedef void (APIENTRYP PFNGLGENTEXTURESPROC)(GLsizei n, GLuint* textures);
-    [[maybe_unused]] static PFNGLGENTEXTURESPROC glGenTextures_ptr = nullptr;
-    #define glGenTextures glGenTextures_ptr
 #endif
 
 namespace Engine {
@@ -82,6 +74,15 @@ namespace Engine {
                 static std::shared_ptr<NativeWindow> currentWindow;
                 static bool initialized;
                 std::string version;
+                
+                #ifdef _WIN32
+                // OpenGL function pointers (moved from global scope)
+                typedef void (APIENTRYP PFNGLGENERATEMIPMAPPROC) (GLenum target);
+                static PFNGLGENERATEMIPMAPPROC glGenerateMipmap_ptr;
+                
+                typedef void (APIENTRYP PFNGLGENTEXTURESPROC)(GLsizei n, GLuint* textures);
+                static PFNGLGENTEXTURESPROC glGenTextures_ptr;
+                #endif
             };
         }
     }

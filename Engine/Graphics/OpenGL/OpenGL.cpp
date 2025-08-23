@@ -17,6 +17,12 @@ namespace Engine {
         namespace OpenGL {
             std::shared_ptr<NativeWindow> OpenGL::currentWindow = nullptr;
             bool OpenGL::initialized = false;
+            
+            #ifdef _WIN32
+            // Initialize static function pointers
+            OpenGL::PFNGLGENERATEMIPMAPPROC OpenGL::glGenerateMipmap_ptr = nullptr;
+            OpenGL::PFNGLGENTEXTURESPROC OpenGL::glGenTextures_ptr = nullptr;
+            #endif
 
             OpenGL::~OpenGL() {
 
@@ -104,23 +110,23 @@ namespace Engine {
 
                 currentWindow = window;
 
-                glGenerateMipmap_ptr = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(
+                OpenGL::glGenerateMipmap_ptr = reinterpret_cast<OpenGL::PFNGLGENERATEMIPMAPPROC>(
                     reinterpret_cast<void*>(wglGetProcAddress("glGenerateMipmap"))
                 );
 
-                if(!glGenerateMipmap_ptr) {
+                if(!OpenGL::glGenerateMipmap_ptr) {
                     throw std::runtime_error("glGenerateMipmap konnte nicht geladen werden!");
                 }
 
-                glGenTextures_ptr = reinterpret_cast<PFNGLGENTEXTURESPROC>(
+                OpenGL::glGenTextures_ptr = reinterpret_cast<OpenGL::PFNGLGENTEXTURESPROC>(
                     reinterpret_cast<void*>(wglGetProcAddress("glGenTextures"))
                 );
 
-                glGenerateMipmap_ptr = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(
+                OpenGL::glGenerateMipmap_ptr = reinterpret_cast<OpenGL::PFNGLGENERATEMIPMAPPROC>(
                     reinterpret_cast<void*>(wglGetProcAddress("glGenerateMipmap"))
                 );
 
-                if(!glGenTextures_ptr || !glGenerateMipmap_ptr) {
+                if(!OpenGL::glGenTextures_ptr || !OpenGL::glGenerateMipmap_ptr) {
                     throw std::runtime_error("Konnte OpenGL-Funktionen nicht laden!");
                 }
 
@@ -283,14 +289,14 @@ namespace Engine {
                    throw std::runtime_error("Konnte PNG nicht laden: " + filename);
                 }
 
-                glGenTextures(1, &tex.id);
+                OpenGL::glGenTextures_ptr(1, &tex.id);
                 glBindTexture(GL_TEXTURE_2D, tex.id);
 
                 // Bilddaten hochladen
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.width, tex.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
                 // Mipmap erzeugen
-                glGenerateMipmap(GL_TEXTURE_2D);
+                OpenGL::glGenerateMipmap_ptr(GL_TEXTURE_2D);
 
                 // Standard-Parameter setzen
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
