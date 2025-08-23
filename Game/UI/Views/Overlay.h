@@ -1,7 +1,8 @@
 #pragma once
 #include "../../../Engine/Core/View.h"
 #include "../../../Engine/Graphics/UI/Text/Text.h"
-#include "../../../Engine/Graphics/UI/Button/Button.h"
+#include "../../../Engine/Graphics/UI/Menu/Menu.h"
+#include <string>
 
 namespace Engine {
     namespace Graphics {
@@ -23,7 +24,12 @@ class Overlay : public Engine::View {
 
     private:
         Engine::Graphics::Text overlayText;
-        Engine::Graphics::Button buttonResume;
+        Engine::Graphics::Menu gameMenu;
         Engine::Graphics::IColor* text_color        = new Engine::Graphics::HEX("#FFFFFF");
-        Engine::Graphics::IColor* color_background  = new Engine::Graphics::RGBA(255, 0, 0, 80);
+        Engine::Graphics::IColor* color_background  = new Engine::Graphics::RGBA(0, 0, 0, 50);
+        
+        // Content area state
+        std::string currentContent;
+        void ShowContent(const std::string& contentType);
+        void CloseOverlay();
 };
