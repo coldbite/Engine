@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(g++:*)",
+      "Bash(mv:*)",
+      "Bash(./test_render)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(cmake:*)",
+      "Bash(CC=gcc CXX=g++ cmake . -G \"MinGW Makefiles\")",
+      "Bash(rm:*)",
+      "Bash(CMAKE_C_COMPILER=gcc CMAKE_CXX_COMPILER=g++ cmake . -G \"MinGW Makefiles\")",
+      "Bash(./Masterball.exe --help)",
+      "Bash(cp:*)",
+      "Bash(timeout:*)",
+      "Bash(cat:*)",
+      "Bash(./Masterball.exe)",
+      "Bash(pkg-config:*)",
+      "Bash(make setup:*)",
+      "Bash(make:*)",
+      "Bash(chmod:*)",
+      "Bash(./build.bat)",
+      "Bash(CMAKE_C_COMPILER=gcc CMAKE_CXX_COMPILER=g++ cmake .. -G \"MinGW Makefiles\")",
+      "Bash(mingw32-make:*)",
+      "Bash(CC=gcc CXX=g++ cmake .. -G \"MinGW Makefiles\")",
+      "Bash(grep:*)",
+      "WebFetch(domain:i.pinimg.com)",
+      "Bash(./clean.bat)",
+      "Bash(ninja)",
+      "Bash(CC=gcc CXX=g++ cmake -G \"MinGW Makefiles\" .)"
+    ],
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "C:\\c\\Users\\Bizzi\\Documents\\GitHub",
+      "C:\\c\\Users\\Bizzi\\Documents",
+      "C:\\cygdrive\\c\\Users\\Bizzi\\Documents\\GitHub"
+    ]
+  }
+}
