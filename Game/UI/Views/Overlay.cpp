@@ -63,7 +63,7 @@ void Overlay::OnResize(int width, int height, int oldWidth, int oldHeight) {
 
 void Overlay::OnUpdate(float deltaTime) {
     gameMenu.Update(deltaTime);
-    
+
     // Update current content
     if (!currentContent.empty()) {
         if (currentContent == "score" && scoreContent) {
@@ -96,12 +96,12 @@ void Overlay::OnMouseScroll(float x, float y) {
         float menuWidth = 300.0f;
         float contentX = 60.0f + menuWidth + 20.0f;
         float contentY = 100.0f;
-        
+
         // Check if mouse is in content area
         if (x >= contentX) {
             // Scroll the content
             contentScrollY += y * 30.0f; // Scroll speed multiplier
-            
+
             // Clamp scroll to prevent scrolling too far up
             if (contentScrollY > 0) {
                 contentScrollY = 0;
@@ -118,23 +118,19 @@ void Overlay::Render(Engine::Graphics::IRenderingAPI& context) {
     // Render title
     overlayText.Render(context, Engine::Graphics::TextAlignment::TOP_LEFT);
 
-    // Calculate menu area (left side - yellow area)
+    // Calculate menu area (left side)
     float menuWidth = 300.0f;
     float menuHeight = static_cast<float>(context.GetHeight());
 
-    // Render menu (yellow area with red buttons)
+    // Render menu
     gameMenu.Render(context, 60.0f, 0.0f, menuWidth, menuHeight);
 
-    // Render content area (blue area) if content is selected
+    // Render content area if content is selected
     if (!currentContent.empty()) {
         float contentX = 60.0f + menuWidth + 20.0f;
         float contentY = 100.0f;
         float contentWidth = context.GetWidth() - contentX - 60.0f;
         float contentHeight = context.GetHeight() - contentY - 60.0f;
-
-        // Draw blue content background
-        context.DrawRect(contentX, contentY, contentWidth, contentHeight,
-                        new Engine::Graphics::RGBA(0, 0, 128, 60));
 
         // Set up clipping area for scrollable content
         // Apply scroll offset to content rendering position
@@ -160,11 +156,11 @@ void Overlay::Render(Engine::Graphics::IRenderingAPI& context) {
         float scrollbarX = contentX + contentWidth - scrollbarWidth - 5.0f;
         float scrollbarY = contentY + 5.0f;
         float scrollbarHeight = contentHeight - 10.0f;
-        
+
         // Draw scrollbar background
         context.DrawRect(scrollbarX, scrollbarY, scrollbarWidth, scrollbarHeight,
                         new Engine::Graphics::RGBA(64, 64, 64, 100));
-        
+
         // Draw scrollbar thumb (simplified - always show for now)
         if (contentScrollY < 0) {
             float thumbHeight = scrollbarHeight * 0.3f; // Approximate thumb size
